@@ -1,7 +1,52 @@
-# 프로젝트 개요
+# 푸름대학교 학생성장지원센터 CHAMP
 
 본 저장소는 학생역량강화 프로그램을 구현하는 곳입니다.
 참고 사이트 1과 유사한 UX 화면 구성을 레퍼런스 합니다.
+
+## 🚀 빠른 시작
+
+### 사전 요구사항
+- Java 17 이상
+- Maven 3.6 이상
+- Docker & Docker Compose (권장)
+- MySQL 8.0 (Docker 사용 시 불필요)
+
+### 설치 및 실행
+
+1. **저장소 클론**
+   ```bash
+   git clone <repository-url>
+   cd SCMS2
+   ```
+
+2. **데이터베이스 설정**
+
+   Docker 사용 (권장):
+   ```bash
+   docker-compose up -d
+   ```
+
+   상세한 데이터베이스 설정 방법은 [database/README.md](database/README.md)를 참고하세요.
+
+3. **애플리케이션 실행**
+   ```bash
+   # 개발 모드로 실행
+   mvn spring-boot:run -Dspring-boot.run.profiles=dev
+
+   # 또는 JAR 빌드 후 실행
+   mvn clean package
+   java -jar target/scms2-0.0.1-SNAPSHOT.jar
+   ```
+
+4. **브라우저에서 접속**
+   ```
+   http://localhost:8080
+   ```
+
+### 테스트 계정
+- 학번: `2024001`
+- 비밀번호: 시스템 관리자에게 문의
+
 ---
 
 ## 1) 핵심 문서 링크
@@ -18,7 +63,7 @@
 
 ## 2) 화면 UI 레퍼런스
 
-- 🌐 **참고 사이트 1: 우석대학교 CHAMP**  
+- 🌐 **참고 사이트 1: 푸름대학교 학생성장지원센터 CHAMP**  
   https://champ.woosuk.ac.kr/ko/  
   - 만약 접근이 안 되면 **사용자에게 문의**해 주세요.  
   - 화면 구성을 참고할 수 있도록 **캡처 제공 가능**합니다. 아래 캡처 가이드를 참고하세요.
