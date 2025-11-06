@@ -29,7 +29,11 @@ public class SecurityConfig {
                         // 인증 없이 접근 가능한 경로
                         .requestMatchers(
                                 "/",
-                                "/api/auth/**",
+                                "/login",
+                                "/password/**",
+                                "/help",
+                                "/api/auth/login",
+                                "/api/auth/password/reset",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
@@ -40,22 +44,38 @@ public class SecurityConfig {
                         // 관리자 전용 경로
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
 
-                        // 나머지는 모두 인증 필요
+                        // 나머지는 인증된 사용자만 접근 가능
                         .anyRequest().authenticated()
                 )
 
-                // 폼 로그인 비활성화 (REST API 사용)
+                // 폼 로그인 비활성화 (커스텀 REST API 로그인 사용)
                 .formLogin(form -> form.disable())
 
                 // HTTP Basic 인증 비활성화
                 .httpBasic(basic -> basic.disable())
 
+                // 예외 처리 - 인증 실패 시 로그인 페이지로 리다이렉트
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // AJAX 요청인지 확인
+                            String ajaxHeader = request.getHeader("X-Requested-With");
+                            if ("XMLHttpRequest".equals(ajaxHeader)) {
+                                // AJAX 요청이면 401 반환
+                                response.sendError(401, "Unauthorized");
+                            } else {
+                                // 일반 요청이면 로그인 페이지로 리다이렉트
+                                response.sendRedirect("/login");
+                            }
+                        })
+                )
+
                 // 로그아웃 설정
                 .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")
-                        .logoutSuccessUrl("/")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?message=로그아웃되었습니다")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
+                        .permitAll()
                 );
 
         return http.build();
