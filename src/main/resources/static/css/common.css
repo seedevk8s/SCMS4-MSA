@@ -94,6 +94,7 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
     padding: var(--spacing-md) var(--spacing-lg);
@@ -119,7 +120,8 @@ body {
 
 .header-nav {
     display: flex;
-    gap: var(--spacing-xl);
+    flex-wrap: nowrap;
+    gap: var(--spacing-lg);
     list-style: none;
     margin: 0;
     padding: 0;
@@ -137,6 +139,7 @@ body {
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--radius-sm);
     transition: background-color 0.2s;
+    white-space: nowrap;
 }
 
 .header-nav-link:hover {
