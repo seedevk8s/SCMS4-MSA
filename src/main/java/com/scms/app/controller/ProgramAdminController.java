@@ -34,8 +34,9 @@ public class ProgramAdminController {
      * 관리자 권한 체크
      */
     private boolean checkAdminRole(HttpSession session) {
-        UserRole role = (UserRole) session.getAttribute("role");
-        return role == UserRole.ADMIN;
+        Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
+        log.info("=== 권한 체크: isAdmin = {}", isAdmin);
+        return isAdmin != null && isAdmin;
     }
 
     /**
