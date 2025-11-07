@@ -6,160 +6,387 @@
     <title>푸름대학교 학생성장지원센터 CHAMP</title>
     <th:block layout:fragment="css">
         <style>
-            /* 히어로 섹션 */
-            .hero-section {
-                background: linear-gradient(135deg, #2C5F5D 0%, #3A7472 100%);
-                color: white;
-                padding: 48px 24px;
-                border-radius: 12px;
-                margin-bottom: 32px;
+            /* 히어로 슬라이더 섹션 */
+            .hero-slider {
+                position: relative;
+                background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+                overflow: hidden;
+                margin-bottom: 60px;
+            }
+
+            .hero-slide {
+                display: none;
+                padding: 80px 0;
                 text-align: center;
             }
 
-            .hero-title {
-                font-size: 32px;
+            .hero-slide.active {
+                display: block;
+            }
+
+            .hero-content {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 0 24px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .hero-text {
+                flex: 1;
+                text-align: left;
+            }
+
+            .hero-text h1 {
+                font-size: 48px;
                 font-weight: 700;
+                color: #2C5F5D;
+                margin-bottom: 24px;
+            }
+
+            .hero-text p {
+                font-size: 18px;
+                color: #505F79;
+                line-height: 1.8;
                 margin-bottom: 16px;
             }
 
-            .hero-subtitle {
-                font-size: 18px;
-                opacity: 0.9;
-                margin-bottom: 24px;
+            .hero-text .small-text {
+                font-size: 14px;
+                color: #7A869A;
             }
 
-            /* 빠른 링크 */
-            .quick-links {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 16px;
-                margin-bottom: 32px;
-            }
-
-            .quick-link {
-                background: white;
-                padding: 24px;
-                border-radius: 8px;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            .hero-image {
+                flex: 1;
                 text-align: center;
+            }
+
+            .hero-image img {
+                max-width: 500px;
+                height: auto;
+            }
+
+            /* 슬라이더 화살표 */
+            .slider-arrow {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                background: rgba(44, 95, 93, 0.7);
+                color: white;
+                border: none;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                font-size: 24px;
+                cursor: pointer;
+                transition: background 0.3s;
+                z-index: 10;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .slider-arrow:hover {
+                background: rgba(44, 95, 93, 0.9);
+            }
+
+            .slider-arrow.prev {
+                left: 20px;
+            }
+
+            .slider-arrow.next {
+                right: 20px;
+            }
+
+            /* 4개 역량 아이콘 섹션 */
+            .competency-section {
+                max-width: 1400px;
+                margin: 0 auto 60px;
+                padding: 0 24px;
+            }
+
+            .competency-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 24px;
+            }
+
+            .competency-item {
+                text-align: center;
+                padding: 32px 16px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s;
+                cursor: pointer;
                 text-decoration: none;
+                color: inherit;
+                display: block;
+            }
+
+            .competency-item:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            }
+
+            .competency-icon {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 16px;
+                background: #f5f7fa;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 36px;
+            }
+
+            .competency-name {
+                font-size: 18px;
+                font-weight: 600;
                 color: #172B4D;
+            }
+
+            /* 필터 섹션 */
+            .filter-section {
+                max-width: 1400px;
+                margin: 0 auto 32px;
+                padding: 0 24px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .filter-dropdown {
+                position: relative;
+            }
+
+            .filter-button {
+                padding: 12px 24px;
+                background: white;
+                border: 1px solid #DFE1E6;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 500;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
                 transition: all 0.3s;
             }
 
-            .quick-link:hover {
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                transform: translateY(-2px);
+            .filter-button:hover {
+                border-color: #2C5F5D;
+                background: #f5f7fa;
             }
 
-            .quick-link-icon {
-                font-size: 36px;
-                margin-bottom: 8px;
+            .filter-button::after {
+                content: "▼";
+                font-size: 12px;
             }
 
-            .quick-link-title {
-                font-size: 16px;
-                font-weight: 600;
-            }
-
-            /* 프로그램 카드 */
-            .section-title {
-                font-size: 24px;
-                font-weight: 700;
-                margin-bottom: 24px;
+            /* 프로그램 카드 그리드 */
+            .program-section {
+                max-width: 1400px;
+                margin: 0 auto 60px;
+                padding: 0 24px;
             }
 
             .program-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                grid-template-columns: repeat(4, 1fr);
                 gap: 24px;
-                margin-bottom: 32px;
             }
 
             .program-card {
                 background: white;
                 border-radius: 12px;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
                 overflow: hidden;
                 transition: all 0.3s;
                 cursor: pointer;
+                position: relative;
             }
 
             .program-card:hover {
                 transform: translateY(-4px);
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
             }
 
             .program-image {
                 width: 100%;
-                height: 180px;
+                height: 200px;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                position: relative;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 color: white;
                 font-size: 48px;
-                position: relative;
             }
 
-            .program-badge {
+            .program-dday {
                 position: absolute;
-                top: 16px;
-                left: 16px;
+                top: 12px;
+                left: 12px;
                 background: #0052CC;
                 color: white;
-                padding: 4px 16px;
+                padding: 6px 16px;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 700;
+            }
+
+            .program-favorite {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                background: white;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .program-favorite:hover {
+                transform: scale(1.1);
+            }
+
+            .program-hits {
+                position: absolute;
+                bottom: 12px;
+                right: 12px;
+                background: rgba(0, 0, 0, 0.6);
+                color: white;
+                padding: 4px 12px;
                 border-radius: 4px;
                 font-size: 12px;
-                font-weight: 600;
             }
 
             .program-content {
-                padding: 24px;
+                padding: 20px;
             }
 
-            .program-category {
-                display: inline-block;
-                background: #F4F5F7;
-                color: #505F79;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 12px;
+            .program-department {
+                font-size: 14px;
+                color: #0052CC;
+                font-weight: 600;
                 margin-bottom: 8px;
             }
 
             .program-title {
-                font-size: 18px;
+                font-size: 16px;
                 font-weight: 600;
                 color: #172B4D;
-                margin-bottom: 8px;
+                margin-bottom: 12px;
+                line-height: 1.4;
+                min-height: 44px;
             }
 
-            .program-date {
+            .program-category {
+                display: inline-block;
+                background: #E3F2FD;
+                color: #0052CC;
+                padding: 4px 12px;
+                border-radius: 4px;
+                font-size: 12px;
+                margin-bottom: 12px;
+            }
+
+            .program-dates {
                 font-size: 13px;
                 color: #7A869A;
-                margin-bottom: 16px;
+                margin-bottom: 8px;
+                line-height: 1.6;
+            }
+
+            .program-progress {
+                margin-top: 16px;
             }
 
             .progress-bar-container {
                 width: 100%;
                 height: 8px;
                 background: #EBECF0;
-                border-radius: 9999px;
+                border-radius: 4px;
                 overflow: hidden;
-                margin-bottom: 4px;
+                margin-bottom: 8px;
             }
 
             .progress-bar {
                 height: 100%;
                 background: #0052CC;
-                border-radius: 9999px;
+                border-radius: 4px;
+                transition: width 0.3s;
             }
 
             .progress-text {
-                font-size: 12px;
-                color: #7A869A;
+                font-size: 13px;
+                color: #172B4D;
+                font-weight: 600;
                 text-align: right;
+            }
+
+            /* 전체보기 버튼 */
+            .view-all-button {
+                text-align: center;
+                margin: 40px 0;
+            }
+
+            .view-all-button button {
+                padding: 14px 48px;
+                background: white;
+                border: 2px solid #DFE1E6;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                color: #172B4D;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .view-all-button button:hover {
+                border-color: #2C5F5D;
+                background: #f5f7fa;
+            }
+
+            /* 반응형 */
+            @media (max-width: 1200px) {
+                .program-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+                .competency-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .program-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                .competency-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                .hero-content {
+                    flex-direction: column;
+                }
+                .hero-text h1 {
+                    font-size: 32px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .program-grid {
+                    grid-template-columns: 1fr;
+                }
+                .competency-grid {
+                    grid-template-columns: 1fr;
+                }
             }
         </style>
     </th:block>
@@ -167,100 +394,331 @@
 
 <body>
     <div layout:fragment="content">
-        <!-- 히어로 섹션 -->
-        <div class="hero-section">
-            <h1 class="hero-title">🎓 핵심역량 진단에 참여하세요!</h1>
-            <p class="hero-subtitle">진단결과는 핵심능력 및 역량점수를 제공하며 자기계발 가이드로 활용하실 수 있습니다.</p>
-            <p style="font-size: 14px; opacity: 0.8;">(진단결과는 추후 확인이 가능합니다!)</p>
+        <!-- 히어로 슬라이더 -->
+        <div class="hero-slider">
+            <button class="slider-arrow prev" onclick="changeSlide(-1)">❮</button>
+            <button class="slider-arrow next" onclick="changeSlide(1)">❯</button>
+
+            <!-- 슬라이드 1 -->
+            <div class="hero-slide active">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1>🎓 핵심역량 진단에 참여하세요!</h1>
+                        <p>진단결과는 핵심능력 및 역량점수를 제공하며<br>자기계발 가이드로 활용하실 수 있습니다.</p>
+                        <p class="small-text">(진단결과는 추후 확인이 가능합니다!)</p>
+                    </div>
+                    <div class="hero-image">
+                        <div style="font-size: 150px;">❓</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 슬라이드 2 -->
+            <div class="hero-slide">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1>💼 비교과 프로그램</h1>
+                        <p>다양한 비교과 프로그램에 참여하여<br>여러분의 역량을 키워보세요!</p>
+                    </div>
+                    <div class="hero-image">
+                        <div style="font-size: 150px;">📚</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 슬라이드 3 -->
+            <div class="hero-slide">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1>⭐ CHAMP 마일리지</h1>
+                        <p>활동에 참여하고 마일리지를 적립하세요<br>다양한 혜택이 기다리고 있습니다!</p>
+                    </div>
+                    <div class="hero-image">
+                        <div style="font-size: 150px;">🏆</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- 빠른 링크 -->
-        <div class="quick-links">
-            <a href="/assessment" class="quick-link">
-                <div class="quick-link-icon">📋</div>
-                <div class="quick-link-title">역량진단</div>
-            </a>
-            <a href="/programs" class="quick-link">
-                <div class="quick-link-icon">📚</div>
-                <div class="quick-link-title">비교과 프로그램</div>
-            </a>
-            <a href="/counseling" class="quick-link">
-                <div class="quick-link-icon">💬</div>
-                <div class="quick-link-title">통합상담</div>
-            </a>
-            <a href="/mileage" class="quick-link">
-                <div class="quick-link-icon">⭐</div>
-                <div class="quick-link-title">마일리지</div>
-            </a>
+        <!-- 4개 역량 아이콘 섹션 -->
+        <div class="competency-section">
+            <div class="competency-grid">
+                <a href="/assessment" class="competency-item">
+                    <div class="competency-icon">📊</div>
+                    <div class="competency-name">전체보기</div>
+                </a>
+                <a href="/assessment?type=problem-solving" class="competency-item">
+                    <div class="competency-icon">🧩</div>
+                    <div class="competency-name">문제해결역량</div>
+                </a>
+                <a href="/assessment?type=self-management" class="competency-item">
+                    <div class="competency-icon">🏅</div>
+                    <div class="competency-name">자기관리역량</div>
+                </a>
+                <a href="/assessment?type=communication" class="competency-item">
+                    <div class="competency-icon">🏛️</div>
+                    <div class="competency-name">공감소통역량</div>
+                </a>
+            </div>
         </div>
 
-        <h2 class="section-title">📁 전체 행정부서</h2>
+        <!-- 필터 섹션 -->
+        <div class="filter-section">
+            <div class="filter-dropdown">
+                <button class="filter-button">
+                    📱 전체 행정부서
+                </button>
+            </div>
+        </div>
 
         <!-- 프로그램 카드 그리드 -->
-        <div class="program-grid">
-            <!-- 예시 카드 1 -->
-            <div class="program-card">
-                <div class="program-image">
-                    <span class="program-badge">D-3</span>
-                    📋
-                </div>
-                <div class="program-content">
-                    <span class="program-category">취업일자원센터</span>
-                    <h3 class="program-title">[진전] 전공설계 포트폴리오 특강</h3>
-                    <div class="program-date">📅 신청: 2025.10.14(화) ~ 2025.11.06(목)</div>
-                    <div class="program-progress">
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: 0%"></div>
+        <div class="program-section">
+            <div class="program-grid">
+                <!-- 프로그램 카드 1 -->
+                <div class="program-card">
+                    <div class="program-image" style="background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);">
+                        <div class="program-dday">D-3</div>
+                        <div class="program-favorite">⭐</div>
+                        <div class="program-hits">160 HITS</div>
+                        📋
+                    </div>
+                    <div class="program-content">
+                        <div class="program-department">취창업지원센터</div>
+                        <div class="program-title">[진전] 전공설계 포트폴리오 특강</div>
+                        <div class="program-category">(4주차)나만의 마스터 입사지원서 제작과 면접준비</div>
+                        <div class="program-dates">
+                            📅 신청: 2025.10.14(화) ~ 2025.11.06(목)<br>
+                            ⏰ 운영: 2025.10.14(화) ~ 2025.11.06(목)
                         </div>
-                        <div class="progress-text">0/무제한</div>
+                        <div class="program-progress">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 0%;"></div>
+                            </div>
+                            <div class="progress-text">0/무제한</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 프로그램 카드 2 -->
+                <div class="program-card">
+                    <div class="program-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <div class="program-dday">D-3</div>
+                        <div class="program-favorite">⭐</div>
+                        <div class="program-hits">172 HITS</div>
+                        🎭
+                    </div>
+                    <div class="program-content">
+                        <div class="program-department">(진전)학생상담센터</div>
+                        <div class="program-title">2025-2 나스너(WOW-더플 대인관계능력 향상 프로그램)</div>
+                        <div class="program-category">7회기</div>
+                        <div class="program-dates">
+                            📅 신청: 2025.09.05(금) ~ 2025.11.10(월)<br>
+                            ⏰ 운영: 2025.11.11(화) 15:00 ~ 17:00
+                        </div>
+                        <div class="program-progress">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 85.7%; background: #f5576c;"></div>
+                            </div>
+                            <div class="progress-text">6/무제한</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 프로그램 카드 3 -->
+                <div class="program-card">
+                    <div class="program-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <div class="program-dday">D-4</div>
+                        <div class="program-favorite">⭐</div>
+                        <div class="program-hits">198 HITS</div>
+                        🎓
+                    </div>
+                    <div class="program-content">
+                        <div class="program-department">대학일자리본부 대학일자리본...</div>
+                        <div class="program-title">2025년 2학기 면접스피치&이미지메이킹 과정</div>
+                        <div class="program-category">면접스피치&이미지메이킹 2회차</div>
+                        <div class="program-dates">
+                            📅 신청: 2025.09.29(월) ~ 2025.11.10(월)<br>
+                            ⏰ 운영: 2025.11.12(수) 13:00 ~ 15:00
+                        </div>
+                        <div class="program-progress">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 36.4%; background: #00f2fe;"></div>
+                            </div>
+                            <div class="progress-text">20/55명</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 프로그램 카드 4 -->
+                <div class="program-card">
+                    <div class="program-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <div class="program-dday">D-4</div>
+                        <div class="program-favorite">⭐</div>
+                        <div class="program-hits">31 HITS</div>
+                        🎯
+                    </div>
+                    <div class="program-content">
+                        <div class="program-department">교수학습지원센터</div>
+                        <div class="program-title">동기역량강화 집단 학습컨설팅(2025-2학기)</div>
+                        <div class="program-category">동기역량강화 집단 학습컨설팅(2025-2학기)</div>
+                        <div class="program-dates">
+                            📅 신청: 2025.11.03(월) ~ 2025.11.10(월)<br>
+                            ⏰ 운영: 2025.11.12(수) ~ 2025.12.03(수)
+                        </div>
+                        <div class="program-progress">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 62.5%; background: #fee140;"></div>
+                            </div>
+                            <div class="progress-text">5/8명</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 프로그램 카드 5 -->
+                <div class="program-card">
+                    <div class="program-image" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                        <div class="program-dday">마감</div>
+                        <div class="program-favorite">⭐</div>
+                        <div class="program-hits">94 HITS</div>
+                        🌟
+                    </div>
+                    <div class="program-content">
+                        <div class="program-department">학생복지센터 학생복지센터 - ...</div>
+                        <div class="program-title">세대공감 '인생책 함께읽기'</div>
+                        <div class="program-category">세대공감 '인생책 함께읽기'</div>
+                        <div class="program-dates">
+                            📅 신청: 2025.10.27(월) ~ 2025.11.07(금)<br>
+                            ⏰ 운영: 2025.11.01(토) ~ 2025.12.19(금)
+                        </div>
+                        <div class="program-progress">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 100%; background: #330867;"></div>
+                            </div>
+                            <div class="progress-text">15/무제한</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 프로그램 카드 6 -->
+                <div class="program-card">
+                    <div class="program-image" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                        <div class="program-dday">모집완료</div>
+                        <div class="program-favorite">⭐</div>
+                        <div class="program-hits">90 HITS</div>
+                        🌈
+                    </div>
+                    <div class="program-content">
+                        <div class="program-department">약학대학 약학과(2+4) - 약학과...</div>
+                        <div class="program-title">우리 몸의 닮 조절을 위한 인슐린 작용 이해</div>
+                        <div class="program-category">우리 몸의 닮 조절을 위한 인슐린 작용 이해</div>
+                        <div class="program-dates">
+                            📅 신청: 2025.10.01(수) ~ 2025.11.28(금)<br>
+                            ⏰ 운영: 2025.10.01(수) ~ 2025.11.28(금)
+                        </div>
+                        <div class="program-progress">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 100%; background: #fed6e3;"></div>
+                            </div>
+                            <div class="progress-text">승인필요</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 프로그램 카드 7 -->
+                <div class="program-card">
+                    <div class="program-image" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                        <div class="program-dday">D-24</div>
+                        <div class="program-favorite">⭐</div>
+                        <div class="program-hits">713 HITS</div>
+                        🎨
+                    </div>
+                    <div class="program-content">
+                        <div class="program-department">역량개발인증센터 역량개발인...</div>
+                        <div class="program-title">2025학년도 2학기 우석챔프 시즌제 장학금</div>
+                        <div class="program-category">2025학년도 2학기 우석챔프 시즌제 장학금</div>
+                        <div class="program-dates">
+                            📅 신청: 2025.09.08(월) ~ 2025.11.30(일)<br>
+                            ⏰ 운영: 2025.09.08(월) ~ 2026.01.31(토)
+                        </div>
+                        <div class="program-progress">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 100%; background: #fecfef;"></div>
+                            </div>
+                            <div class="progress-text">160/무제한</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 프로그램 카드 8 -->
+                <div class="program-card">
+                    <div class="program-image" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                        <div class="program-dday">D-35</div>
+                        <div class="program-favorite">⭐</div>
+                        <div class="program-hits">398 HITS</div>
+                        📖
+                    </div>
+                    <div class="program-content">
+                        <div class="program-department">전공설계지원센터</div>
+                        <div class="program-title">[전주] 2025학년도 1학기 찾아가는 Academic Advising</div>
+                        <div class="program-category">[전주] 2025학년도 1학기 찾아가는 Academic Advising</div>
+                        <div class="program-dates">
+                            📅 신청: 2025.03.03(월) ~ 2025.12.12(금)<br>
+                            ⏰ 운영: 2025.03.03(월) ~ 2025.12.19(금)
+                        </div>
+                        <div class="program-progress">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 100%; background: #fcb69f;"></div>
+                            </div>
+                            <div class="progress-text">432/무제한</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 예시 카드 2 -->
-            <div class="program-card">
-                <div class="program-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                    <span class="program-badge">D-3</span>
-                    🎭
-                </div>
-                <div class="program-content">
-                    <span class="program-category">학생상담센터</span>
-                    <h3 class="program-title">2025-2 나스나 대인관계능력 향상 프로그램</h3>
-                    <div class="program-date">📅 신청: 2025.09.05(금) ~ 2025.11.10(월)</div>
-                    <div class="program-progress">
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: 85.7%; background: #f5576c;"></div>
-                        </div>
-                        <div class="progress-text">6/주제한</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 예시 카드 3 -->
-            <div class="program-card">
-                <div class="program-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                    <span class="program-badge">D-4</span>
-                    🎓
-                </div>
-                <div class="program-content">
-                    <span class="program-category">대학일자리본부</span>
-                    <h3 class="program-title">2025년 2학기 면접스피치 과정</h3>
-                    <div class="program-date">📅 신청: 2025.09.29(월) ~ 2025.11.10(월)</div>
-                    <div class="program-progress">
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: 36.4%; background: #00f2fe;"></div>
-                        </div>
-                        <div class="progress-text">20/55명</div>
-                    </div>
-                </div>
+            <!-- 전체보기 버튼 -->
+            <div class="view-all-button">
+                <button onclick="location.href='/programs'">전체보기</button>
             </div>
         </div>
     </div>
 
     <th:block layout:fragment="script">
         <script>
-            $('.program-card').click(function() {
-                alert('프로그램 상세 페이지 (준비 중)');
+            // 슬라이더 기능
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.hero-slide');
+            const totalSlides = slides.length;
+
+            function showSlide(n) {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (n + totalSlides) % totalSlides;
+                slides[currentSlide].classList.add('active');
+            }
+
+            function changeSlide(direction) {
+                showSlide(currentSlide + direction);
+            }
+
+            // 자동 슬라이드 (5초마다)
+            setInterval(() => {
+                changeSlide(1);
+            }, 5000);
+
+            // 프로그램 카드 클릭
+            document.querySelectorAll('.program-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('program-favorite')) {
+                        alert('프로그램 상세 페이지 (준비 중)');
+                    }
+                });
+            });
+
+            // 즐겨찾기 클릭
+            document.querySelectorAll('.program-favorite').forEach(star => {
+                star.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.textContent = this.textContent === '⭐' ? '★' : '⭐';
+                });
             });
         </script>
     </th:block>
