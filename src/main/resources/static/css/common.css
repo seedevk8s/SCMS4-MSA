@@ -211,6 +211,48 @@ body {
     background-color: var(--secondary-light);
 }
 
+/* 관리 버튼 스타일 */
+.btn-admin {
+    background-color: #56B976;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    white-space: nowrap;
+}
+
+.btn-admin:hover {
+    background-color: #47A065;
+    transform: translateY(-1px);
+}
+
+.btn-admin:active {
+    transform: translateY(0);
+}
+
+/* 로그아웃 버튼 스타일 */
+.btn-logout {
+    color: #FFD700;
+    background: transparent;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 12px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #FFF;
+}
+
 /* 메인 컨텐츠 */
 .main-content {
     flex: 1;
