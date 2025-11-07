@@ -172,13 +172,13 @@ body {
 .header-actions {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: 8px;
 }
 
 .header-link {
     color: var(--text-white);
     text-decoration: none;
-    font-size: 14px;
+    font-size: 12px;
     white-space: nowrap;
     transition: opacity 0.2s;
 }
@@ -188,8 +188,9 @@ body {
 }
 
 .header-divider {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+    margin: 0 4px;
 }
 
 .btn-search {
