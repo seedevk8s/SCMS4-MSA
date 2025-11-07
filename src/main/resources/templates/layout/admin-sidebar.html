@@ -6,7 +6,7 @@
     <nav class="admin-nav">
         <!-- 대시보드 -->
         <div class="admin-nav-section">
-            <a href="/admin" class="admin-nav-item" th:classappend="${#strings.equals(#request.requestURI, '/admin')} ? 'active' : ''">
+            <a href="/admin" class="admin-nav-item" th:classappend="${currentUri != null && #strings.equals(currentUri, '/admin')} ? 'active' : ''">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                 </svg>
@@ -17,14 +17,14 @@
         <!-- 프로그램 관리 -->
         <div class="admin-nav-section">
             <div class="admin-nav-header">프로그램</div>
-            <a href="/admin/programs" class="admin-nav-item" th:classappend="${#strings.contains(#request.requestURI, '/admin/programs')} ? 'active' : ''">
+            <a href="/admin/programs" class="admin-nav-item" th:classappend="${currentUri != null && #strings.contains(currentUri, '/admin/programs')} ? 'active' : ''">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
                 </svg>
                 <span>프로그램 관리</span>
             </a>
-            <a href="/admin/programs/new" class="admin-nav-item admin-nav-subitem" th:classappend="${#strings.contains(#request.requestURI, '/admin/programs/new')} ? 'active' : ''">
+            <a href="/admin/programs/new" class="admin-nav-item admin-nav-subitem" th:classappend="${currentUri != null && #strings.contains(currentUri, '/admin/programs/new')} ? 'active' : ''">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
                 </svg>

@@ -6,6 +6,7 @@ import com.scms.app.model.Program;
 import com.scms.app.model.ProgramStatus;
 import com.scms.app.model.UserRole;
 import com.scms.app.service.ProgramService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class ProgramAdminController {
      * 프로그램 목록 조회
      */
     @GetMapping
-    public String listPrograms(Model model, HttpSession session) {
+    public String listPrograms(Model model, HttpSession session, HttpServletRequest request) {
         log.info("========================================");
         log.info("=== /admin/programs 호출됨");
         log.info("=== Session ID: {}", session.getId());
@@ -66,6 +67,7 @@ public class ProgramAdminController {
         log.info("=== 프로그램 개수: {}", programResponses.size());
         model.addAttribute("programs", programResponses);
         model.addAttribute("pageTitle", "프로그램 관리");
+        model.addAttribute("currentUri", request.getRequestURI());
 
         log.info("=== 반환할 템플릿: admin/program-list");
         log.info("=== 이 템플릿은 layout/admin-layout을 사용해야 함");
@@ -77,7 +79,7 @@ public class ProgramAdminController {
      * 프로그램 등록 폼
      */
     @GetMapping("/new")
-    public String newProgramForm(Model model, HttpSession session) {
+    public String newProgramForm(Model model, HttpSession session, HttpServletRequest request) {
         // 관리자 권한 체크
         if (!checkAdminRole(session)) {
             return "redirect:/";
@@ -87,6 +89,7 @@ public class ProgramAdminController {
         model.addAttribute("statuses", ProgramStatus.values());
         model.addAttribute("pageTitle", "프로그램 등록");
         model.addAttribute("isEdit", false);
+        model.addAttribute("currentUri", request.getRequestURI());
         return "admin/program-form";
     }
 
@@ -148,6 +151,7 @@ public class ProgramAdminController {
             @PathVariable Integer id,
             Model model,
             HttpSession session,
+            HttpServletRequest httpRequest,
             RedirectAttributes redirectAttributes) {
 
         // 관리자 권한 체크
@@ -178,6 +182,7 @@ public class ProgramAdminController {
             model.addAttribute("statuses", ProgramStatus.values());
             model.addAttribute("pageTitle", "프로그램 수정");
             model.addAttribute("isEdit", true);
+            model.addAttribute("currentUri", httpRequest.getRequestURI());
             return "admin/program-form";
 
         } catch (IllegalArgumentException e) {
