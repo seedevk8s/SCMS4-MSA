@@ -26,7 +26,12 @@ public class HomeController {
      * 홈 페이지
      */
     @GetMapping("/")
-    public String home(Model model, HttpSession session) {
+    public String home(
+            @RequestParam(required = false) String department,
+            @RequestParam(required = false) String college,
+            @RequestParam(required = false) String category,
+            Model model,
+            HttpSession session) {
         // 세션에서 사용자 정보 가져오기
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId != null) {
@@ -39,9 +44,19 @@ public class HomeController {
             }
         }
 
-        // 메인 페이지용 프로그램 목록 조회 (최신 8개)
-        List<Program> programs = programService.getMainPagePrograms();
+        // 필터 파라미터가 있으면 필터링, 없으면 전체 조회
+        List<Program> programs;
+        if (department != null || college != null || category != null) {
+            programs = programService.getProgramsByFilters(department, college, category);
+        } else {
+            programs = programService.getMainPagePrograms();
+        }
         model.addAttribute("programs", programs);
+
+        // 현재 선택된 필터 정보를 Model에 추가
+        model.addAttribute("selectedDepartment", department);
+        model.addAttribute("selectedCollege", college);
+        model.addAttribute("selectedCategory", category);
 
         model.addAttribute("pageTitle", "푸름대학교 학생성장지원센터 CHAMP");
         return "index";
