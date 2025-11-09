@@ -63,6 +63,49 @@ public class HomeController {
     }
 
     /**
+     * 프로그램 전체보기 페이지
+     */
+    @GetMapping("/programs")
+    public String programs(
+            @RequestParam(required = false) String department,
+            @RequestParam(required = false) String college,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String search,
+            Model model,
+            HttpSession session) {
+        // 세션에서 사용자 정보 가져오기
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId != null) {
+            model.addAttribute("userName", session.getAttribute("name"));
+            UserRole role = (UserRole) session.getAttribute("role");
+            model.addAttribute("userRole", role);
+            if (session.getAttribute("isAdmin") == null && role != null) {
+                session.setAttribute("isAdmin", role == UserRole.ADMIN);
+            }
+        }
+
+        // 필터링 또는 검색
+        List<Program> programs;
+        if (search != null && !search.trim().isEmpty()) {
+            programs = programService.searchProgramsByTitle(search);
+        } else if (department != null || college != null || category != null) {
+            programs = programService.getProgramsByFilters(department, college, category);
+        } else {
+            programs = programService.getAllPrograms();
+        }
+        model.addAttribute("programs", programs);
+
+        // 현재 선택된 필터 정보를 Model에 추가
+        model.addAttribute("selectedDepartment", department);
+        model.addAttribute("selectedCollege", college);
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("searchKeyword", search);
+
+        model.addAttribute("pageTitle", "프로그램 전체보기");
+        return "programs";
+    }
+
+    /**
      * 로그인 페이지
      */
     @GetMapping("/login")
