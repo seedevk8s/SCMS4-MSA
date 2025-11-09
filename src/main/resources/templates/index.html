@@ -14,14 +14,16 @@
                 margin-bottom: 60px;
             }
 
-            .hero-slide {
-                display: none;
-                padding: 80px 0;
-                text-align: center;
+            .hero-slider-container {
+                display: flex;
+                transition: transform 0.5s ease-in-out;
+                width: 300%; /* 3개 슬라이드 */
             }
 
-            .hero-slide.active {
-                display: block;
+            .hero-slide {
+                flex: 0 0 33.333%; /* 각 슬라이드 1/3 너비 */
+                padding: 80px 0;
+                text-align: center;
             }
 
             .hero-content {
@@ -452,42 +454,44 @@
             <button class="slider-arrow prev" onclick="changeSlide(-1)">❮</button>
             <button class="slider-arrow next" onclick="changeSlide(1)">❯</button>
 
-            <!-- 슬라이드 1 -->
-            <div class="hero-slide active">
-                <div class="hero-content">
-                    <div class="hero-text">
-                        <h1>🎓 핵심역량 진단에 참여하세요!</h1>
-                        <p>진단결과는 핵심능력 및 역량점수를 제공하며<br>자기계발 가이드로 활용하실 수 있습니다.</p>
-                        <p class="small-text">(진단결과는 추후 확인이 가능합니다!)</p>
-                    </div>
-                    <div class="hero-image">
-                        <div style="font-size: 150px;">❓</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 슬라이드 2 -->
-            <div class="hero-slide">
-                <div class="hero-content">
-                    <div class="hero-text">
-                        <h1>💼 비교과 프로그램</h1>
-                        <p>다양한 비교과 프로그램에 참여하여<br>여러분의 역량을 키워보세요!</p>
-                    </div>
-                    <div class="hero-image">
-                        <div style="font-size: 150px;">📚</div>
+            <div class="hero-slider-container">
+                <!-- 슬라이드 1 -->
+                <div class="hero-slide">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1>🎓 핵심역량 진단에 참여하세요!</h1>
+                            <p>진단결과는 핵심능력 및 역량점수를 제공하며<br>자기계발 가이드로 활용하실 수 있습니다.</p>
+                            <p class="small-text">(진단결과는 추후 확인이 가능합니다!)</p>
+                        </div>
+                        <div class="hero-image">
+                            <div style="font-size: 150px;">❓</div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 슬라이드 3 -->
-            <div class="hero-slide">
-                <div class="hero-content">
-                    <div class="hero-text">
-                        <h1>⭐ CHAMP 마일리지</h1>
-                        <p>활동에 참여하고 마일리지를 적립하세요<br>다양한 혜택이 기다리고 있습니다!</p>
+                <!-- 슬라이드 2 -->
+                <div class="hero-slide">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1>💼 비교과 프로그램</h1>
+                            <p>다양한 비교과 프로그램에 참여하여<br>여러분의 역량을 키워보세요!</p>
+                        </div>
+                        <div class="hero-image">
+                            <div style="font-size: 150px;">📚</div>
+                        </div>
                     </div>
-                    <div class="hero-image">
-                        <div style="font-size: 150px;">🏆</div>
+                </div>
+
+                <!-- 슬라이드 3 -->
+                <div class="hero-slide">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1>⭐ CHAMP 마일리지</h1>
+                            <p>활동에 참여하고 마일리지를 적립하세요<br>다양한 혜택이 기다리고 있습니다!</p>
+                        </div>
+                        <div class="hero-image">
+                            <div style="font-size: 150px;">🏆</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -597,13 +601,13 @@
         <script>
             // 슬라이더 기능
             let currentSlide = 0;
-            const slides = document.querySelectorAll('.hero-slide');
-            const totalSlides = slides.length;
+            const sliderContainer = document.querySelector('.hero-slider-container');
+            const totalSlides = document.querySelectorAll('.hero-slide').length;
 
             function showSlide(n) {
-                slides[currentSlide].classList.remove('active');
                 currentSlide = (n + totalSlides) % totalSlides;
-                slides[currentSlide].classList.add('active');
+                const translateX = -currentSlide * (100 / totalSlides);
+                sliderContainer.style.transform = `translateX(${translateX}%)`;
             }
 
             function changeSlide(direction) {
