@@ -595,20 +595,65 @@
 
         <!-- 필터 섹션 -->
         <div class="filter-section">
+            <!-- 행정부서 필터 -->
             <div class="filter-dropdown">
-                <button class="filter-button">
-                    📱 전체 행정부서
+                <button class="filter-button" onclick="toggleFilter('department')">
+                    <span>
+                        <i class="fas fa-building"></i>
+                        <span th:text="${selectedDepartment != null ? selectedDepartment : '전체 행정부서'}"></span>
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
                 </button>
+                <div class="filter-menu" id="department-menu">
+                    <div class="filter-menu-item" th:classappend="${selectedDepartment == null} ? 'selected'" onclick="selectFilter('department', null)">전체 행정부서</div>
+                    <div class="filter-menu-item" th:classappend="${selectedDepartment == '교수학습지원센터'} ? 'selected'" onclick="selectFilter('department', '교수학습지원센터')">교수학습지원센터</div>
+                    <div class="filter-menu-item" th:classappend="${selectedDepartment == '도서관'} ? 'selected'" onclick="selectFilter('department', '도서관')">도서관</div>
+                    <div class="filter-menu-item" th:classappend="${selectedDepartment == '생활관'} ? 'selected'" onclick="selectFilter('department', '생활관')">생활관</div>
+                    <div class="filter-menu-item" th:classappend="${selectedDepartment == '진로취업지원센터'} ? 'selected'" onclick="selectFilter('department', '진로취업지원센터')">진로취업지원센터</div>
+                    <div class="filter-menu-item" th:classappend="${selectedDepartment == '학사지원센터'} ? 'selected'" onclick="selectFilter('department', '학사지원센터')">학사지원센터</div>
+                    <div class="filter-menu-item" th:classappend="${selectedDepartment == '학생상담센터'} ? 'selected'" onclick="selectFilter('department', '학생상담센터')">학생상담센터</div>
+                    <div class="filter-menu-item" th:classappend="${selectedDepartment == 'IR센터'} ? 'selected'" onclick="selectFilter('department', 'IR센터')">IR센터</div>
+                    <div class="filter-menu-item" th:classappend="${selectedDepartment == 'LINC플러스사업단'} ? 'selected'" onclick="selectFilter('department', 'LINC플러스사업단')">LINC플러스사업단</div>
+                </div>
             </div>
+
+            <!-- 단과대학 필터 -->
             <div class="filter-dropdown">
-                <button class="filter-button">
-                    🏛️ 전체 단과대학
+                <button class="filter-button" onclick="toggleFilter('college')">
+                    <span>
+                        <i class="fas fa-university"></i>
+                        <span th:text="${selectedCollege != null ? selectedCollege : '전체 단과대학'}"></span>
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
                 </button>
+                <div class="filter-menu" id="college-menu">
+                    <div class="filter-menu-item" th:classappend="${selectedCollege == null} ? 'selected'" onclick="selectFilter('college', null)">전체 단과대학</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCollege == 'RISE사업단'} ? 'selected'" onclick="selectFilter('college', 'RISE사업단')">RISE사업단</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCollege == 'RIS지원센터'} ? 'selected'" onclick="selectFilter('college', 'RIS지원센터')">RIS지원센터</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCollege == '간호대학'} ? 'selected'" onclick="selectFilter('college', '간호대학')">간호대학</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCollege == '과학기술대학'} ? 'selected'" onclick="selectFilter('college', '과학기술대학')">과학기술대학</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCollege == '문화사회대학'} ? 'selected'" onclick="selectFilter('college', '문화사회대학')">문화사회대학</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCollege == '미래융합대학'} ? 'selected'" onclick="selectFilter('college', '미래융합대학')">미래융합대학</div>
+                </div>
             </div>
+
+            <!-- 1차분류 필터 -->
             <div class="filter-dropdown">
-                <button class="filter-button">
-                    🏷️ 전체 1차분류
+                <button class="filter-button" onclick="toggleFilter('category')">
+                    <span>
+                        <i class="fas fa-tags"></i>
+                        <span th:text="${selectedCategory != null ? selectedCategory : '전체 1차분류'}"></span>
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
                 </button>
+                <div class="filter-menu" id="category-menu">
+                    <div class="filter-menu-item" th:classappend="${selectedCategory == null} ? 'selected'" onclick="selectFilter('category', null)">전체 1차분류</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCategory == '학습역량'} ? 'selected'" onclick="selectFilter('category', '학습역량')">학습역량</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCategory == '진로지도'} ? 'selected'" onclick="selectFilter('category', '진로지도')">진로지도</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCategory == '심리상담'} ? 'selected'" onclick="selectFilter('category', '심리상담')">심리상담</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCategory == '취/창업'} ? 'selected'" onclick="selectFilter('category', '취/창업')">취/창업</div>
+                    <div class="filter-menu-item" th:classappend="${selectedCategory == '봉사'} ? 'selected'" onclick="selectFilter('category', '봉사')">봉사</div>
+                </div>
             </div>
         </div>
 
@@ -708,6 +753,51 @@
                     e.stopPropagation();
                     this.textContent = this.textContent === '⭐' ? '★' : '⭐';
                 });
+            });
+
+            // 필터 드롭다운 토글
+            function toggleFilter(type) {
+                const menu = document.getElementById(type + '-menu');
+                const button = menu.previousElementSibling;
+
+                // 다른 메뉴들 닫기
+                document.querySelectorAll('.filter-menu').forEach(m => {
+                    if (m !== menu) {
+                        m.classList.remove('show');
+                        m.previousElementSibling.classList.remove('active');
+                    }
+                });
+
+                // 현재 메뉴 토글
+                menu.classList.toggle('show');
+                button.classList.toggle('active');
+            }
+
+            // 필터 선택
+            function selectFilter(type, value) {
+                const url = new URL(window.location);
+
+                // 파라미터 업데이트
+                if (value === null) {
+                    url.searchParams.delete(type);
+                } else {
+                    url.searchParams.set(type, value);
+                }
+
+                // 페이지 리로드
+                window.location.href = url.toString();
+            }
+
+            // 문서 클릭 시 드롭다운 닫기
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.filter-dropdown')) {
+                    document.querySelectorAll('.filter-menu').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                    document.querySelectorAll('.filter-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                }
             });
         </script>
     </th:block>
