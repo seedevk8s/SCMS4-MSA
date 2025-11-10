@@ -23,8 +23,12 @@ import java.util.stream.Collectors;
  *
  * 이렇게 하면 필터링이 안 되는 구 데이터를 깨끗하게 정리하고
  * 모든 필터 옵션에 맞는 새 데이터로 초기화됩니다.
+ *
+ * 주의: 실제 운영 환경에서는 사용자가 추가/삭제한 데이터가 날아갈 수 있으므로
+ * @Component 주석을 해제하여 사용하지 마세요.
+ * 초기 데이터 로드가 필요한 경우에만 일시적으로 활성화하세요.
  */
-@Component
+// @Component // 초기 데이터 로드 완료 후 비활성화 (재시작 시 데이터 삭제 방지)
 @RequiredArgsConstructor
 @Slf4j
 public class DataLoader implements CommandLineRunner {
