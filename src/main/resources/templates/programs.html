@@ -531,7 +531,8 @@
 
         <!-- 프로그램 그리드 -->
         <div class="programs-grid" th:if="${programs.size() > 0}">
-            <div th:each="program, iterStat : ${programs}" class="program-card">
+            <div th:each="program, iterStat : ${programs}" class="program-card"
+                 th:onclick="'location.href=\'/programs/' + ${program.programId} + '\''">
                 <!-- 배경색 설정 -->
                 <div class="program-image" th:attr="data-bg-index=${iterStat.index % 8}">
                     <!-- D-day 배지 -->

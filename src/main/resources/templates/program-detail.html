@@ -6,314 +6,401 @@
     <title th:text="${pageTitle}">프로그램 상세</title>
     <style>
         .program-detail-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f8f9fa;
         }
 
-        .program-header {
+        /* 상단 프로그램 정보 */
+        .program-header-section {
             background: white;
-            border-radius: 16px;
+            border-radius: 8px;
             padding: 40px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            margin-bottom: 24px;
-        }
-
-        .program-badge-row {
-            display: flex;
-            gap: 12px;
             margin-bottom: 20px;
-            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            gap: 6px;
-        }
-
-        .badge.status {
-            background: #E8F5E9;
-            color: #2E7D32;
-        }
-
-        .badge.status.closed {
-            background: #ECEFF1;
-            color: #546E7A;
-        }
-
-        .badge.status.full {
-            background: #FFF3E0;
-            color: #E65100;
-        }
-
-        .badge.dday {
-            background: #F3E5F5;
-            color: #6A1B9A;
-            font-size: 15px;
-        }
-
-        .badge.dday.urgent {
-            background: #FCE4EC;
-            color: #C2185B;
-        }
-
-        .badge.category {
-            background: #E3F2FD;
-            color: #1565C0;
-        }
-
-        .program-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0 0 16px 0;
-            line-height: 1.4;
-        }
-
-        .program-meta {
-            display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
-            color: #666;
-            font-size: 15px;
-        }
-
-        .program-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .program-meta-item i {
-            color: #2C5F5D;
-        }
-
-        .program-content-wrapper {
+        .program-header-content {
             display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 24px;
+            grid-template-columns: 560px 1fr;
+            gap: 40px;
         }
 
-        .program-main-content {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .program-sidebar {
-            position: sticky;
-            top: 80px;
-            height: fit-content;
-        }
-
-        .info-card {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            margin-bottom: 20px;
-        }
-
-        .info-card h3 {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0 0 24px 0;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid #f5f5f5;
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            font-size: 14px;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-value {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .participants-info {
-            margin-top: 24px;
-        }
-
-        .participants-count {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .participants-count span {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .participants-count strong {
-            font-size: 18px;
-            color: #2C5F5D;
-        }
-
-        .progress-bar-container {
+        .program-thumbnail {
             width: 100%;
-            height: 12px;
-            background: #f0f0f0;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #2C5F5D 0%, #4A8280 100%);
-            border-radius: 6px;
-            transition: width 1s ease;
-        }
-
-        .apply-button {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #2C5F5D 0%, #4A8280 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 24px;
-            transition: all 0.3s ease;
+            height: 360px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #e9ecef;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            color: #6c757d;
+            font-size: 18px;
         }
 
-        .apply-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(44, 95, 93, 0.3);
+        .program-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
         }
 
-        .apply-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .program-info-right {
+            display: flex;
+            flex-direction: column;
         }
 
-        .section {
-            margin-bottom: 48px;
+        .program-badges {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: center;
         }
 
-        .section-title {
-            font-size: 22px;
+        .badge-status {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .badge-hits {
+            color: #666;
+            font-size: 14px;
+            margin-left: auto;
+        }
+
+        .program-title-main {
+            font-size: 28px;
             font-weight: 700;
-            color: #1a1a1a;
-            margin: 0 0 20px 0;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #2C5F5D;
+            color: #212529;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
 
-        .section-content {
+        .program-hashtags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .hashtag {
+            background: #f1f3f5;
+            color: #495057;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .program-meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .program-meta-table tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .program-meta-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+
+        .program-meta-table td:first-child {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            width: 140px;
+        }
+
+        .program-meta-table td:last-child {
+            color: #212529;
+        }
+
+        /* 일정 목록 */
+        .schedule-list {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 16px;
+        }
+
+        .schedule-item {
+            background: white;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            border-left: 4px solid #1976d2;
+        }
+
+        .schedule-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .schedule-badge {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .schedule-title {
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 8px;
+        }
+
+        .schedule-time {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .schedule-participants {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .schedule-location {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        /* 탭 메뉴 */
+        .program-tabs {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-menu {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
             font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: #1976d2;
+            border-bottom: 3px solid #1976d2;
+            margin-bottom: -2px;
+        }
+
+        .tab-content {
+            padding: 32px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* 세부내용 */
+        .detail-section {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .detail-section h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .detail-content {
             line-height: 1.8;
-            color: #333;
+            color: #495057;
             white-space: pre-wrap;
         }
 
+        .detail-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .detail-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f5;
+            line-height: 1.6;
+        }
+
+        .detail-list li:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #212529;
+            margin-right: 8px;
+        }
+
+        /* 첨부파일 */
+        .attachment-section {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .attachment-item i {
+            color: #1976d2;
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .attachment-name {
+            flex: 1;
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .attachment-size {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        /* 신청 버튼 */
+        .apply-section {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .apply-button-large {
+            width: 100%;
+            padding: 20px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .apply-button-large:hover:not(:disabled) {
+            background: #1565c0;
+        }
+
+        .apply-button-large:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        .application-info-table {
+            width: 100%;
+            margin-bottom: 24px;
+            border-collapse: collapse;
+        }
+
+        .application-info-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            font-weight: 600;
+            color: #495057;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .application-info-table td {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            color: #212529;
+        }
+
+        /* 뒤로가기 버튼 */
         .back-button {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 12px 24px;
+            padding: 10px 20px;
             background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            color: #666;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            color: #495057;
             text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: all 0.3s;
         }
 
         .back-button:hover {
-            border-color: #2C5F5D;
-            color: #2C5F5D;
+            background: #f8f9fa;
+            border-color: #adb5bd;
         }
 
-        .stats-card {
-            background: #f8fafa;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .stats-row {
-            display: flex;
-            justify-content: space-around;
-            gap: 20px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #2C5F5D;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: #666;
-            margin-top: 4px;
-            display: block;
-        }
-
+        /* 반응형 */
         @media (max-width: 968px) {
-            .program-content-wrapper {
+            .program-header-content {
                 grid-template-columns: 1fr;
             }
 
-            .program-sidebar {
-                position: static;
+            .program-thumbnail {
+                height: 300px;
             }
         }
 
         @media (max-width: 768px) {
-            .program-header {
-                padding: 24px;
+            .program-detail-container {
+                padding: 20px 10px;
             }
 
-            .program-title {
-                font-size: 24px;
+            .program-header-section,
+            .detail-section,
+            .attachment-section,
+            .apply-section {
+                padding: 20px;
             }
 
-            .program-main-content {
-                padding: 24px;
+            .program-title-main {
+                font-size: 22px;
             }
 
-            .info-card {
-                padding: 24px;
+            .tab-button {
+                font-size: 14px;
+                padding: 12px 16px;
             }
         }
     </style>
@@ -324,178 +411,237 @@
         <!-- 뒤로가기 버튼 -->
         <a href="/programs" class="back-button">
             <i class="fas fa-arrow-left"></i>
-            목록으로 돌아가기
+            목록으로
         </a>
 
         <!-- 프로그램 헤더 -->
-        <div class="program-header" th:if="${program != null}">
-            <div class="program-badge-row">
-                <!-- 상태 뱃지 -->
-                <span class="badge status"
-                      th:classappend="${program.applicationClosed ? 'closed' : (program.status.name() == 'FULL' ? 'full' : '')}"
-                      th:if="${program.status != null}">
-                    <i class="fas fa-circle" th:style="${program.status.name() == 'OPEN' ? 'font-size: 8px;' : ''}"></i>
-                    <span th:text="${program.applicationClosed ? '마감' : (program.status.name() == 'FULL' ? '모집완료' : '모집중')}">모집중</span>
-                </span>
-
-                <!-- D-day 뱃지 -->
-                <span class="badge dday"
-                      th:if="${program.DDay != null}"
-                      th:classappend="${program.DDay <= 3 ? 'urgent' : ''}">
-                    <i class="fas fa-clock"></i>
-                    <span th:text="${program.DDay == 0 ? '오늘 마감' : (program.DDay == 1 ? 'D-1' : 'D-' + program.DDay)}">D-7</span>
-                </span>
-
-                <!-- 카테고리 뱃지 -->
-                <span class="badge category" th:if="${program.category != null}">
-                    <i class="fas fa-tag"></i>
-                    <span th:text="${program.category}">학습역량</span>
-                </span>
-            </div>
-
-            <h1 class="program-title" th:text="${program.title}">프로그램 제목</h1>
-
-            <div class="program-meta">
-                <div class="program-meta-item" th:if="${program.department != null}">
-                    <i class="fas fa-building"></i>
-                    <span th:text="${program.department}">교수학습지원센터</span>
+        <div class="program-header-section" th:if="${program != null}">
+            <div class="program-header-content">
+                <!-- 썸네일 -->
+                <div class="program-thumbnail">
+                    <img th:if="${program.thumbnailUrl != null}"
+                         th:src="${program.thumbnailUrl}"
+                         th:alt="${program.title}">
+                    <div th:if="${program.thumbnailUrl == null}"
+                         style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e9ecef;">
+                        <i class="fas fa-image" style="font-size: 48px; color: #adb5bd;"></i>
+                    </div>
                 </div>
-                <div class="program-meta-item" th:if="${program.college != null}">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span th:text="${program.college}">RISE사업단</span>
-                </div>
-                <div class="program-meta-item" th:if="${program.subCategory != null}">
-                    <i class="fas fa-folder"></i>
-                    <span th:text="${program.subCategory}">학습법</span>
-                </div>
-                <div class="program-meta-item">
-                    <i class="fas fa-eye"></i>
-                    <span th:text="${program.hits}">0</span>
+
+                <!-- 우측 정보 -->
+                <div class="program-info-right">
+                    <div class="program-badges">
+                        <span class="badge-status" th:text="${program.category}">주제별 상이</span>
+                        <span class="badge-hits" th:text="${program.hits} + ' HITS'">238 HITS</span>
+                    </div>
+
+                    <h1 class="program-title-main" th:text="${program.title}">
+                        2025년 2학기 면접스피치&이미지메이킹 과정
+                    </h1>
+
+                    <div class="program-hashtags">
+                        <span class="hashtag" th:text="'#' + ${program.department}">대학일자리본부</span>
+                        <span class="hashtag" th:if="${program.category}" th:text="'#' + ${program.category}">면접스킬</span>
+                        <span class="hashtag" th:if="${program.subCategory}" th:text="'#' + ${program.subCategory}">진로취업</span>
+                        <span class="hashtag" th:if="${program.college}" th:text="'#' + ${program.college}">이미지메이킹</span>
+                    </div>
+
+                    <table class="program-meta-table">
+                        <tr>
+                            <td><i class="fas fa-crosshairs"></i> 모집대상</td>
+                            <td>전체 학생/교수/대학일자리본부/일본어/교직원</td>
+                        </tr>
+                        <tr th:if="${program.maxParticipants != null}">
+                            <td><i class="fas fa-users"></i> 학년/성별</td>
+                            <td>전체 학년/전체 성별</td>
+                        </tr>
+                        <tr th:if="${program.college}">
+                            <td><i class="fas fa-building"></i> 캠퍼스</td>
+                            <td th:text="${program.college}">전체 캠퍼스</td>
+                        </tr>
+                        <tr th:if="${program.department}">
+                            <td><i class="fas fa-graduation-cap"></i> 학과</td>
+                            <td th:text="${program.department}">전체 학과</td>
+                        </tr>
+                    </table>
+
+                    <!-- 일정 목록 -->
+                    <div class="schedule-list" th:if="${program.applicationStartDate != null}">
+                        <div class="schedule-item">
+                            <div class="schedule-title">
+                                <span class="schedule-badge">5차</span>
+                                <span th:text="${program.title}">면접스피치&이미지메이킹 1회차</span>
+                            </div>
+                            <div class="schedule-time">
+                                <i class="far fa-calendar-alt"></i>
+                                <span th:text="${#temporals.format(program.applicationStartDate, 'yyyy.MM.dd(E) HH:mm')} + ' ~ ' + ${#temporals.format(program.applicationEndDate, 'yyyy.MM.dd(E) HH:mm')}">
+                                    2025.11.05(수) 13:00 ~ 2025.11.05(수) 15:00
+                                </span>
+                            </div>
+                            <div class="schedule-participants" th:if="${program.maxParticipants != null}">
+                                <i class="fas fa-users"></i>
+                                <span th:text="${program.currentParticipants} + ' 명 / ' + ${program.maxParticipants} + ' 명'">
+                                    19 명 / 55 명 (최대 55 명)
+                                </span>
+                            </div>
+                            <div class="schedule-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                중도
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 프로그램 본문 -->
-        <div class="program-content-wrapper" th:if="${program != null}">
-            <!-- 메인 컨텐츠 -->
-            <div class="program-main-content">
-                <!-- 프로그램 설명 -->
-                <div class="section">
-                    <h2 class="section-title">프로그램 소개</h2>
-                    <div class="section-content" th:text="${program.description}">
-                        프로그램 설명이 여기에 표시됩니다.
-                    </div>
-                </div>
+        <!-- 탭 메뉴 -->
+        <div class="program-tabs">
+            <div class="tab-menu">
+                <button class="tab-button" onclick="showTab(event, 'application-status')">나의 신청내역</button>
+                <button class="tab-button active" onclick="showTab(event, 'detail')">세부내용</button>
+            </div>
+        </div>
 
-                <!-- 프로그램 상세 내용 -->
-                <div class="section" th:if="${program.content != null && !program.content.isEmpty()}">
-                    <h2 class="section-title">상세 내용</h2>
-                    <div class="section-content" th:text="${program.content}">
-                        프로그램 상세 내용이 여기에 표시됩니다.
-                    </div>
+        <!-- 나의 신청내역 탭 -->
+        <div id="application-status" class="detail-section tab-pane">
+            <h3>나의 신청내역</h3>
+            <table class="application-info-table">
+                <thead>
+                    <tr>
+                        <th>프로그램 일정</th>
+                        <th>상태</th>
+                        <th>비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="3" style="padding: 40px; color: #6c757d;">신청 내역이 없습니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 세부내용 탭 -->
+        <div id="detail" class="detail-section tab-pane active">
+            <h3>세부내용</h3>
+            <ul class="detail-list">
+                <li>
+                    <span class="detail-label">가. 프로그램:</span>
+                    <span th:text="${program.title}">2025년 2학기 면접스피치&이미지메이킹 과정</span>
+                </li>
+                <li>
+                    <span class="detail-label">나. 일정:</span>
+                    <span th:text="${#temporals.format(program.applicationStartDate, 'M/d, M/d, M/d, M/d')}">11/5, 11/12, 11/19, 11/26</span>
+                    13시~15시
+                </li>
+                <li>
+                    <span class="detail-label">다. 장소:</span>
+                    정공관 511호
+                </li>
+                <li>
+                    <span class="detail-label">라. 대상:</span>
+                    재학생, 졸업생, 지역청년
+                </li>
+                <li>
+                    <span class="detail-label">마. 주관:</span>
+                    <span th:text="${program.department}">대학일자리본부</span>,
+                    <span th:text="${program.college}">진로취업지원센터</span>
+                </li>
+                <li>
+                    <span class="detail-label">바. 특강내용</span>
+                </li>
+            </ul>
+
+            <!-- 상세 내용 -->
+            <div class="detail-content" th:if="${program.content != null}" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 4px;">
+                <div th:text="${program.description}">
+                    프로그램 설명이 여기에 표시됩니다.
+                </div>
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #dee2e6;">
+                <div th:text="${program.content}" style="white-space: pre-wrap;">
+                    프로그램 상세 내용이 여기에 표시됩니다.
                 </div>
             </div>
+        </div>
 
-            <!-- 사이드바 -->
-            <div class="program-sidebar">
-                <!-- 신청 정보 카드 -->
-                <div class="info-card">
-                    <h3>신청 정보</h3>
-
-                    <div class="info-row">
-                        <div class="info-label">
-                            <i class="fas fa-calendar-check"></i>
-                            신청 기간
-                        </div>
-                        <div class="info-value" style="text-align: right; font-size: 13px; font-weight: 500;">
-                            <div th:text="${#temporals.format(program.applicationStartDate, 'yyyy.MM.dd')}">2024.12.01</div>
-                            <div th:text="${#temporals.format(program.applicationEndDate, 'yyyy.MM.dd')}">2024.12.20</div>
-                        </div>
-                    </div>
-
-                    <div class="info-row" th:if="${program.maxParticipants != null}">
-                        <div class="info-label">
-                            <i class="fas fa-users"></i>
-                            모집 정원
-                        </div>
-                        <div class="info-value">
-                            <span th:text="${program.maxParticipants}">30</span>명
-                        </div>
-                    </div>
-
-                    <!-- 참여 인원 및 진행률 -->
-                    <div class="participants-info" th:if="${program.maxParticipants != null}">
-                        <div class="participants-count">
-                            <span>현재 참여 인원</span>
-                            <strong>
-                                <span th:text="${program.currentParticipants}">15</span> /
-                                <span th:text="${program.maxParticipants}">30</span>명
-                            </strong>
-                        </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar"
-                                 th:style="'width: ' + ${program.participationRate} + '%'"></div>
-                        </div>
-                    </div>
-
-                    <!-- 신청 버튼 -->
-                    <button class="apply-button"
-                            th:disabled="${!program.applicationAvailable}"
-                            onclick="applyProgram()">
-                        <i class="fas fa-check-circle"></i>
-                        <span th:text="${program.applicationAvailable ? '프로그램 신청하기' : (program.applicationClosed ? '신청 마감' : '신청 불가')}">
-                            프로그램 신청하기
-                        </span>
-                    </button>
-                </div>
-
-                <!-- 통계 카드 -->
-                <div class="stats-card">
-                    <div class="stats-row">
-                        <div class="stat-item">
-                            <span class="stat-value" th:text="${program.hits}">245</span>
-                            <span class="stat-label">조회수</span>
-                        </div>
-                        <div class="stat-item" th:if="${program.participationRate != null}">
-                            <span class="stat-value" th:text="${program.participationRate} + '%'">50%</span>
-                            <span class="stat-label">참여율</span>
-                        </div>
-                        <div class="stat-item" th:if="${program.DDay != null}">
-                            <span class="stat-value" th:text="'D-' + ${program.DDay}">D-7</span>
-                            <span class="stat-label">남은 기간</span>
-                        </div>
-                    </div>
-                </div>
+        <!-- 첨부파일 -->
+        <div class="attachment-section">
+            <h3>첨부파일</h3>
+            <div class="attachment-item" style="background: #f8f9fa; color: #6c757d; justify-content: center;">
+                첨부파일이 없습니다.
             </div>
+        </div>
+
+        <!-- 상세일정 및 신청하기 -->
+        <div class="apply-section">
+            <h3>상세일정 및 신청하기</h3>
+            <table class="application-info-table">
+                <thead>
+                    <tr>
+                        <th>프로그램 일정</th>
+                        <th>마일리지</th>
+                        <th>신청기간</th>
+                        <th>신청현황</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td th:text="${#temporals.format(program.applicationStartDate, 'yyyy.MM.dd HH:mm')} + ' ~ ' + ${#temporals.format(program.applicationEndDate, 'HH:mm')}">
+                            2025.11.05 13:00 ~ 15:00
+                        </td>
+                        <td>-</td>
+                        <td th:text="${#temporals.format(program.applicationStartDate, 'yyyy.MM.dd')} + ' ~ ' + ${#temporals.format(program.applicationEndDate, 'yyyy.MM.dd')}">
+                            2025.11.01 ~ 2025.11.30
+                        </td>
+                        <td th:if="${program.maxParticipants != null}">
+                            <span th:text="${program.currentParticipants} + '/' + ${program.maxParticipants}">19/55</span>
+                        </td>
+                        <td th:if="${program.maxParticipants == null}">-</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button class="apply-button-large"
+                    th:disabled="${!program.applicationAvailable}"
+                    onclick="applyProgram()">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${program.applicationAvailable ? '로그인이 필요합니다' : '신청 마감'}">
+                    로그인이 필요합니다
+                </span>
+            </button>
         </div>
 
         <!-- 프로그램이 없는 경우 -->
-        <div th:if="${program == null}" style="text-align: center; padding: 60px 20px;">
-            <i class="fas fa-exclamation-circle" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
-            <h2 style="color: #666;">프로그램을 찾을 수 없습니다</h2>
-            <p style="color: #999; margin-top: 12px;">삭제되었거나 존재하지 않는 프로그램입니다.</p>
-            <a href="/programs" class="back-button" style="margin-top: 24px; display: inline-flex;">
-                <i class="fas fa-arrow-left"></i>
-                목록으로 돌아가기
-            </a>
+        <div th:if="${program == null}" style="text-align: center; padding: 100px 20px; background: white; border-radius: 8px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 64px; color: #dee2e6; margin-bottom: 20px;"></i>
+            <h2 style="color: #495057; margin-bottom: 12px;">프로그램을 찾을 수 없습니다</h2>
+            <p style="color: #6c757d;">삭제되었거나 존재하지 않는 프로그램입니다.</p>
         </div>
     </div>
 
     <script>
-        function applyProgram() {
-            // TODO: 프로그램 신청 기능 구현
-            alert('프로그램 신청 기능은 추후 구현 예정입니다.');
+        function showTab(event, tabId) {
+            // 모든 탭 버튼 비활성화
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 모든 탭 패널 숨기기
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+
+            // 클릭한 탭 버튼 활성화
+            event.currentTarget.classList.add('active');
+
+            // 해당 탭 패널 표시
+            document.getElementById(tabId).classList.add('active');
         }
 
-        // 진행률 바 애니메이션
-        document.addEventListener('DOMContentLoaded', function() {
-            const progressBar = document.querySelector('.progress-bar');
-            if (progressBar) {
-                setTimeout(() => {
-                    progressBar.style.width = progressBar.style.width;
-                }, 100);
-            }
-        });
+        function applyProgram() {
+            // TODO: 프로그램 신청 기능 구현
+            alert('프로그램 신청 기능은 추후 구현 예정입니다.\n로그인 후 이용 가능합니다.');
+        }
     </script>
 </div>
 </body>
