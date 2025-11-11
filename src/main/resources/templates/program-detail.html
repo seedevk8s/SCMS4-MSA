@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="${pageTitle}">프로그램 상세</title>
+    <style>
+        .program-detail-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .program-header {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+        }
+
+        .program-badge-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            gap: 6px;
+        }
+
+        .badge.status {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .badge.status.closed {
+            background: #ECEFF1;
+            color: #546E7A;
+        }
+
+        .badge.status.full {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        .badge.dday {
+            background: #F3E5F5;
+            color: #6A1B9A;
+            font-size: 15px;
+        }
+
+        .badge.dday.urgent {
+            background: #FCE4EC;
+            color: #C2185B;
+        }
+
+        .badge.category {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .program-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0 0 16px 0;
+            line-height: 1.4;
+        }
+
+        .program-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            color: #666;
+            font-size: 15px;
+        }
+
+        .program-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .program-meta-item i {
+            color: #2C5F5D;
+        }
+
+        .program-content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+        }
+
+        .program-main-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .program-sidebar {
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .info-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0 0 24px 0;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .participants-info {
+            margin-top: 24px;
+        }
+
+        .participants-count {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .participants-count span {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .participants-count strong {
+            font-size: 18px;
+            color: #2C5F5D;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2C5F5D 0%, #4A8280 100%);
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+
+        .apply-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #2C5F5D 0%, #4A8280 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .apply-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(44, 95, 93, 0.3);
+        }
+
+        .apply-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #2C5F5D;
+        }
+
+        .section-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+            white-space: pre-wrap;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            color: #666;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            border-color: #2C5F5D;
+            color: #2C5F5D;
+        }
+
+        .stats-card {
+            background: #f8fafa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2C5F5D;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+            display: block;
+        }
+
+        @media (max-width: 968px) {
+            .program-content-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .program-sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .program-header {
+                padding: 24px;
+            }
+
+            .program-title {
+                font-size: 24px;
+            }
+
+            .program-main-content {
+                padding: 24px;
+            }
+
+            .info-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="program-detail-container">
+        <!-- 뒤로가기 버튼 -->
+        <a href="/programs" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            목록으로 돌아가기
+        </a>
+
+        <!-- 프로그램 헤더 -->
+        <div class="program-header" th:if="${program != null}">
+            <div class="program-badge-row">
+                <!-- 상태 뱃지 -->
+                <span class="badge status"
+                      th:classappend="${program.applicationClosed ? 'closed' : (program.status.name() == 'FULL' ? 'full' : '')}"
+                      th:if="${program.status != null}">
+                    <i class="fas fa-circle" th:style="${program.status.name() == 'OPEN' ? 'font-size: 8px;' : ''}"></i>
+                    <span th:text="${program.applicationClosed ? '마감' : (program.status.name() == 'FULL' ? '모집완료' : '모집중')}">모집중</span>
+                </span>
+
+                <!-- D-day 뱃지 -->
+                <span class="badge dday"
+                      th:if="${program.DDay != null}"
+                      th:classappend="${program.DDay <= 3 ? 'urgent' : ''}">
+                    <i class="fas fa-clock"></i>
+                    <span th:text="${program.DDay == 0 ? '오늘 마감' : (program.DDay == 1 ? 'D-1' : 'D-' + program.DDay)}">D-7</span>
+                </span>
+
+                <!-- 카테고리 뱃지 -->
+                <span class="badge category" th:if="${program.category != null}">
+                    <i class="fas fa-tag"></i>
+                    <span th:text="${program.category}">학습역량</span>
+                </span>
+            </div>
+
+            <h1 class="program-title" th:text="${program.title}">프로그램 제목</h1>
+
+            <div class="program-meta">
+                <div class="program-meta-item" th:if="${program.department != null}">
+                    <i class="fas fa-building"></i>
+                    <span th:text="${program.department}">교수학습지원센터</span>
+                </div>
+                <div class="program-meta-item" th:if="${program.college != null}">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span th:text="${program.college}">RISE사업단</span>
+                </div>
+                <div class="program-meta-item" th:if="${program.subCategory != null}">
+                    <i class="fas fa-folder"></i>
+                    <span th:text="${program.subCategory}">학습법</span>
+                </div>
+                <div class="program-meta-item">
+                    <i class="fas fa-eye"></i>
+                    <span th:text="${program.hits}">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 프로그램 본문 -->
+        <div class="program-content-wrapper" th:if="${program != null}">
+            <!-- 메인 컨텐츠 -->
+            <div class="program-main-content">
+                <!-- 프로그램 설명 -->
+                <div class="section">
+                    <h2 class="section-title">프로그램 소개</h2>
+                    <div class="section-content" th:text="${program.description}">
+                        프로그램 설명이 여기에 표시됩니다.
+                    </div>
+                </div>
+
+                <!-- 프로그램 상세 내용 -->
+                <div class="section" th:if="${program.content != null && !program.content.isEmpty()}">
+                    <h2 class="section-title">상세 내용</h2>
+                    <div class="section-content" th:text="${program.content}">
+                        프로그램 상세 내용이 여기에 표시됩니다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 사이드바 -->
+            <div class="program-sidebar">
+                <!-- 신청 정보 카드 -->
+                <div class="info-card">
+                    <h3>신청 정보</h3>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-calendar-check"></i>
+                            신청 기간
+                        </div>
+                        <div class="info-value" style="text-align: right; font-size: 13px; font-weight: 500;">
+                            <div th:text="${#temporals.format(program.applicationStartDate, 'yyyy.MM.dd')}">2024.12.01</div>
+                            <div th:text="${#temporals.format(program.applicationEndDate, 'yyyy.MM.dd')}">2024.12.20</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row" th:if="${program.maxParticipants != null}">
+                        <div class="info-label">
+                            <i class="fas fa-users"></i>
+                            모집 정원
+                        </div>
+                        <div class="info-value">
+                            <span th:text="${program.maxParticipants}">30</span>명
+                        </div>
+                    </div>
+
+                    <!-- 참여 인원 및 진행률 -->
+                    <div class="participants-info" th:if="${program.maxParticipants != null}">
+                        <div class="participants-count">
+                            <span>현재 참여 인원</span>
+                            <strong>
+                                <span th:text="${program.currentParticipants}">15</span> /
+                                <span th:text="${program.maxParticipants}">30</span>명
+                            </strong>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar"
+                                 th:style="'width: ' + ${program.participationRate} + '%'"></div>
+                        </div>
+                    </div>
+
+                    <!-- 신청 버튼 -->
+                    <button class="apply-button"
+                            th:disabled="${!program.applicationAvailable}"
+                            onclick="applyProgram()">
+                        <i class="fas fa-check-circle"></i>
+                        <span th:text="${program.applicationAvailable ? '프로그램 신청하기' : (program.applicationClosed ? '신청 마감' : '신청 불가')}">
+                            프로그램 신청하기
+                        </span>
+                    </button>
+                </div>
+
+                <!-- 통계 카드 -->
+                <div class="stats-card">
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-value" th:text="${program.hits}">245</span>
+                            <span class="stat-label">조회수</span>
+                        </div>
+                        <div class="stat-item" th:if="${program.participationRate != null}">
+                            <span class="stat-value" th:text="${program.participationRate} + '%'">50%</span>
+                            <span class="stat-label">참여율</span>
+                        </div>
+                        <div class="stat-item" th:if="${program.DDay != null}">
+                            <span class="stat-value" th:text="'D-' + ${program.DDay}">D-7</span>
+                            <span class="stat-label">남은 기간</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 프로그램이 없는 경우 -->
+        <div th:if="${program == null}" style="text-align: center; padding: 60px 20px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+            <h2 style="color: #666;">프로그램을 찾을 수 없습니다</h2>
+            <p style="color: #999; margin-top: 12px;">삭제되었거나 존재하지 않는 프로그램입니다.</p>
+            <a href="/programs" class="back-button" style="margin-top: 24px; display: inline-flex;">
+                <i class="fas fa-arrow-left"></i>
+                목록으로 돌아가기
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function applyProgram() {
+            // TODO: 프로그램 신청 기능 구현
+            alert('프로그램 신청 기능은 추후 구현 예정입니다.');
+        }
+
+        // 진행률 바 애니메이션
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.querySelector('.progress-bar');
+            if (progressBar) {
+                setTimeout(() => {
+                    progressBar.style.width = progressBar.style.width;
+                }, 100);
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

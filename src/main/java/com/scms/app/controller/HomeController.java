@@ -64,6 +64,38 @@ public class HomeController {
     }
 
     /**
+     * 프로그램 상세 페이지
+     */
+    @GetMapping("/programs/{programId}")
+    public String programDetail(
+            @org.springframework.web.bind.annotation.PathVariable Integer programId,
+            Model model,
+            HttpSession session) {
+        // 세션에서 사용자 정보 가져오기
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId != null) {
+            model.addAttribute("userName", session.getAttribute("name"));
+            UserRole role = (UserRole) session.getAttribute("role");
+            model.addAttribute("userRole", role);
+            if (session.getAttribute("isAdmin") == null && role != null) {
+                session.setAttribute("isAdmin", role == UserRole.ADMIN);
+            }
+        }
+
+        // 프로그램 조회 (조회수 증가)
+        try {
+            Program program = programService.getProgramWithHitIncrement(programId);
+            model.addAttribute("program", program);
+            model.addAttribute("pageTitle", program.getTitle() + " - 프로그램 상세");
+            return "program-detail";
+        } catch (IllegalArgumentException e) {
+            // 프로그램이 존재하지 않는 경우
+            model.addAttribute("error", "프로그램을 찾을 수 없습니다.");
+            return "redirect:/programs";
+        }
+    }
+
+    /**
      * 프로그램 전체보기 페이지
      */
     @GetMapping("/programs")
