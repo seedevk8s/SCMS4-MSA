@@ -740,7 +740,9 @@
 
                 <div class="program-carousel-container" id="programCarousel">
                     <!-- JavaScript로 동적으로 페이지 생성 -->
-                    <div th:each="program, iterStat : ${programs}" class="program-card" th:attr="data-index=${iterStat.index}">
+                    <div th:each="program, iterStat : ${programs}" class="program-card"
+                         th:attr="data-index=${iterStat.index}"
+                         th:onclick="'location.href=\'/programs/' + ${program.programId} + '\''">
                     <!-- 배경색 설정 -->
                     <div class="program-image" th:attr="data-bg-index=${iterStat.index % 8}">
                         <!-- D-day 배지 -->
