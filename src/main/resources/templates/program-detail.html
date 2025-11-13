@@ -40,12 +40,15 @@
             font-size: 18px;
         }
 
-        .program-thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-        }
+        /* 썸네일 배경색 (8가지 gradient 순환) */
+        .program-thumbnail[data-color="0"] { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .program-thumbnail[data-color="1"] { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .program-thumbnail[data-color="2"] { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .program-thumbnail[data-color="3"] { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .program-thumbnail[data-color="4"] { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .program-thumbnail[data-color="5"] { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+        .program-thumbnail[data-color="6"] { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .program-thumbnail[data-color="7"] { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
 
         .program-info-right {
             display: flex;
@@ -417,15 +420,8 @@
         <!-- 프로그램 헤더 -->
         <div class="program-header-section" th:if="${program != null}">
             <div class="program-header-content">
-                <!-- 썸네일 -->
-                <div class="program-thumbnail">
-                    <img th:if="${program.thumbnailUrl != null}"
-                         th:src="${program.thumbnailUrl}"
-                         th:alt="${program.title}">
-                    <div th:if="${program.thumbnailUrl == null}"
-                         style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e9ecef;">
-                        <i class="fas fa-image" style="font-size: 48px; color: #adb5bd;"></i>
-                    </div>
+                <!-- 썸네일 (gradient 배경색) -->
+                <div class="program-thumbnail" th:attr="data-color=${program.programId % 8}">
                 </div>
 
                 <!-- 우측 정보 -->
