@@ -20,6 +20,8 @@ public interface ProgramApplicationRepository extends JpaRepository<ProgramAppli
      * 사용자의 특정 프로그램 신청 조회 (삭제되지 않은 것만)
      */
     @Query("SELECT pa FROM ProgramApplication pa " +
+           "JOIN FETCH pa.program " +
+           "JOIN FETCH pa.user " +
            "WHERE pa.user.userId = :userId " +
            "AND pa.program.programId = :programId " +
            "AND pa.deletedAt IS NULL")
@@ -31,6 +33,8 @@ public interface ProgramApplicationRepository extends JpaRepository<ProgramAppli
      * 사용자의 모든 신청 내역 조회 (삭제되지 않은 것만, 최신순)
      */
     @Query("SELECT pa FROM ProgramApplication pa " +
+           "JOIN FETCH pa.program " +
+           "JOIN FETCH pa.user " +
            "WHERE pa.user.userId = :userId " +
            "AND pa.deletedAt IS NULL " +
            "ORDER BY pa.appliedAt DESC")
@@ -40,6 +44,8 @@ public interface ProgramApplicationRepository extends JpaRepository<ProgramAppli
      * 프로그램별 신청 내역 조회 (삭제되지 않은 것만)
      */
     @Query("SELECT pa FROM ProgramApplication pa " +
+           "JOIN FETCH pa.program " +
+           "JOIN FETCH pa.user " +
            "WHERE pa.program.programId = :programId " +
            "AND pa.deletedAt IS NULL " +
            "ORDER BY pa.appliedAt DESC")
@@ -49,6 +55,8 @@ public interface ProgramApplicationRepository extends JpaRepository<ProgramAppli
      * 사용자의 특정 상태 신청 내역 조회
      */
     @Query("SELECT pa FROM ProgramApplication pa " +
+           "JOIN FETCH pa.program " +
+           "JOIN FETCH pa.user " +
            "WHERE pa.user.userId = :userId " +
            "AND pa.status = :status " +
            "AND pa.deletedAt IS NULL " +
@@ -61,6 +69,8 @@ public interface ProgramApplicationRepository extends JpaRepository<ProgramAppli
      * 프로그램별 특정 상태 신청 내역 조회
      */
     @Query("SELECT pa FROM ProgramApplication pa " +
+           "JOIN FETCH pa.program " +
+           "JOIN FETCH pa.user " +
            "WHERE pa.program.programId = :programId " +
            "AND pa.status = :status " +
            "AND pa.deletedAt IS NULL " +
