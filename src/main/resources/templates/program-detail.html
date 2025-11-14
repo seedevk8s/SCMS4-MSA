@@ -503,12 +503,15 @@
                     <tr>
                         <th>프로그램 일정</th>
                         <th>상태</th>
+                        <th>신청일</th>
                         <th>비고</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="application-status-tbody">
                     <tr>
-                        <td colspan="3" style="padding: 40px; color: #6c757d;">신청 내역이 없습니다.</td>
+                        <td colspan="4" style="padding: 40px; color: #6c757d;">
+                            <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -594,11 +597,11 @@
                 </tbody>
             </table>
 
-            <button class="apply-button-large"
+            <button id="apply-button" class="apply-button-large"
                     th:disabled="${!program.applicationAvailable}"
                     onclick="applyProgram()">
                 <i class="fas fa-check-circle"></i>
-                <span th:text="${program.applicationAvailable ? '로그인이 필요합니다' : '신청 마감'}">
+                <span id="apply-button-text" th:text="${program.applicationAvailable ? '로그인이 필요합니다' : '신청 마감'}">
                     로그인이 필요합니다
                 </span>
             </button>
@@ -612,7 +615,20 @@
         </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
+        const programId = /*[[${program?.programId}]]*/ null;
+        const userId = /*[[${session.userId}]]*/ null;
+        let currentApplication = null;
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            if (programId && userId) {
+                loadApplicationStatus();
+            } else {
+                updateApplyButton();
+            }
+        });
+
         function showTab(event, tabId) {
             // 모든 탭 버튼 비활성화
             document.querySelectorAll('.tab-button').forEach(btn => {
@@ -629,11 +645,211 @@
 
             // 해당 탭 패널 표시
             document.getElementById(tabId).classList.add('active');
+
+            // 나의 신청내역 탭 클릭 시 데이터 로드
+            if (tabId === 'application-status' && userId) {
+                loadApplicationStatus();
+            }
         }
 
-        function applyProgram() {
-            // TODO: 프로그램 신청 기능 구현
-            alert('프로그램 신청 기능은 추후 구현 예정입니다.\n로그인 후 이용 가능합니다.');
+        // 신청 상태 로드
+        async function loadApplicationStatus() {
+            try {
+                const response = await fetch(`/api/programs/${programId}/my-application`);
+                const data = await response.json();
+
+                if (data.applied) {
+                    currentApplication = data.application;
+                    displayApplicationStatus(data.application);
+                } else {
+                    currentApplication = null;
+                    displayNoApplication();
+                }
+
+                updateApplyButton();
+
+            } catch (error) {
+                console.error('신청 상태 로드 실패:', error);
+                displayLoadError();
+            }
+        }
+
+        // 신청 내역 표시
+        function displayApplicationStatus(application) {
+            const tbody = document.getElementById('application-status-tbody');
+            const appliedDate = new Date(application.appliedAt).toLocaleString('ko-KR');
+            const startDate = new Date(application.programStartDate).toLocaleDateString('ko-KR');
+            const endDate = new Date(application.programEndDate).toLocaleDateString('ko-KR');
+
+            let statusBadge = '';
+            let statusColor = '';
+
+            switch(application.status) {
+                case 'PENDING':
+                    statusBadge = '대기';
+                    statusColor = '#ffc107';
+                    break;
+                case 'APPROVED':
+                    statusBadge = '승인';
+                    statusColor = '#28a745';
+                    break;
+                case 'REJECTED':
+                    statusBadge = '거부';
+                    statusColor = '#dc3545';
+                    break;
+                case 'CANCELLED':
+                    statusBadge = '취소';
+                    statusColor = '#6c757d';
+                    break;
+                case 'COMPLETED':
+                    statusBadge = '참여완료';
+                    statusColor = '#17a2b8';
+                    break;
+            }
+
+            let actionButton = '';
+            if (application.cancellable) {
+                actionButton = `<button onclick="cancelApplication(${application.applicationId})"
+                                        style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    취소하기
+                                </button>`;
+            }
+
+            tbody.innerHTML = `
+                <tr>
+                    <td>${startDate} ~ ${endDate}</td>
+                    <td><span style="display: inline-block; padding: 4px 12px; background: ${statusColor}; color: white; border-radius: 4px; font-weight: 600;">${statusBadge}</span></td>
+                    <td>${appliedDate}</td>
+                    <td>${actionButton || '-'}</td>
+                </tr>
+            `;
+        }
+
+        // 신청 내역 없음 표시
+        function displayNoApplication() {
+            const tbody = document.getElementById('application-status-tbody');
+            if (!userId) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="padding: 40px; color: #6c757d;">
+                            로그인 후 신청 내역을 확인할 수 있습니다.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="padding: 40px; color: #6c757d;">
+                            신청 내역이 없습니다.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // 로드 에러 표시
+        function displayLoadError() {
+            const tbody = document.getElementById('application-status-tbody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="padding: 40px; color: #dc3545;">
+                        <i class="fas fa-exclamation-triangle"></i> 데이터를 불러오는 중 오류가 발생했습니다.
+                    </td>
+                </tr>
+            `;
+        }
+
+        // 신청 버튼 상태 업데이트
+        function updateApplyButton() {
+            const button = document.getElementById('apply-button');
+            const buttonText = document.getElementById('apply-button-text');
+
+            if (!userId) {
+                button.disabled = false;
+                buttonText.textContent = '로그인이 필요합니다';
+                button.onclick = function() {
+                    if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+                        window.location.href = '/login';
+                    }
+                };
+            } else if (currentApplication) {
+                button.disabled = true;
+                buttonText.textContent = '신청 완료';
+            } else {
+                button.disabled = false;
+                buttonText.textContent = '신청하기';
+                button.onclick = applyProgram;
+            }
+        }
+
+        // 프로그램 신청
+        async function applyProgram() {
+            if (!userId) {
+                if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+                    window.location.href = '/login';
+                }
+                return;
+            }
+
+            if (!confirm('이 프로그램을 신청하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/programs/${programId}/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert('프로그램 신청이 완료되었습니다!');
+                    currentApplication = data.application;
+                    updateApplyButton();
+                    loadApplicationStatus();
+                    // 페이지 새로고침으로 참가자 수 업데이트
+                    location.reload();
+                } else {
+                    alert(data.error || '신청에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('신청 실패:', error);
+                alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            }
+        }
+
+        // 프로그램 신청 취소
+        async function cancelApplication(applicationId) {
+            if (!confirm('신청을 취소하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/programs/applications/${applicationId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert('신청이 취소되었습니다.');
+                    currentApplication = null;
+                    updateApplyButton();
+                    loadApplicationStatus();
+                    // 페이지 새로고침으로 참가자 수 업데이트
+                    location.reload();
+                } else {
+                    alert(data.error || '취소에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('취소 실패:', error);
+                alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            }
         }
     </script>
 </div>
