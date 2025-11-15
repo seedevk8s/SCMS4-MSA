@@ -203,4 +203,136 @@ public class ProgramApplicationController {
                     .body(Map.of("error", "서버 오류가 발생했습니다."));
         }
     }
+
+    /**
+     * 신청 승인 (관리자용)
+     */
+    @PostMapping("/applications/{applicationId}/approve")
+    public ResponseEntity<?> approveApplication(
+            @PathVariable Integer applicationId,
+            HttpSession session) {
+
+        // 관리자 확인
+        Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
+        if (isAdmin == null || !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "관리자 권한이 필요합니다."));
+        }
+
+        try {
+            applicationService.approveApplication(applicationId);
+
+            log.info("프로그램 신청 승인 성공: 신청 ID {}", applicationId);
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "신청이 승인되었습니다."
+            ));
+
+        } catch (IllegalArgumentException e) {
+            log.error("신청 승인 실패 (잘못된 요청): {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (IllegalStateException e) {
+            log.error("신청 승인 실패 (상태 오류): {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (Exception e) {
+            log.error("신청 승인 실패 (서버 오류): ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "서버 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 신청 거부 (관리자용)
+     */
+    @PostMapping("/applications/{applicationId}/reject")
+    public ResponseEntity<?> rejectApplication(
+            @PathVariable Integer applicationId,
+            @RequestBody(required = false) Map<String, String> requestBody,
+            HttpSession session) {
+
+        // 관리자 확인
+        Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
+        if (isAdmin == null || !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "관리자 권한이 필요합니다."));
+        }
+
+        try {
+            String reason = (requestBody != null) ? requestBody.get("reason") : null;
+            if (reason == null || reason.trim().isEmpty()) {
+                reason = "관리자에 의해 거부됨";
+            }
+
+            applicationService.rejectApplication(applicationId, reason);
+
+            log.info("프로그램 신청 거부 성공: 신청 ID {}, 사유: {}", applicationId, reason);
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "신청이 거부되었습니다."
+            ));
+
+        } catch (IllegalArgumentException e) {
+            log.error("신청 거부 실패 (잘못된 요청): {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (IllegalStateException e) {
+            log.error("신청 거부 실패 (상태 오류): {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (Exception e) {
+            log.error("신청 거부 실패 (서버 오류): ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "서버 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 참여 완료 처리 (관리자용)
+     */
+    @PostMapping("/applications/{applicationId}/complete")
+    public ResponseEntity<?> completeApplication(
+            @PathVariable Integer applicationId,
+            HttpSession session) {
+
+        // 관리자 확인
+        Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
+        if (isAdmin == null || !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "관리자 권한이 필요합니다."));
+        }
+
+        try {
+            applicationService.completeApplication(applicationId);
+
+            log.info("프로그램 참여 완료 처리 성공: 신청 ID {}", applicationId);
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "참여 완료 처리되었습니다."
+            ));
+
+        } catch (IllegalArgumentException e) {
+            log.error("참여 완료 처리 실패 (잘못된 요청): {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (IllegalStateException e) {
+            log.error("참여 완료 처리 실패 (상태 오류): {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
+
+        } catch (Exception e) {
+            log.error("참여 완료 처리 실패 (서버 오류): ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "서버 오류가 발생했습니다."));
+        }
+    }
 }

@@ -170,6 +170,25 @@ public class ProgramApplicationService {
     }
 
     /**
+     * 참여 완료 처리 (관리자용)
+     */
+    @Transactional
+    public void completeApplication(Integer applicationId) {
+        ProgramApplication application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다: ID " + applicationId));
+
+        if (application.getStatus() != ApplicationStatus.APPROVED) {
+            throw new IllegalStateException("승인된 신청만 완료 처리할 수 있습니다.");
+        }
+
+        application.complete();
+        applicationRepository.save(application);
+
+        log.info("프로그램 참여 완료 처리: 신청 ID {}, 사용자 {}",
+                applicationId, application.getUser().getName());
+    }
+
+    /**
      * 신청 ID로 조회
      */
     public ProgramApplication getApplication(Integer applicationId) {
