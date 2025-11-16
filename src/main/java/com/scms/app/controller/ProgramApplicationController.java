@@ -1,15 +1,26 @@
 package com.scms.app.controller;
 
 import com.scms.app.dto.ProgramApplicationResponse;
+import com.scms.app.model.Program;
 import com.scms.app.model.ProgramApplication;
+import com.scms.app.service.ExcelService;
 import com.scms.app.service.ProgramApplicationService;
+import com.scms.app.service.ProgramService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +36,8 @@ import java.util.stream.Collectors;
 public class ProgramApplicationController {
 
     private final ProgramApplicationService applicationService;
+    private final ExcelService excelService;
+    private final ProgramService programService;
 
     /**
      * 프로그램 신청
@@ -201,6 +214,58 @@ public class ProgramApplicationController {
             log.error("프로그램 신청 내역 조회 실패: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "서버 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 프로그램별 신청 내역 Excel 다운로드 (관리자용)
+     */
+    @GetMapping("/{programId}/applications/excel")
+    public ResponseEntity<?> downloadApplicationsExcel(
+            @PathVariable Integer programId,
+            HttpSession session) {
+
+        // 관리자 확인
+        Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
+        if (isAdmin == null || !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "관리자 권한이 필요합니다."));
+        }
+
+        try {
+            // 프로그램 정보 조회
+            Program program = programService.getProgramById(programId);
+            if (program == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "프로그램을 찾을 수 없습니다."));
+            }
+
+            // 신청 내역 조회
+            List<ProgramApplication> applications = applicationService.getProgramApplications(programId);
+
+            // Excel 파일 생성
+            ByteArrayInputStream excelFile = excelService.generateApplicationsExcel(applications, program.getTitle());
+
+            // 파일명 생성 (한글 인코딩 처리)
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            String fileName = String.format("%s_신청자목록_%s.xlsx", program.getTitle(), timestamp);
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+
+            // HTTP 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+            log.info("Excel 다운로드 성공: 프로그램 ID {}, 신청 수 {}", programId, applications.size());
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(new InputStreamResource(excelFile));
+
+        } catch (Exception e) {
+            log.error("Excel 다운로드 실패: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Excel 파일 생성에 실패했습니다."));
         }
     }
 
