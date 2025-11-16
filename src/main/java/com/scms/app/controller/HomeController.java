@@ -77,9 +77,13 @@ public class HomeController {
             model.addAttribute("userName", session.getAttribute("name"));
             UserRole role = (UserRole) session.getAttribute("role");
             model.addAttribute("userRole", role);
-            if (session.getAttribute("isAdmin") == null && role != null) {
-                session.setAttribute("isAdmin", role == UserRole.ADMIN);
-            }
+
+            // isAdmin 세션 및 Model 설정
+            boolean isAdmin = role == UserRole.ADMIN;
+            session.setAttribute("isAdmin", isAdmin);
+            model.addAttribute("isAdmin", isAdmin);
+        } else {
+            model.addAttribute("isAdmin", false);
         }
 
         // 프로그램 조회 (조회수 증가)
