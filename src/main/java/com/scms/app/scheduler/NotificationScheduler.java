@@ -32,6 +32,53 @@ public class NotificationScheduler {
     private final ProgramApplicationRepository applicationRepository;
 
     /**
+     * 프로그램 시작 알림 (D-1)
+     * 매일 오전 9시 실행
+     * 내일 시작하는 프로그램에 대해 APPROVED 상태인 사용자에게 알림
+     */
+    @Scheduled(cron = "0 0 9 * * *")
+    public void sendProgramStartingNotifications() {
+        log.info("프로그램 시작 알림 스케줄러 시작");
+
+        try {
+            LocalDate tomorrow = LocalDate.now().plusDays(1);
+
+            // 내일 시작하는 프로그램 조회
+            List<Program> programs = programRepository.findProgramsStartingOn(tomorrow);
+
+            int notificationCount = 0;
+            for (Program program : programs) {
+                // 승인된 사용자에게만 알림
+                List<ProgramApplication> approvedApplications =
+                        applicationRepository.findByProgramIdAndStatus(
+                                program.getProgramId(),
+                                ApplicationStatus.APPROVED);
+
+                for (ProgramApplication application : approvedApplications) {
+                    try {
+                        String relatedUrl = "/programs/" + program.getProgramId();
+                        notificationService.createNotificationByType(
+                                application.getUser().getUserId(),
+                                NotificationType.PROGRAM_STARTING,
+                                program.getTitle(),
+                                relatedUrl
+                        );
+                        notificationCount++;
+                    } catch (Exception e) {
+                        log.error("프로그램 시작 알림 생성 실패: programId={}, userId={}, error={}",
+                                program.getProgramId(), application.getUser().getUserId(), e.getMessage());
+                    }
+                }
+            }
+
+            log.info("프로그램 시작 알림 발송 완료: 프로그램 수={}, 알림 수={}",
+                    programs.size(), notificationCount);
+        } catch (Exception e) {
+            log.error("프로그램 시작 알림 스케줄러 실패: error={}", e.getMessage(), e);
+        }
+    }
+
+    /**
      * 마감 임박 알림 (D-3)
      * 매일 오전 9시 실행
      * 3일 후 신청이 마감되는 프로그램에 대해 PENDING 상태인 사용자에게 알림

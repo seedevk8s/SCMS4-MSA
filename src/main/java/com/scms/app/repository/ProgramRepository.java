@@ -136,4 +136,14 @@ public interface ProgramRepository extends JpaRepository<Program, Integer> {
            "AND p.status = 'OPEN' " +
            "AND p.deletedAt IS NULL")
     List<Program> findProgramsWithDeadlineOn(@Param("date") LocalDate date);
+
+    /**
+     * 특정 날짜에 시작하는 프로그램 조회 (스케줄러용 - D-1 알림)
+     * programStartDate를 기준으로 조회
+     */
+    @Query("SELECT p FROM Program p WHERE " +
+           "CAST(p.programStartDate AS date) = :date " +
+           "AND p.status = 'OPEN' " +
+           "AND p.deletedAt IS NULL")
+    List<Program> findProgramsStartingOn(@Param("date") LocalDate date);
 }
