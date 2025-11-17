@@ -32,6 +32,9 @@ public class DatabaseMigration implements CommandLineRunner {
             // 2. program_start_date, program_end_date 컬럼 추가
             addProgramExecutionDateColumns();
 
+            // 3. program_files 테이블 생성
+            createProgramFilesTableIfNotExists();
+
             log.info("✅ 데이터베이스 마이그레이션 완료!");
         } catch (Exception e) {
             log.error("데이터베이스 마이그레이션 실패: {}", e.getMessage(), e);
@@ -177,6 +180,54 @@ public class DatabaseMigration implements CommandLineRunner {
         } catch (Exception e) {
             log.error("프로그램 실행 날짜 컬럼 추가 실패: {}", e.getMessage(), e);
         }
+    }
+
+    /**
+     * program_files 테이블 생성
+     */
+    private void createProgramFilesTableIfNotExists() {
+        try {
+            boolean tableExists = checkTableExists("program_files");
+
+            if (!tableExists) {
+                log.info("program_files 테이블을 생성합니다...");
+                createProgramFilesTable();
+            } else {
+                log.info("✅ program_files 테이블이 이미 존재합니다.");
+            }
+        } catch (Exception e) {
+            log.error("program_files 테이블 생성 실패: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * program_files 테이블 생성 쿼리
+     */
+    private void createProgramFilesTable() {
+        String createTableSql = """
+            CREATE TABLE program_files (
+                file_id INT AUTO_INCREMENT PRIMARY KEY,
+                program_id INT NOT NULL,
+                original_file_name VARCHAR(255) NOT NULL,
+                stored_file_name VARCHAR(255) NOT NULL,
+                file_path VARCHAR(500) NOT NULL,
+                file_size BIGINT,
+                file_type VARCHAR(100),
+                uploaded_at DATETIME,
+                deleted_at DATETIME,
+                uploaded_by INT,
+                CONSTRAINT fk_program_file_program FOREIGN KEY (program_id)
+                    REFERENCES programs(program_id) ON DELETE CASCADE,
+                CONSTRAINT fk_program_file_user FOREIGN KEY (uploaded_by)
+                    REFERENCES users(user_id) ON DELETE SET NULL,
+                INDEX idx_program_id (program_id),
+                INDEX idx_deleted_at (deleted_at),
+                INDEX idx_uploaded_at (uploaded_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            """;
+
+        jdbcTemplate.execute(createTableSql);
+        log.info("✅ program_files 테이블 생성 완료");
     }
 
     /**
