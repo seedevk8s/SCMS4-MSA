@@ -284,25 +284,58 @@
 
     // 페이지 로드 시 알림 목록 가져오기
     function loadNotifications() {
+        console.log('[DEBUG] loadNotifications() 시작');
+        const container = document.getElementById('notificationsList');
+
+        // 로딩 상태 명시적으로 표시
+        container.innerHTML = '<div class="loading">알림을 불러오는 중...</div>';
+
         fetch('/api/notifications')
             .then(response => {
-                console.log('API 응답 상태:', response.status);
+                console.log('[DEBUG] API 응답 받음');
+                console.log('[DEBUG] - 상태 코드:', response.status);
+                console.log('[DEBUG] - OK 여부:', response.ok);
+                console.log('[DEBUG] - Content-Type:', response.headers.get('content-type'));
+
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-                return response.json();
+                return response.text();  // 먼저 text로 받기
             })
-            .then(data => {
-                console.log('알림 데이터:', data);
-                notifications = data;
-                renderNotifications();
+            .then(text => {
+                console.log('[DEBUG] 응답 텍스트 길이:', text.length);
+                console.log('[DEBUG] 응답 내용 (처음 200자):', text.substring(0, 200));
+
+                try {
+                    const data = JSON.parse(text);
+                    console.log('[DEBUG] JSON 파싱 성공');
+                    console.log('[DEBUG] 데이터 타입:', typeof data);
+                    console.log('[DEBUG] 배열 여부:', Array.isArray(data));
+                    console.log('[DEBUG] 데이터 길이:', Array.isArray(data) ? data.length : 'N/A');
+                    console.log('[DEBUG] 전체 데이터:', data);
+
+                    notifications = data;
+                    renderNotifications();
+                } catch (e) {
+                    console.error('[ERROR] JSON 파싱 실패:', e);
+                    throw new Error('JSON 파싱 실패: ' + e.message);
+                }
             })
             .catch(error => {
-                console.error('알림 목록 조회 실패:', error);
-                document.getElementById('notificationsList').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-text">알림을 불러올 수 없습니다.</div>
-                        <div class="empty-state-subtext">에러: ${error.message}</div>
+                console.error('[ERROR] 알림 목록 조회 실패');
+                console.error('[ERROR] 에러 타입:', error.name);
+                console.error('[ERROR] 에러 메시지:', error.message);
+                console.error('[ERROR] 스택:', error.stack);
+
+                container.innerHTML = `
+                    <div class="empty-state" style="color: #dc3545;">
+                        <div class="empty-state-text">❌ 알림을 불러올 수 없습니다</div>
+                        <div class="empty-state-subtext" style="font-size: 14px; margin-top: 10px;">
+                            <strong>에러:</strong> ${error.message}
+                        </div>
+                        <div style="font-size: 12px; margin-top: 10px; color: #666;">
+                            F12 Console을 열어 자세한 에러를 확인하세요
+                        </div>
                     </div>
                 `;
             });
@@ -310,21 +343,31 @@
 
     // 알림 목록 렌더링
     function renderNotifications() {
+        console.log('[DEBUG] renderNotifications() 시작');
+        console.log('[DEBUG] notifications 값:', notifications);
+
         const container = document.getElementById('notificationsList');
 
         // 배열이 아니면 에러 처리
         if (!Array.isArray(notifications)) {
-            console.error('notifications가 배열이 아닙니다:', notifications);
+            console.error('[ERROR] notifications가 배열이 아닙니다');
+            console.error('[ERROR] 실제 타입:', typeof notifications);
+            console.error('[ERROR] 실제 값:', notifications);
+
             container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-text">알림을 불러올 수 없습니다.</div>
-                    <div class="empty-state-subtext">데이터 형식 오류</div>
+                <div class="empty-state" style="color: #dc3545;">
+                    <div class="empty-state-text">❌ 데이터 형식 오류</div>
+                    <div class="empty-state-subtext">배열이 아닌 데이터를 받았습니다</div>
                 </div>
             `;
             return;
         }
 
+        console.log('[DEBUG] notifications는 배열입니다');
+        console.log('[DEBUG] 배열 길이:', notifications.length);
+
         if (notifications.length === 0) {
+            console.log('[DEBUG] 알림 개수 0 - 빈 상태 표시');
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">🔕</div>
@@ -335,7 +378,13 @@
             return;
         }
 
-        container.innerHTML = notifications.map(notif => `
+        console.log('[DEBUG] 알림 개수:', notifications.length);
+        console.log('[DEBUG] HTML 렌더링 시작');
+
+        try {
+            container.innerHTML = notifications.map((notif, index) => {
+                console.log(`[DEBUG] 알림 ${index + 1}/${notifications.length} 렌더링 중:`, notif);
+                return `
             <div class="notification-item ${notif.isRead ? '' : 'unread'}" onclick="handleNotificationClick(${notif.notificationId}, '${notif.relatedUrl || ''}')">
                 <div class="notification-icon ${notif.type}">
                     ${getNotificationIcon(notif.type)}
@@ -353,7 +402,21 @@
                     <button class="btn-notification-action btn-delete" onclick="deleteNotification(${notif.notificationId})" title="삭제">🗑</button>
                 </div>
             </div>
-        `).join('');
+        `;
+            }).join('');
+
+            console.log('[DEBUG] HTML 렌더링 완료');
+            console.log('[DEBUG] 생성된 HTML 길이:', container.innerHTML.length);
+        } catch (e) {
+            console.error('[ERROR] 렌더링 중 에러 발생:', e);
+            console.error('[ERROR] 에러 위치:', e.stack);
+            container.innerHTML = `
+                <div class="empty-state" style="color: #dc3545;">
+                    <div class="empty-state-text">❌ 렌더링 오류</div>
+                    <div class="empty-state-subtext">${e.message}</div>
+                </div>
+            `;
+        }
     }
 
     // 알림 타입별 아이콘
