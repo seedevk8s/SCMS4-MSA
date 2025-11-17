@@ -25,6 +25,16 @@ public class ProgramApplicationResponse {
     private String programCollege;
     private LocalDateTime programStartDate;
     private LocalDateTime programEndDate;
+
+    // 사용자 정보 (관리자 신청 목록에서 필요)
+    private Integer userId;
+    private Integer studentNum;
+    private String userName;
+    private String userEmail;
+    private String userPhone;
+    private String userDepartment;
+    private Integer userGrade;
+
     private ApplicationStatus status;
     private String statusDescription;
     private LocalDateTime appliedAt;
@@ -48,6 +58,15 @@ public class ProgramApplicationResponse {
                 .programCollege(application.getProgram().getCollege())
                 .programStartDate(application.getProgram().getApplicationStartDate())
                 .programEndDate(application.getProgram().getApplicationEndDate())
+                // 사용자 정보
+                .userId(application.getUser().getUserId())
+                .studentNum(application.getUser().getStudentNum())
+                .userName(application.getUser().getName())
+                .userEmail(application.getUser().getEmail())
+                .userPhone(application.getUser().getPhone())
+                .userDepartment(application.getUser().getDepartment())
+                .userGrade(application.getUser().getGrade())
+                // 신청 상태 정보
                 .status(application.getStatus())
                 .statusDescription(application.getStatus().getDescription())
                 .appliedAt(application.getAppliedAt())
