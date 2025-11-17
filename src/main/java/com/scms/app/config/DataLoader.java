@@ -214,8 +214,47 @@ public class DataLoader implements CommandLineRunner {
             long afterCount = programRepository.count();
             log.info("✅ 초기 프로그램 데이터 로드 완료: {}개 INSERT 문 실행, {}개 프로그램 생성됨", insertCount, afterCount);
 
+            // 프로그램 실행 날짜 설정
+            updateProgramExecutionDates();
+
         } catch (Exception e) {
             log.error("초기 프로그램 데이터 로드 중 오류 발생", e);
+        }
+    }
+
+    /**
+     * 프로그램 실행 날짜 설정
+     * - programStartDate: applicationEndDate + 1일
+     * - programEndDate: programStartDate + 14일 (2주)
+     */
+    private void updateProgramExecutionDates() {
+        log.info("프로그램 실행 날짜를 설정합니다...");
+
+        try {
+            List<Program> programs = programRepository.findAll();
+            int updateCount = 0;
+
+            for (Program program : programs) {
+                if (program.getProgramStartDate() == null || program.getProgramEndDate() == null) {
+                    // 프로그램 시작일 = 신청 마감일 + 1일
+                    LocalDateTime programStartDate = program.getApplicationEndDate().plusDays(1);
+
+                    // 프로그램 종료일 = 프로그램 시작일 + 14일 (2주)
+                    LocalDateTime programEndDate = programStartDate.plusDays(14);
+
+                    program.setProgramStartDate(programStartDate);
+                    program.setProgramEndDate(programEndDate);
+                    programRepository.save(program);
+                    updateCount++;
+                }
+            }
+
+            if (updateCount > 0) {
+                log.info("✅ 프로그램 실행 날짜 설정 완료: {}개 프로그램 업데이트됨", updateCount);
+            }
+
+        } catch (Exception e) {
+            log.error("프로그램 실행 날짜 설정 중 오류 발생", e);
         }
     }
 
@@ -468,14 +507,6 @@ public class DataLoader implements CommandLineRunner {
             deadlineNotif.markAsRead();
             notificationRepository.save(deadlineNotif);
 
-            // 3. 프로그램 시작 알림 (읽지 않음)
-            notificationService.createNotificationByType(
-                    student1.getUserId(),
-                    NotificationType.PROGRAM_STARTING,
-                    program.getTitle(),
-                    programUrl
-            );
-
             // 두 번째 학생(이영희)에게 알림 생성
             if (students.size() > 1) {
                 User student2 = students.get(1);
@@ -508,8 +539,8 @@ public class DataLoader implements CommandLineRunner {
 
             long afterCount = notificationRepository.count();
             log.info("✅ 테스트 알림 데이터 생성 완료: {}건", afterCount);
-            log.info("📬 첫 번째 학생({})에게 {}건의 알림 생성됨 (읽지 않음: 2건, 읽음: 1건)",
-                    student1.getName(), 3);
+            log.info("📬 첫 번째 학생({})에게 {}건의 알림 생성됨 (읽지 않음: 1건, 읽음: 1건)",
+                    student1.getName(), 2);
 
         } catch (Exception e) {
             log.error("테스트 알림 데이터 생성 중 오류 발생", e);

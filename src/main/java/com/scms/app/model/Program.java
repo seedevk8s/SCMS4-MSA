@@ -51,6 +51,12 @@ public class Program {
     @Column(name = "application_end_date", nullable = false)
     private LocalDateTime applicationEndDate;
 
+    @Column(name = "program_start_date", nullable = false)
+    private LocalDateTime programStartDate;
+
+    @Column(name = "program_end_date", nullable = false)
+    private LocalDateTime programEndDate;
+
     @Column(name = "max_participants")
     private Integer maxParticipants;
 
