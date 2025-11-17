@@ -33,9 +33,11 @@
 
 ### 5. Git 작업 완료 ✅
 - **브랜치**: `claude/program-file-attachment-system-011fYVC96GVz1UCmUYAuwmD9`
-- **총 커밋 수**: 23개
+- **총 커밋 수**: 25개
 - **푸시 상태**: 모든 커밋 원격 저장소에 푸시 완료
 - **PR 링크**: https://github.com/seedevk8s/SCMS3/compare/main...claude/program-file-attachment-system-011fYVC96GVz1UCmUYAuwmD9
+
+---
 
 ## 주요 파일 위치
 
@@ -57,249 +59,123 @@
 
 ### 문서
 - `doc/development-logs/17_NOTIFICATION_AND_FILE_SYSTEM_COMPLETE_REFLECTION.md` - 완전한 개발 로그 및 반성문
+- `doc/development-logs/11_NEXT_IMPLEMENTATION_PLAN.md` - 전체 구현 계획
 
-## 현재 시스템 상태
+---
 
-### 작동 중인 기능
-1. ✅ 알림 시스템 완전 작동
-2. ✅ 알림 페이지 정상 로딩
-3. ✅ JavaScript 정상 실행
-4. ✅ 헤더 알림 아이콘 표시
-5. ✅ program_files 테이블 존재
+## 전체 시스템 완료 상태 (11_NEXT_IMPLEMENTATION_PLAN.md 기준)
 
-### 데이터베이스 테이블
-- `notifications` - 알림 데이터
-- `program_files` - 프로그램 첨부파일 메타데이터 (생성 완료, 백엔드 미구현)
+### ✅ 1순위: 후기/리뷰 시스템 - 완료 (2025-11-17)
+- ProgramReview Entity, Repository, Service, Controller
+- program-detail.html에 후기 탭 구현
+- 별점 평가, 후기 작성/수정/삭제, 평균 별점 계산
+- 문서: `14_PROGRAM_REVIEW_SYSTEM_DEVELOPMENT_LOG.md`
+
+### ✅ 2순위: 관리자 기능 (신청 관리) - 완료 (2025-11-17)
+- 관리자 탭에서 신청자 목록 조회
+- 승인/거부/완료 기능
+- 엑셀 다운로드 (Apache POI)
+- 문서: `13_ADMIN_APPLICATION_MANAGEMENT_DEVELOPMENT_LOG.md`
+
+### ✅ 3순위: 나의 프로그램 (마이페이지) - 완료 (2025-11-16)
+- MyPageController (/mypage)
+- 상태별 필터링 (ALL, PENDING, APPROVED, COMPLETED, REJECTED, CANCELLED)
+- 통계 대시보드
+- 프로그램 카드 그리드
+- 헤더에 "마이페이지" 링크 추가
+
+### ✅ 4순위: 첨부파일 관리 - 완료 (2025-11-17)
+- ProgramFile Entity, Repository, Service, Controller
+- 파일 업로드/다운로드/삭제 (관리자)
+- program-detail.html에 첨부파일 섹션 구현
+- 한글 파일명 UTF-8 인코딩 지원
+- 문서: `15_PROGRAM_FILE_ATTACHMENT_DEVELOPMENT_LOG.md`
+
+### ✅ 5순위: 알림 시스템 - 완료 (이번 세션, 2025-11-17)
+- Notification Entity, Repository, Service, Controller
+- NotificationScheduler (자동 알림)
+- notifications.html 페이지
+- 헤더 알림 아이콘 및 미읽음 배지
+- Thymeleaf fragment 구조 버그 수정
+- 문서: `16_NOTIFICATION_SYSTEM_DEVELOPMENT_LOG.md`, `17_NOTIFICATION_AND_FILE_SYSTEM_COMPLETE_REFLECTION.md`
+
+---
 
 ## 🎯 다음 개발 우선순위
 
-### 📌 1순위: 프로그램 첨부파일 시스템 백엔드 구현 (CRITICAL)
+**현재 상태**: 11_NEXT_IMPLEMENTATION_PLAN.md의 1~5순위 **모두 완료**
 
-**현재 상태**: program_files 테이블만 생성됨, 백엔드 로직 전혀 없음
+**다음 우선순위**: 미정 (사용자와 협의 필요)
 
-**구현 순서**:
+### 가능한 옵션
 
-#### Step 1: ProgramFile 엔티티 생성
-- **파일 위치**: `src/main/java/com/scms/app/model/ProgramFile.java`
-- **참고**: `Notification.java` 구조 참고
-- **필수 필드**:
-  - `fileId` (PK, AUTO_INCREMENT)
-  - `programId` (FK to programs)
-  - `originalFileName` (사용자가 업로드한 원본 파일명)
-  - `storedFileName` (서버에 저장된 파일명, UUID 사용)
-  - `filePath` (실제 저장 경로)
-  - `fileSize` (바이트 단위)
-  - `fileType` (MIME type)
-  - `uploadedAt` (업로드 시각)
-  - `deletedAt` (소프트 삭제, nullable)
-  - `uploadedBy` (FK to users)
-- **관계 설정**:
-  - `@ManyToOne` with `Program`
-  - `@ManyToOne` with `User` (uploader)
+#### 옵션 A: 알림 시스템 고도화
+**현재 구현된 기능**:
+- 기본 알림 목록 조회
+- 알림 읽음 처리
+- 헤더 알림 아이콘
+- 자동 알림 스케줄러 (신청 승인/거부, 프로그램 시작 알림)
 
-#### Step 2: ProgramFileRepository 생성
-- **파일 위치**: `src/main/java/com/scms/app/repository/ProgramFileRepository.java`
-- **참고**: `NotificationRepository.java` 구조 참고
-- **필수 메서드**:
-  ```java
-  List<ProgramFile> findByProgramIdAndDeletedAtIsNull(Integer programId);
-  Optional<ProgramFile> findByFileIdAndDeletedAtIsNull(Integer fileId);
-  @Query("SELECT pf FROM ProgramFile pf WHERE pf.programId = :programId AND pf.deletedAt IS NULL ORDER BY pf.uploadedAt DESC")
-  List<ProgramFile> findActiveProgramFiles(@Param("programId") Integer programId);
-  ```
-
-#### Step 3: 파일 저장 설정 (application.yml)
-- **파일 위치**: `src/main/resources/application.yml`
-- **추가 설정**:
-  ```yaml
-  file:
-    upload-dir: ${user.home}/scms-uploads/programs  # 프로그램 첨부파일 저장 경로
-    max-size: 10485760  # 10MB (바이트 단위)
-    allowed-extensions: pdf,doc,docx,xls,xlsx,ppt,pptx,zip,jpg,png
-  ```
-- **주의**: 개발 환경에서는 절대 경로 사용, 프로덕션에서는 환경변수로 관리
-
-#### Step 4: ProgramFileService 구현
-- **파일 위치**: `src/main/java/com/scms/app/service/ProgramFileService.java`
-- **참고**: `NotificationService.java` 구조 참고
-- **필수 메서드**:
-  1. `uploadFile(Integer programId, MultipartFile file, Integer uploaderId)` - 파일 업로드
-     - UUID로 고유한 파일명 생성
-     - 확장자 검증 (allowed-extensions)
-     - 파일 크기 검증 (max-size)
-     - 실제 파일 시스템에 저장
-     - DB에 메타데이터 저장
-     - 트랜잭션 처리 (파일 저장 실패 시 롤백)
-
-  2. `getFilesByProgramId(Integer programId)` - 프로그램의 첨부파일 목록 조회
-
-  3. `downloadFile(Integer fileId)` - 파일 다운로드
-     - 파일 존재 여부 확인
-     - 파일 스트림 반환
-
-  4. `deleteFile(Integer fileId, Integer userId)` - 파일 삭제 (소프트 삭제)
-     - 권한 체크 (업로더 본인 or 관리자만)
-     - deletedAt 설정
-     - 실제 파일은 유지 (복구 가능성)
-
-- **예외 처리**:
-  - `FileStorageException` - 파일 저장 실패
-  - `FileNotFoundException` - 파일 없음
-  - `InvalidFileException` - 잘못된 파일 형식/크기
-  - `UnauthorizedException` - 권한 없음
-
-#### Step 5: ProgramFileController 구현
-- **파일 위치**: `src/main/java/com/scms/app/controller/ProgramFileController.java`
-- **참고**: `NotificationController.java` 구조 참고
-- **필수 엔드포인트**:
-  1. `POST /api/programs/{programId}/files` - 파일 업로드
-     - 요청: `MultipartFile`
-     - 응답: `{ "success": true, "fileId": 123, "fileName": "..." }`
-
-  2. `GET /api/programs/{programId}/files` - 파일 목록 조회
-     - 응답: `List<ProgramFileResponse>`
-
-  3. `GET /api/files/{fileId}/download` - 파일 다운로드
-     - 응답: `ResponseEntity<Resource>` with Content-Disposition header
-
-  4. `DELETE /api/files/{fileId}` - 파일 삭제
-     - 응답: `{ "success": true }`
-
-- **보안**:
-  - `@PreAuthorize` 사용하여 인증된 사용자만 접근
-  - 파일 다운로드 시 권한 체크 (프로그램 참여자만)
-
-#### Step 6: 파일 저장 디렉토리 자동 생성
-- **파일 위치**: `src/main/java/com/scms/app/config/FileStorageConfig.java` (새 파일)
-- **구현**:
-  ```java
-  @Configuration
-  public class FileStorageConfig {
-      @Value("${file.upload-dir}")
-      private String uploadDir;
-
-      @PostConstruct
-      public void init() {
-          Path uploadPath = Paths.get(uploadDir);
-          if (!Files.exists(uploadPath)) {
-              Files.createDirectories(uploadPath);
-          }
-      }
-  }
-  ```
-
----
-
-### 📌 2순위: 프로그램 첨부파일 시스템 프론트엔드 구현
-
-**현재 상태**: UI 전혀 없음
-
-**구현 순서**:
-
-#### Step 1: 프로그램 상세 페이지에 첨부파일 섹션 추가
-- **파일 위치**: `src/main/resources/templates/programs.html`
-- **위치**: 프로그램 상세 정보 아래에 "첨부파일" 섹션 추가
-- **구조**:
-  ```html
-  <th:block layout:fragment="script">
-      <script>
-      // 첨부파일 관련 JavaScript
-      function loadProgramFiles(programId) { ... }
-      function uploadFile(programId) { ... }
-      function downloadFile(fileId) { ... }
-      function deleteFile(fileId) { ... }
-      </script>
-  </th:block>
-  ```
-- **주의**: 반드시 `<th:block>` 래퍼 사용!!! (notifications.html 교훈)
-
-#### Step 2: 파일 업로드 UI
-- **구성 요소**:
-  - `<input type="file" multiple>` - 다중 파일 선택 가능
-  - 드래그 앤 드롭 영역 (선택적)
-  - 업로드 진행률 표시 (선택적)
-  - 파일 크기/형식 제한 안내 문구
-
-#### Step 3: 첨부파일 목록 표시
-- **표시 정보**:
-  - 파일명 (originalFileName)
-  - 파일 크기 (KB/MB 변환)
-  - 업로드 일시
-  - 업로더 이름
-  - 다운로드 버튼
-  - 삭제 버튼 (권한 있는 경우만)
-
-#### Step 4: 파일 다운로드 기능
-- **구현**:
-  ```javascript
-  function downloadFile(fileId) {
-      window.location.href = `/api/files/${fileId}/download`;
-  }
-  ```
-
-#### Step 5: 파일 삭제 기능
-- **구현**:
-  - 삭제 확인 대화상자
-  - DELETE API 호출
-  - 목록에서 제거 (화면 갱신)
-
----
-
-### 📌 3순위: 알림 시스템 고도화 (선택적, 나중에)
-
-**현재 상태**: 기본 알림 기능 작동 중
-
-**향후 고도화 항목**:
+**추가 가능한 기능**:
 - 실시간 알림 (WebSocket/SSE)
-- 알림 필터링 (타입별, 읽음/안읽음)
+- 알림 필터링 (타입별: 신청/승인/마감 등)
 - 알림 검색 기능
 - 알림 페이지네이션
+- 알림 설정 (알림 수신 on/off)
+- 푸시 알림 (브라우저 Notification API)
 
-**우선순위**: 낮음 (1순위, 2순위 완료 후 검토)
+#### 옵션 B: 프로그램 검색/필터 고도화
+**현재 구현된 기능**:
+- 기본 프로그램 목록 표시
+- 상태별 표시 (접수예정/접수중/마감임박/마감)
+
+**추가 가능한 기능**:
+- 전체 텍스트 검색 (프로그램명, 설명)
+- 다중 필터링 (카테고리 + 단과대학 + 상태)
+- 정렬 (인기순, 최신순, 마감임박순, 정원많은순)
+- 태그 시스템
+- 검색 히스토리
+- 인기 검색어
+
+#### 옵션 C: 통계/대시보드 시스템
+**구현 내용**:
+- 관리자 대시보드
+  - 전체 프로그램 통계
+  - 신청 현황 (승인률, 취소율)
+  - 인기 프로그램 순위
+  - 월별/분기별 통계
+- 학생 통계
+  - 나의 참여 통계 (총 참여 프로그램 수, 완료율)
+  - 카테고리별 참여 분포
+  - 월별 활동 히트맵
+
+#### 옵션 D: 프로그램 상세 기능 추가
+**추가 가능한 기능**:
+- Q&A 게시판 (프로그램별)
+- FAQ 섹션
+- 프로그램 공지사항
+- 출석 체크 시스템
+- 수료증 발급 (PDF 생성)
+- 프로그램 평가 설문
+
+#### 옵션 E: 성능 최적화 및 리팩토링
+**개선 항목**:
+- 이미지 최적화 (picsum.photos → 자체 이미지 업로드 + 썸네일 생성)
+- 프론트엔드 번들 최적화
+- 데이터베이스 쿼리 최적화 (인덱스 추가)
+- 캐싱 (Redis)
+- 페이지네이션 성능 개선
+- 코드 리팩토링 (중복 제거, 구조 개선)
+
+#### 옵션 F: 소셜 기능
+**추가 가능한 기능**:
+- 프로그램 공유 (SNS, 링크 복사)
+- 북마크/즐겨찾기
+- 친구 추천 시스템
+- 프로그램 후기 좋아요/댓글
+- 참여자 프로필 보기
 
 ---
-
-## ⚠️ 예상 이슈 및 주의사항
-
-### 1. 파일 업로드 크기 제한
-- **문제**: Spring Boot 기본 파일 업로드 제한 (1MB)
-- **해결**: application.yml에 설정 추가
-  ```yaml
-  spring:
-    servlet:
-      multipart:
-        max-file-size: 10MB
-        max-request-size: 10MB
-  ```
-
-### 2. 파일 저장 경로 권한
-- **문제**: 애플리케이션이 파일을 저장할 디렉토리 접근 권한 없음
-- **해결**:
-  - 개발 환경: `${user.home}/scms-uploads` 사용
-  - 프로덕션: 별도 볼륨 마운트 또는 클라우드 스토리지
-
-### 3. 파일명 중복
-- **문제**: 같은 이름의 파일 업로드 시 덮어쓰기
-- **해결**: UUID로 고유한 저장 파일명 생성
-
-### 4. 트랜잭션 처리
-- **문제**: 파일은 저장되었는데 DB 저장 실패 (또는 반대)
-- **해결**:
-  - 파일 저장 후 DB 저장
-  - DB 저장 실패 시 저장된 파일 삭제 (롤백)
-  - `@Transactional` 사용
-
-### 5. 보안
-- **문제**: 악성 파일 업로드, 경로 탐색 공격
-- **해결**:
-  - 확장자 화이트리스트
-  - 파일명 검증 (특수문자 제거)
-  - 바이러스 스캔 (선택적)
-  - 업로드 사용자 인증 필수
-
-### 6. Thymeleaf Fragment 구조
-- **절대 잊지 말 것**: `<th:block layout:fragment="script">` 사용!!!
-- **잘못된 구조 사용 시**: JavaScript 로딩 안됨 (6시간 낭비)
 
 ## 중요 교훈
 
@@ -329,14 +205,22 @@
 ### 사용자 신뢰
 사용자가 "다 했다"고 하면 믿고, 코드 자체의 문제를 먼저 찾을 것.
 
+### 기존 문서 확인
+새로운 우선순위를 정하기 전에 반드시 `11_NEXT_IMPLEMENTATION_PLAN.md`를 확인하여 이미 정해진 계획이 있는지 파악할 것.
+
+---
+
 ## Git 정보
 - **현재 브랜치**: `claude/program-file-attachment-system-011fYVC96GVz1UCmUYAuwmD9`
 - **베이스 브랜치**: `main`
-- **최신 커밋**: `8dd0855 - Docs: Simplify next session context to 4 lines`
+- **최신 커밋**: `ee433d3 - Docs: Add detailed development priorities and implementation steps`
 - **원격 동기화**: ✅ 완료
 - **PR 상태**: 생성 대기 (링크 제공 완료)
 
+---
+
 ## 참고 사항
-- 이 세션에서는 프로그램 첨부파일 시스템의 데이터베이스 테이블만 생성하고, 실제 파일 업로드/다운로드 기능은 구현하지 않았습니다.
+- 1~5순위 모두 완료되어 다음 개발 방향을 새로 설정해야 합니다.
 - 알림 시스템은 완전히 작동하며, 사용자가 직접 테스트하여 정상 작동을 확인했습니다.
 - 6시간 디버깅 과정에 대한 완전한 반성문이 문서화되어 있습니다.
+- 다음 우선순위는 사용자와 협의하여 옵션 A~F 중 선택하거나 새로운 기능을 제안해야 합니다.
