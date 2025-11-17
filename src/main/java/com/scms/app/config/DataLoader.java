@@ -3,6 +3,7 @@ package com.scms.app.config;
 import com.scms.app.model.*;
 import com.scms.app.repository.ProgramApplicationRepository;
 import com.scms.app.repository.ProgramRepository;
+import com.scms.app.repository.ProgramReviewRepository;
 import com.scms.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
  * 동작:
  * 1. 사용자 데이터 생성 (학생 8명 + 관리자 1명)
  * 2. 프로그램 데이터 생성 (50개)
+ * 3. 프로그램 신청 데이터 생성 (다양한 상태의 테스트 신청)
+ * 4. 프로그램 후기 데이터 생성 (참여 완료자의 테스트 후기)
  *
  * 주의: 초기 데이터 로드 후에는 @Component를 주석처리하여 비활성화하세요.
  * (재시작 시 데이터가 중복 생성되는 것을 방지하기 위함)
@@ -39,6 +42,7 @@ public class DataLoader implements CommandLineRunner {
     private final ProgramRepository programRepository;
     private final UserRepository userRepository;
     private final ProgramApplicationRepository applicationRepository;
+    private final ProgramReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -51,6 +55,9 @@ public class DataLoader implements CommandLineRunner {
 
         // 3. 테스트 신청 데이터 초기화
         initializeTestApplications();
+
+        // 4. 테스트 후기 데이터 초기화
+        initializeTestReviews();
     }
 
     /**
@@ -318,5 +325,82 @@ public class DataLoader implements CommandLineRunner {
 
         applicationRepository.save(application);
         log.debug("신청 생성: {} - {} ({})", user.getName(), program.getTitle(), status);
+    }
+
+    /**
+     * 테스트용 프로그램 후기 데이터 생성
+     * - 참여 완료(COMPLETED) 상태의 신청에 대해 다양한 평점의 후기 생성
+     */
+    private void initializeTestReviews() {
+        long count = reviewRepository.count();
+
+        if (count > 0) {
+            log.info("프로그램 후기 데이터가 이미 존재합니다 ({}건). 초기화를 건너뜁니다.", count);
+            return;
+        }
+
+        log.info("테스트용 프로그램 후기 데이터를 생성합니다...");
+
+        try {
+            // COMPLETED 상태의 신청 조회
+            List<ProgramApplication> completedApplications = applicationRepository.findAll().stream()
+                    .filter(app -> app.getStatus() == ApplicationStatus.COMPLETED)
+                    .collect(Collectors.toList());
+
+            if (completedApplications.isEmpty()) {
+                log.warn("COMPLETED 상태의 신청이 없어서 후기 데이터를 생성하지 않습니다.");
+                return;
+            }
+
+            // 샘플 후기 내용
+            String[] reviewContents = {
+                "정말 유익한 프로그램이었습니다! 많은 것을 배울 수 있었고, 실무 경험도 쌓을 수 있어서 좋았습니다. 담당 멘토님도 친절하게 잘 가르쳐주셨고, 함께 참여한 동료들과도 좋은 관계를 맺을 수 있었습니다.",
+                "기대했던 것보다 더 좋은 프로그램이었어요. 특히 실습 위주로 진행되어서 이해하기 쉬웠습니다. 다음에도 이런 기회가 있다면 꼭 참여하고 싶습니다!",
+                "전반적으로 만족스러운 프로그램이었습니다. 다만 시간이 조금 짧아서 아쉬웠어요. 더 깊이 있는 내용을 다루면 좋을 것 같습니다.",
+                "프로그램 내용은 좋았지만, 일정이 너무 빡빡해서 따라가기 힘들었습니다. 좀 더 여유있는 스케줄로 진행되면 더 좋을 것 같아요.",
+                "기본적인 내용 위주로 진행되어 이미 관련 지식이 있는 사람에게는 다소 쉬울 수 있습니다. 하지만 초보자에게는 좋은 입문 기회가 될 것 같습니다.",
+                "매우 만족합니다! 프로그램 구성도 체계적이고, 강사님의 설명도 명확했습니다. 실제로 프로젝트에 바로 적용할 수 있는 내용들이 많았어요.",
+                "좋은 경험이었습니다. 특히 네트워킹 기회가 많아서 좋았고, 같은 관심사를 가진 사람들을 만날 수 있어서 의미있었습니다.",
+                "프로그램 자체는 괜찮았으나, 준비물이나 사전 안내가 부족했던 점은 아쉬웠습니다. 그래도 전반적으로는 만족스러운 경험이었습니다."
+            };
+
+            int[] ratings = {5, 5, 4, 3, 3, 5, 4, 4};
+
+            int reviewCount = 0;
+            for (int i = 0; i < Math.min(completedApplications.size(), reviewContents.length); i++) {
+                ProgramApplication application = completedApplications.get(i);
+                createReview(application.getProgram(), application.getUser(),
+                           ratings[i], reviewContents[i]);
+                reviewCount++;
+            }
+
+            long afterCount = reviewRepository.count();
+            log.info("✅ 테스트 후기 데이터 생성 완료: {}건", afterCount);
+            log.info("📝 평균 평점: {}/5", String.format("%.1f",
+                (double) (ratings[0] + ratings[1] + ratings[2] + ratings[3] + ratings[4] + ratings[5] + ratings[6] + ratings[7]) / Math.min(reviewCount, 8)));
+
+        } catch (Exception e) {
+            log.error("테스트 후기 데이터 생성 중 오류 발생", e);
+        }
+    }
+
+    /**
+     * 프로그램 후기 생성
+     */
+    private void createReview(Program program, User user, int rating, String content) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime createdAt = now.minusDays(5); // 5일 전 작성
+
+        ProgramReview review = ProgramReview.builder()
+                .program(program)
+                .user(user)
+                .rating(rating)
+                .content(content)
+                .createdAt(createdAt)
+                .updatedAt(createdAt)
+                .build();
+
+        reviewRepository.save(review);
+        log.debug("후기 생성: {} - {} ({}점)", user.getName(), program.getTitle(), rating);
     }
 }
