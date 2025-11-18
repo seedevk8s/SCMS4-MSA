@@ -20,7 +20,7 @@
 
             .login-header {
                 text-align: center;
-                margin-bottom: var(--spacing-xl);
+                margin-bottom: var(--spacing-lg);
             }
 
             .login-header h1 {
@@ -33,6 +33,43 @@
             .login-header p {
                 color: var(--text-secondary);
                 font-size: 14px;
+            }
+
+            /* 탭 스타일 */
+            .login-tabs {
+                display: flex;
+                margin-bottom: var(--spacing-lg);
+                border-bottom: 2px solid var(--gray-200);
+            }
+
+            .login-tab {
+                flex: 1;
+                padding: var(--spacing-md);
+                text-align: center;
+                cursor: pointer;
+                font-weight: 600;
+                color: var(--text-secondary);
+                background: transparent;
+                border: none;
+                border-bottom: 3px solid transparent;
+                transition: all 0.3s;
+            }
+
+            .login-tab:hover {
+                color: var(--primary-color);
+            }
+
+            .login-tab.active {
+                color: var(--primary-color);
+                border-bottom-color: var(--primary-color);
+            }
+
+            .tab-content {
+                display: none;
+            }
+
+            .tab-content.active {
+                display: block;
             }
 
             .login-form .form-group {
@@ -122,7 +159,13 @@
                 <!-- 로그인 헤더 -->
                 <div class="login-header">
                     <h1>로그인</h1>
-                    <p>학번과 비밀번호를 입력해주세요</p>
+                    <p>계정 유형을 선택하고 로그인하세요</p>
+                </div>
+
+                <!-- 탭 버튼 -->
+                <div class="login-tabs">
+                    <button class="login-tab active" onclick="switchTab('internal')">내부회원</button>
+                    <button class="login-tab" onclick="switchTab('external')">외부회원</button>
                 </div>
 
                 <!-- 에러 메시지 -->
@@ -131,39 +174,76 @@
                 <!-- 성공 메시지 -->
                 <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
 
-                <!-- 로그인 폼 -->
-                <form id="loginForm" class="login-form">
-                    <div class="form-group">
-                        <label for="studentNum" class="form-label">학번</label>
-                        <input type="number"
-                               id="studentNum"
-                               name="studentNum"
-                               class="form-control"
-                               placeholder="학번을 입력하세요"
-                               required
-                               autofocus>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password" class="form-label">비밀번호</label>
-                        <div class="password-toggle">
-                            <input type="password"
-                                   id="password"
-                                   name="password"
+                <!-- 내부회원 로그인 폼 -->
+                <div id="internal-tab" class="tab-content active">
+                    <form id="internalLoginForm" class="login-form">
+                        <div class="form-group">
+                            <label for="studentNum" class="form-label">학번</label>
+                            <input type="number"
+                                   id="studentNum"
+                                   name="studentNum"
                                    class="form-control"
-                                   placeholder="비밀번호를 입력하세요"
-                                   required>
-                            <button type="button" class="password-toggle-btn" id="togglePassword">
-                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-                                </svg>
-                            </button>
+                                   placeholder="학번을 입력하세요"
+                                   required
+                                   autofocus>
                         </div>
-                    </div>
 
-                    <button type="submit" class="btn btn-primary btn-login">로그인</button>
-                </form>
+                        <div class="form-group">
+                            <label for="internalPassword" class="form-label">비밀번호</label>
+                            <div class="password-toggle">
+                                <input type="password"
+                                       id="internalPassword"
+                                       name="password"
+                                       class="form-control"
+                                       placeholder="비밀번호를 입력하세요"
+                                       required>
+                                <button type="button" class="password-toggle-btn" onclick="togglePassword('internalPassword')">
+                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-login">로그인</button>
+                    </form>
+                </div>
+
+                <!-- 외부회원 로그인 폼 -->
+                <div id="external-tab" class="tab-content">
+                    <form id="externalLoginForm" class="login-form">
+                        <div class="form-group">
+                            <label for="email" class="form-label">이메일</label>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   class="form-control"
+                                   placeholder="이메일을 입력하세요"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="externalPassword" class="form-label">비밀번호</label>
+                            <div class="password-toggle">
+                                <input type="password"
+                                       id="externalPassword"
+                                       name="password"
+                                       class="form-control"
+                                       placeholder="비밀번호를 입력하세요"
+                                       required>
+                                <button type="button" class="password-toggle-btn" onclick="togglePassword('externalPassword')">
+                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-login">로그인</button>
+                    </form>
+                </div>
 
                 <!-- 링크 -->
                 <div class="login-links">
@@ -180,19 +260,12 @@
     <th:block layout:fragment="script">
         <script>
             $(document).ready(function() {
-                // 비밀번호 보기/숨기기
-                $('#togglePassword').click(function() {
-                    const passwordInput = $('#password');
-                    const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
-                    passwordInput.attr('type', type);
-                });
-
-                // 로그인 폼 제출
-                $('#loginForm').submit(function(e) {
+                // 내부회원 로그인 폼 제출
+                $('#internalLoginForm').submit(function(e) {
                     e.preventDefault();
 
                     const studentNum = $('#studentNum').val();
-                    const password = $('#password').val();
+                    const password = $('#internalPassword').val();
 
                     // 유효성 검사
                     if (!studentNum || !password) {
@@ -232,11 +305,80 @@
                             // 에러 메시지 표시
                             $('.alert-error').remove();
                             $('<div class="alert alert-error">' + errorMessage + '</div>')
-                                .insertBefore('#loginForm');
+                                .insertBefore('.tab-content');
+                        }
+                    });
+                });
+
+                // 외부회원 로그인 폼 제출
+                $('#externalLoginForm').submit(function(e) {
+                    e.preventDefault();
+
+                    const email = $('#email').val();
+                    const password = $('#externalPassword').val();
+
+                    // 유효성 검사
+                    if (!email || !password) {
+                        alert('이메일과 비밀번호를 모두 입력해주세요.');
+                        return;
+                    }
+
+                    // API 호출
+                    $.ajax({
+                        url: '/api/external/login',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            email: email,
+                            password: password
+                        }),
+                        success: function(response) {
+                            console.log('외부회원 로그인 성공:', response);
+                            // 홈으로 리다이렉트
+                            window.location.href = '/';
+                        },
+                        error: function(xhr) {
+                            console.error('로그인 실패:', xhr);
+
+                            let errorMessage = '로그인에 실패했습니다.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+
+                            // 에러 메시지 표시
+                            $('.alert-error').remove();
+                            $('<div class="alert alert-error">' + errorMessage + '</div>')
+                                .insertBefore('.tab-content');
                         }
                     });
                 });
             });
+
+            // 탭 전환
+            function switchTab(tabName) {
+                // 모든 탭과 콘텐츠 비활성화
+                $('.login-tab').removeClass('active');
+                $('.tab-content').removeClass('active');
+
+                // 선택된 탭 활성화
+                if (tabName === 'internal') {
+                    $('.login-tab:first').addClass('active');
+                    $('#internal-tab').addClass('active');
+                } else {
+                    $('.login-tab:last').addClass('active');
+                    $('#external-tab').addClass('active');
+                }
+
+                // 에러 메시지 제거
+                $('.alert-error').remove();
+            }
+
+            // 비밀번호 보기/숨기기
+            function togglePassword(inputId) {
+                const passwordInput = $('#' + inputId);
+                const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
+                passwordInput.attr('type', type);
+            }
         </script>
     </th:block>
 </body>
