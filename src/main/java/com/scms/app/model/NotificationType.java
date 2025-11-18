@@ -8,7 +8,8 @@ public enum NotificationType {
     APPLICATION_REJECTED("신청 거부", "프로그램 신청이 거부되었습니다."),
     APPLICATION_CANCELLED("신청 취소", "프로그램 신청이 취소되었습니다."),
     PROGRAM_STARTING("프로그램 시작", "프로그램이 곧 시작됩니다."),
-    DEADLINE_APPROACHING("마감 임박", "프로그램 신청 마감이 임박했습니다.");
+    DEADLINE_APPROACHING("마감 임박", "프로그램 신청 마감이 임박했습니다."),
+    CONSULTATION("상담", "상담 관련 알림입니다.");
 
     private final String title;
     private final String description;
