@@ -57,8 +57,8 @@
 ## 📚 문서
 
 ### 설정 가이드
-- **빠른 시작**: `doc/QUICK_START.md`
-- **상세 가이드**: `doc/SOCIAL_LOGIN_SETUP.md`
+- **빠른 시작**: `doc/빠른_시작.md`
+- **상세 가이드**: `doc/소셜_로그인_설정.md`
 
 ### Kakao KOE101 오류 해결
 - Kakao OAuth 설정 간소화 (client-secret 제거)
@@ -113,8 +113,8 @@ spring:
 - `NaverUserInfo.java`
 - `OAuth2UserInfoFactory.java`
 - `application-local.yml` (템플릿)
-- `doc/SOCIAL_LOGIN_SETUP.md`
-- `doc/QUICK_START.md`
+- `doc/소셜_로그인_설정.md`
+- `doc/빠른_시작.md`
 
 ### 수정 (7개)
 - `build.gradle`
@@ -133,7 +133,7 @@ spring:
 - Kakao Developers
 - Naver Developers
 
-자세한 내용은 `doc/SOCIAL_LOGIN_SETUP.md` 참조
+자세한 내용은 `doc/소셜_로그인_설정.md` 참조
 
 ### 보안
 - `application-local.yml`은 `.gitignore`에 포함되어 커밋되지 않음
