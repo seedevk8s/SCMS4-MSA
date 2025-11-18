@@ -10,60 +10,78 @@
 doc/
 ├── README.md                    # 📚 이 파일 - 문서 인덱스
 │
-├── development-logs/            # 📝 개발 로그 (01-19)
-│   ├── 01_PROJECT_OVERVIEW.md
-│   ├── 02_DEVELOPMENT_LOG.md
+├── 개발_로그/                   # 📝 개발 로그 (01-24)
+│   ├── 01_프로젝트_개요.md
+│   ├── 02_개발_로그.md
 │   └── ...
 │
-├── guides/                      # 📖 가이드 문서 (90-99)
-│   ├── 90_SETUP_GUIDE.md
-│   ├── 91_DEVELOPMENT_STATUS.md
+├── 가이드/                      # 📖 가이드 문서 (90-99)
+│   ├── 90_설정_가이드.md
+│   ├── 91_개발_상태.md
+│   ├── 98_소셜_로그인_설정.md
+│   ├── 99_빠른_시작.md
 │   └── ...
 │
-└── ui/                          # 🎨 UI 참고 자료
+└── UI/                          # 🎨 UI 참고 자료
     ├── 01_ui_base.pptx
     └── ...
 ```
 
 ---
 
-## 📝 개발 로그 (development-logs/)
+## 📝 개발 로그 (개발_로그/)
 
 순차적인 개발 과정을 기록한 문서들
 
 | 번호 | 파일명 | 설명 |
 |------|--------|------|
-| 01 | `01_PROJECT_OVERVIEW.md` | 프로젝트 전체 개요 |
-| 02 | `02_DEVELOPMENT_LOG.md` | 초기 개발 로그 |
-| 03 | `03_IMPLEMENTATION_SUMMARY.md` | 구현 요약 |
-| 04 | `04_PROGRAM_FEATURE_DEVELOPMENT_LOG.md` | 프로그램 기능 개발 로그 |
-| 05 | `05_ADMIN_HEADER_FUNCTIONALITY_DEVELOPMENT_LOG.md` | 관리자 헤더 기능 개발 |
-| 06 | `06_FILTER_AND_CAROUSEL_DEVELOPMENT_LOG.md` | 필터 및 캐러셀 개발 |
-| 07 | `07_PAGINATION_AND_DATA_LOADER_DEVELOPMENT_LOG.md` | 페이징 및 데이터 로더 |
-| 08 | `08_PROGRAM_DETAIL_AND_IMAGES_DEVELOPMENT_LOG.md` | 프로그램 상세 페이지 및 이미지 |
-| 09 | `09_IMAGE_STRATEGY_PICSUM_PHOTOS.md` | 이미지 전략 (picsum.photos) |
-| 10 | `10_PROGRAM_APPLICATION_FEATURE_DEVELOPMENT_LOG.md` | 프로그램 신청 기능 |
-| 11 | `11_NEXT_IMPLEMENTATION_PLAN.md` | 다음 구현 계획 |
-| 12 | `12_ADMIN_TAB_AND_CLICKABLE_TITLES_DEVELOPMENT_LOG.md` | 관리자 탭 및 클릭 가능한 제목 |
-| 13 | `13_ADMIN_APPLICATION_MANAGEMENT_DEVELOPMENT_LOG.md` | 관리자 신청 관리 기능 ⭐ NEW |
+| 01 | `01_프로젝트_개요.md` | 프로젝트 전체 개요 |
+| 02 | `02_개발_로그.md` | 초기 개발 로그 |
+| 03 | `03_구현_요약.md` | 구현 요약 |
+| 04 | `04_프로그램_기능_개발_로그.md` | 프로그램 기능 개발 로그 |
+| 05 | `05_관리자_헤더_기능_개발_로그.md` | 관리자 헤더 기능 개발 |
+| 06 | `06_필터_캐러셀_개발_로그.md` | 필터 및 캐러셀 개발 |
+| 07 | `07_페이지네이션_데이터로더_개발_로그.md` | 페이징 및 데이터 로더 |
+| 08 | `08_프로그램_상세_이미지_개발_로그.md` | 프로그램 상세 페이지 및 이미지 |
+| 09 | `09_이미지_전략_PICSUM_PHOTOS.md` | 이미지 전략 (picsum.photos) |
+| 10 | `10_프로그램_신청_기능_개발_로그.md` | 프로그램 신청 기능 |
+| 11 | `11_다음_구현_계획.md` | 다음 구현 계획 |
+| 12 | `12_관리자_탭_클릭가능_타이틀_개발_로그.md` | 관리자 탭 및 클릭 가능한 제목 |
+| 13 | `13_관리자_신청_관리_개발_로그.md` | 관리자 신청 관리 기능 |
+| 14 | `14_프로그램_후기_시스템_개발_로그.md` | 프로그램 후기 시스템 |
+| 15 | `15_프로그램_파일_첨부_개발_로그.md` | 프로그램 파일 첨부 기능 |
+| 16 | `16_알림_시스템_개발_로그.md` | 알림 시스템 |
+| 17 | `17_알림_파일_시스템_완전_반영.md` | 알림 및 파일 시스템 완전 반영 |
+| 18 | `18_다음_세션_컨텍스트.md` | 다음 세션 컨텍스트 |
+| 19 | `19_역량_평가_추천_시스템_개발_로그.md` | 역량 평가 및 추천 시스템 |
+| 20 | `20_설문조사_테스트_데이터_초기화_개발_로그.md` | 설문조사 테스트 데이터 초기화 |
+| 21 | `21_외부_취업_학점_시스템_개발_로그.md` | 외부 취업 학점 시스템 |
+| 22 | `22_상담사_로그인_개발_로그.md` | 상담사 로그인 기능 |
+| 23 | `23_외부_사용자_가입_개발_로그.md` | 외부 사용자 가입 기능 |
+| 24 | `24_이메일_인증_UI_개선_개발_로그.md` | 이메일 인증 및 UI 개선 |
 
 ---
 
-## 📖 가이드 문서 (guides/)
+## 📖 가이드 문서 (가이드/)
 
 프로젝트 설정 및 사용 가이드
 
 | 번호 | 파일명 | 설명 |
 |------|--------|------|
-| 90 | `90_SETUP_GUIDE.md` | 환경 설정 가이드 |
-| 91 | `91_DEVELOPMENT_STATUS.md` | 전체 개발 현황 |
-| 92 | `92_SESSION_RESUME_GUIDE.md` | 세션 재개 가이드 |
-| 93 | `93_CURRENT_SESSION.md` | 현재 세션 작업 기록 |
-| 94 | `94_PR_DESCRIPTION_TEMPLATE.md` | PR 설명 템플릿 |
+| 90 | `90_설정_가이드.md` | 환경 설정 가이드 |
+| 91 | `91_개발_상태.md` | 전체 개발 현황 |
+| 92 | `92_세션_재개_가이드.md` | 세션 재개 가이드 |
+| 93 | `93_현재_세션.md` | 현재 세션 작업 기록 |
+| 94 | `94_PR_설명_템플릿.md` | PR 설명 템플릿 |
+| 95 | `95_관리자_기능_테스트_가이드.md` | 관리자 기능 테스트 가이드 |
+| 96 | `96_역량_평가_분석.md` | 역량 평가 분석 |
+| 97 | `97_상담사_로그인_문제_해결.md` | 상담사 로그인 문제 해결 |
+| 98 | `98_소셜_로그인_설정.md` | 소셜 로그인 설정 가이드 ⭐ NEW |
+| 99 | `99_빠른_시작.md` | 소셜 로그인 빠른 시작 ⭐ NEW |
 
 ---
 
-## 🎨 UI 참고 자료 (ui/)
+## 🎨 UI 참고 자료 (UI/)
 
 UI 디자인 참고 자료 및 버전별 화면 설계
 
@@ -78,29 +96,35 @@ UI 디자인 참고 자료 및 버전별 화면 설계
 ## 📌 주요 문서 바로가기
 
 ### 처음 시작하는 경우
-1. [`development-logs/01_PROJECT_OVERVIEW.md`](./development-logs/01_PROJECT_OVERVIEW.md) - 프로젝트가 무엇인지 이해
-2. [`guides/90_SETUP_GUIDE.md`](./guides/90_SETUP_GUIDE.md) - 개발 환경 설정
-3. [`guides/91_DEVELOPMENT_STATUS.md`](./guides/91_DEVELOPMENT_STATUS.md) - 현재 개발 상태 확인
+1. [`개발_로그/01_프로젝트_개요.md`](./개발_로그/01_프로젝트_개요.md) - 프로젝트가 무엇인지 이해
+2. [`가이드/90_설정_가이드.md`](./가이드/90_설정_가이드.md) - 개발 환경 설정
+3. [`가이드/91_개발_상태.md`](./가이드/91_개발_상태.md) - 현재 개발 상태 확인
+
+### 소셜 로그인 설정 (최신 ⭐)
+1. [`가이드/99_빠른_시작.md`](./가이드/99_빠른_시작.md) - 5분 안에 소셜 로그인 설정
+2. [`가이드/98_소셜_로그인_설정.md`](./가이드/98_소셜_로그인_설정.md) - 상세한 소셜 로그인 설정 가이드
 
 ### 세션을 재개하는 경우
-1. [`guides/92_SESSION_RESUME_GUIDE.md`](./guides/92_SESSION_RESUME_GUIDE.md) - 세션 재개 방법
-2. [`guides/93_CURRENT_SESSION.md`](./guides/93_CURRENT_SESSION.md) - 최근 작업 내용
-3. [`development-logs/11_NEXT_IMPLEMENTATION_PLAN.md`](./development-logs/11_NEXT_IMPLEMENTATION_PLAN.md) - 다음 작업 계획
+1. [`가이드/92_세션_재개_가이드.md`](./가이드/92_세션_재개_가이드.md) - 세션 재개 방법
+2. [`가이드/93_현재_세션.md`](./가이드/93_현재_세션.md) - 최근 작업 내용
+3. [`개발_로그/11_다음_구현_계획.md`](./개발_로그/11_다음_구현_계획.md) - 다음 작업 계획
 
 ### 특정 기능 개발 참고
-- **프로그램 관리**: [`development-logs/04_PROGRAM_FEATURE_DEVELOPMENT_LOG.md`](./development-logs/04_PROGRAM_FEATURE_DEVELOPMENT_LOG.md)
-- **프로그램 신청**: [`development-logs/10_PROGRAM_APPLICATION_FEATURE_DEVELOPMENT_LOG.md`](./development-logs/10_PROGRAM_APPLICATION_FEATURE_DEVELOPMENT_LOG.md)
-- **관리자 기능**: [`development-logs/13_ADMIN_APPLICATION_MANAGEMENT_DEVELOPMENT_LOG.md`](./development-logs/13_ADMIN_APPLICATION_MANAGEMENT_DEVELOPMENT_LOG.md) ⭐ 최신
-- **UI/UX**: [`development-logs/06_FILTER_AND_CAROUSEL_DEVELOPMENT_LOG.md`](./development-logs/06_FILTER_AND_CAROUSEL_DEVELOPMENT_LOG.md), [`development-logs/08_PROGRAM_DETAIL_AND_IMAGES_DEVELOPMENT_LOG.md`](./development-logs/08_PROGRAM_DETAIL_AND_IMAGES_DEVELOPMENT_LOG.md)
+- **소셜 로그인**: [`가이드/98_소셜_로그인_설정.md`](./가이드/98_소셜_로그인_설정.md) ⭐ 최신
+- **외부 사용자**: [`개발_로그/23_외부_사용자_가입_개발_로그.md`](./개발_로그/23_외부_사용자_가입_개발_로그.md)
+- **프로그램 관리**: [`개발_로그/04_프로그램_기능_개발_로그.md`](./개발_로그/04_프로그램_기능_개발_로그.md)
+- **프로그램 신청**: [`개발_로그/10_프로그램_신청_기능_개발_로그.md`](./개발_로그/10_프로그램_신청_기능_개발_로그.md)
+- **관리자 기능**: [`개발_로그/13_관리자_신청_관리_개발_로그.md`](./개발_로그/13_관리자_신청_관리_개발_로그.md)
+- **UI/UX**: [`개발_로그/06_필터_캐러셀_개발_로그.md`](./개발_로그/06_필터_캐러셀_개발_로그.md)
 
 ---
 
 ## 🔄 문서 업데이트 규칙
 
-### 개발 로그 작성 규칙 (development-logs/)
-1. **파일명**: `{번호}_FEATURE_NAME_DEVELOPMENT_LOG.md`
-2. **번호**: 순차적으로 증가 (다음은 14번)
-3. **위치**: `doc/development-logs/` 폴더
+### 개발 로그 작성 규칙 (개발_로그/)
+1. **파일명**: `{번호}_기능명_개발_로그.md` (한글명)
+2. **번호**: 순차적으로 증가 (다음은 25번)
+3. **위치**: `doc/개발_로그/` 폴더
 4. **내용 포함 사항**:
    - 작업 개요
    - 문제 상황 및 원인 분석
@@ -109,16 +133,16 @@ UI 디자인 참고 자료 및 버전별 화면 설계
    - Git 커밋 히스토리
    - 다음 단계
 
-### 가이드 문서 작성 규칙 (guides/)
-1. **파일명**: `{90대 번호}_DOCUMENT_NAME.md`
-2. **번호**: 90-99 범위 (가이드/참고 문서용)
-3. **위치**: `doc/guides/` 폴더
+### 가이드 문서 작성 규칙 (가이드/)
+1. **파일명**: `{90대 번호}_문서명.md` (한글명)
+2. **번호**: 90-99 범위 (가이드/참고 문서용, 다음은 100번으로 넘어갈 예정)
+3. **위치**: `doc/가이드/` 폴더
 4. **용도**: 설정, 사용법, 참고 자료 등
 
-### UI 참고 자료 규칙 (ui/)
+### UI 참고 자료 규칙 (UI/)
 1. **파일명**: `{번호}_ui_description.pptx`
 2. **번호**: 순차적으로 증가
-3. **위치**: `doc/ui/` 폴더
+3. **위치**: `doc/UI/` 폴더
 4. **용도**: UI 디자인 시안, 참고 화면
 
 ---
@@ -127,12 +151,12 @@ UI 디자인 참고 자료 및 버전별 화면 설계
 
 | 카테고리 | 개수 | 위치 |
 |----------|------|------|
-| 📝 개발 로그 | 13개 | `development-logs/` |
-| 📖 가이드 | 5개 | `guides/` |
-| 🎨 UI 자료 | 16개 | `ui/` |
-| **합계** | **34개** | - |
+| 📝 개발 로그 | 24개 | `개발_로그/` |
+| 📖 가이드 | 10개 | `가이드/` |
+| 🎨 UI 자료 | 17개 | `UI/` |
+| **합계** | **51개** | - |
 
-**마지막 업데이트**: 2025-11-17
+**마지막 업데이트**: 2025-11-18
 
 ---
 
@@ -165,5 +189,5 @@ UI 디자인 참고 자료 및 버전별 화면 설계
 ---
 
 **관리자**: Claude AI
-**최종 업데이트**: 2025-11-17
-**버전**: 2.0 (카테고리별 폴더 구조화)
+**최종 업데이트**: 2025-11-18
+**버전**: 3.0 (한글 폴더명 및 파일명, 소셜 로그인 추가)
