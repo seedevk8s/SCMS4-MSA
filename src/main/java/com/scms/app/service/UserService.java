@@ -6,9 +6,11 @@ import com.scms.app.exception.DuplicateUserException;
 import com.scms.app.exception.InvalidPasswordException;
 import com.scms.app.exception.UserNotFoundException;
 import com.scms.app.model.LoginHistory;
+import com.scms.app.model.PasswordResetToken;
 import com.scms.app.model.User;
 import com.scms.app.model.UserRole;
 import com.scms.app.repository.LoginHistoryRepository;
+import com.scms.app.repository.PasswordResetTokenRepository;
 import com.scms.app.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -33,6 +37,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final LoginHistoryRepository loginHistoryRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
@@ -301,5 +307,112 @@ public class UserService {
         userRepository.save(user);
 
         log.info("계정 잠금 해제: {} (ID: {})", user.getName(), user.getUserId());
+    }
+
+    /**
+     * 비밀번호 재설정 요청 (이메일로 토큰 발송)
+     *
+     * @param email 이메일 주소
+     */
+    @Transactional
+    public void requestPasswordResetByEmail(String email) {
+        // 이메일로 사용자 조회
+        User user = userRepository.findByEmailAndNotDeleted(email)
+                .orElseThrow(() -> new UserNotFoundException("등록된 이메일이 없습니다"));
+
+        // 기존 미사용 토큰 무효화
+        passwordResetTokenRepository.invalidateAllUserTokens(user, LocalDateTime.now());
+
+        // 새 토큰 생성
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .tokenType(PasswordResetToken.TokenType.INTERNAL)
+                .user(user)
+                .email(email)
+                .expiresAt(LocalDateTime.now().plusHours(1))
+                .build();
+
+        passwordResetTokenRepository.save(resetToken);
+
+        // 이메일 발송
+        emailService.sendPasswordResetEmail(email, user.getName(), token);
+
+        log.info("비밀번호 재설정 이메일 발송: {} ({})", user.getName(), email);
+    }
+
+    /**
+     * 토큰을 이용한 비밀번호 재설정
+     *
+     * @param token 재설정 토큰
+     * @param newPassword 새 비밀번호
+     */
+    @Transactional
+    public void resetPasswordWithToken(String token, String newPassword) {
+        // 토큰 조회 및 검증
+        PasswordResetToken resetToken = passwordResetTokenRepository.findValidToken(token, LocalDateTime.now())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 토큰입니다"));
+
+        if (resetToken.getTokenType() != PasswordResetToken.TokenType.INTERNAL) {
+            throw new IllegalArgumentException("내부 회원용 토큰이 아닙니다");
+        }
+
+        User user = resetToken.getUser();
+        if (user == null) {
+            throw new UserNotFoundException("사용자를 찾을 수 없습니다");
+        }
+
+        // 비밀번호 변경
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+        user.unlock(); // 계정 잠금 해제
+        userRepository.save(user);
+
+        // 토큰 사용 처리
+        resetToken.markAsUsed();
+        passwordResetTokenRepository.save(resetToken);
+
+        log.info("토큰을 이용한 비밀번호 재설정 완료: {} (ID: {})", user.getName(), user.getUserId());
+    }
+
+    /**
+     * 재설정 토큰 유효성 검증
+     *
+     * @param token 검증할 토큰
+     * @return 유효 여부
+     */
+    public boolean validateResetToken(String token) {
+        return passwordResetTokenRepository.findValidToken(token, LocalDateTime.now())
+                .isPresent();
+    }
+
+    /**
+     * 토큰으로 사용자 정보 조회
+     *
+     * @param token 재설정 토큰
+     * @return 사용자 이메일 및 이름
+     */
+    public UserResponse getUserByResetToken(String token) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findValidToken(token, LocalDateTime.now())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 토큰입니다"));
+
+        if (resetToken.getTokenType() == PasswordResetToken.TokenType.INTERNAL && resetToken.getUser() != null) {
+            return UserResponse.from(resetToken.getUser());
+        } else if (resetToken.getTokenType() == PasswordResetToken.TokenType.EXTERNAL && resetToken.getExternalUser() != null) {
+            // 외부 회원의 경우 (추후 구현)
+            throw new IllegalArgumentException("외부 회원은 별도 처리가 필요합니다");
+        }
+
+        throw new IllegalArgumentException("토큰에 연결된 사용자를 찾을 수 없습니다");
+    }
+
+    /**
+     * 만료된 토큰 정리 (스케줄러에서 호출)
+     */
+    @Transactional
+    public void cleanupExpiredTokens() {
+        passwordResetTokenRepository.deleteExpiredTokens(LocalDateTime.now());
+        passwordResetTokenRepository.deleteUsedTokensOlderThan(LocalDateTime.now().minusDays(7));
+        log.info("만료된 비밀번호 재설정 토큰 정리 완료");
     }
 }

@@ -260,6 +260,30 @@ public class HomeController {
     }
 
     /**
+     * 비밀번호 재설정 페이지 (토큰 기반)
+     */
+    @GetMapping("/password/reset-with-token")
+    public String passwordResetWithToken(
+            @RequestParam String token,
+            Model model) {
+        model.addAttribute("pageTitle", "비밀번호 재설정");
+        model.addAttribute("token", token);
+        return "password-reset-with-token";
+    }
+
+    /**
+     * 외부회원 비밀번호 재설정 페이지 (토큰 기반)
+     */
+    @GetMapping("/external/reset-password")
+    public String externalPasswordReset(
+            @RequestParam String token,
+            Model model) {
+        model.addAttribute("pageTitle", "비밀번호 재설정");
+        model.addAttribute("token", token);
+        return "password-reset-with-token";
+    }
+
+    /**
      * 알림 페이지
      */
     @GetMapping("/notifications")
