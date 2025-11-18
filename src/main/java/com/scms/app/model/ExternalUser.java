@@ -29,8 +29,18 @@ public class ExternalUser {
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(name = "password", length = 255)
     private String password;
+
+    @Column(name = "provider", nullable = false, length = 20)
+    @Builder.Default
+    private String provider = "LOCAL";
+
+    @Column(name = "provider_id", length = 255)
+    private String providerId;
+
+    @Column(name = "profile_image_url", length = 500)
+    private String profileImageUrl;
 
     @Column(name = "name", nullable = false, length = 50)
     private String name;
@@ -174,5 +184,22 @@ public class ExternalUser {
      */
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 소셜 로그인 사용자 여부 확인
+     */
+    public boolean isSocialUser() {
+        return !"LOCAL".equals(this.provider);
+    }
+
+    /**
+     * 소셜 로그인 정보 업데이트
+     */
+    public void updateSocialInfo(String name, String profileImageUrl) {
+        this.name = name;
+        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+            this.profileImageUrl = profileImageUrl;
+        }
     }
 }

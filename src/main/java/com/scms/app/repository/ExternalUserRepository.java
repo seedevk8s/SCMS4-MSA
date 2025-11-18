@@ -26,4 +26,14 @@ public interface ExternalUserRepository extends JpaRepository<ExternalUser, Inte
      * 이메일 인증 토큰으로 조회
      */
     Optional<ExternalUser> findByEmailVerifyToken(String token);
+
+    /**
+     * OAuth2 제공자와 제공자 ID로 외부회원 조회 (삭제되지 않은 회원만)
+     */
+    Optional<ExternalUser> findByProviderAndProviderIdAndDeletedAtIsNull(String provider, String providerId);
+
+    /**
+     * OAuth2 제공자와 이메일로 외부회원 조회 (삭제되지 않은 회원만)
+     */
+    Optional<ExternalUser> findByProviderAndEmailAndDeletedAtIsNull(String provider, String email);
 }
