@@ -43,6 +43,9 @@ public class MileageDataInitializer implements CommandLineRunner {
         createRule("SURVEY", "설문조사 완료", 20, "설문조사 응답 완료");
         createRule("SURVEY", "만족도 조사 완료", 30, "프로그램 만족도 조사 완료");
 
+        // 외부취업 관련 마일리지
+        createRule("EXTERNAL_EMPLOYMENT", "외부취업 가점", 0, "외부취업 활동 승인 시 자동 지급 (가점은 활동별 변동)");
+
         // 기타 활동
         createRule("MANUAL", "관리자 수동 지급", 0, "관리자가 수동으로 지급하는 마일리지 (포인트는 변동)");
 
