@@ -131,7 +131,7 @@ public class AuthController {
     }
 
     /**
-     * 비밀번호 찾기/재설정 API
+     * 비밀번호 찾기/재설정 API (학번 + 이름 + 생년월일 방식)
      *
      * @param request 비밀번호 재설정 요청 (학번, 이름, 생년월일)
      * @return 성공 메시지
@@ -144,6 +144,91 @@ public class AuthController {
         userService.resetPassword(request);
 
         return ResponseEntity.ok("비밀번호가 초기화되었습니다. 생년월일(6자리)로 로그인해주세요.");
+    }
+
+    /**
+     * 이메일로 비밀번호 재설정 요청 API
+     *
+     * @param request 이메일 요청
+     * @return 성공 메시지
+     */
+    @PostMapping("/password/reset-request")
+    public ResponseEntity<String> requestPasswordReset(@RequestBody java.util.Map<String, String> request) {
+        String email = request.get("email");
+
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("이메일을 입력해주세요");
+        }
+
+        log.info("비밀번호 재설정 이메일 요청: {}", email);
+
+        try {
+            userService.requestPasswordResetByEmail(email);
+            return ResponseEntity.ok("비밀번호 재설정 링크가 이메일로 발송되었습니다. 이메일을 확인해주세요.");
+        } catch (Exception e) {
+            log.error("비밀번호 재설정 요청 실패: {}", email, e);
+            // 보안상 이메일이 존재하지 않아도 동일한 메시지 반환
+            return ResponseEntity.ok("해당 이메일로 비밀번호 재설정 안내가 발송되었습니다.");
+        }
+    }
+
+    /**
+     * 토큰을 이용한 비밀번호 재설정 API
+     *
+     * @param request 토큰 및 새 비밀번호
+     * @return 성공 메시지
+     */
+    @PostMapping("/password/reset-with-token")
+    public ResponseEntity<String> resetPasswordWithToken(@RequestBody java.util.Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+        String confirmPassword = request.get("confirmPassword");
+
+        if (token == null || newPassword == null || confirmPassword == null) {
+            return ResponseEntity.badRequest().body("필수 정보를 모두 입력해주세요");
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            return ResponseEntity.badRequest().body("비밀번호가 일치하지 않습니다");
+        }
+
+        if (newPassword.length() < 6) {
+            return ResponseEntity.badRequest().body("비밀번호는 최소 6자 이상이어야 합니다");
+        }
+
+        try {
+            userService.resetPasswordWithToken(token, newPassword);
+            log.info("토큰을 이용한 비밀번호 재설정 완료");
+            return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다. 로그인해주세요.");
+        } catch (IllegalArgumentException e) {
+            log.error("비밀번호 재설정 실패: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * 재설정 토큰 유효성 검증 API
+     *
+     * @param token 검증할 토큰
+     * @return 유효성 여부 및 사용자 정보
+     */
+    @GetMapping("/password/validate-token")
+    public ResponseEntity<?> validateResetToken(@RequestParam String token) {
+        try {
+            boolean isValid = userService.validateResetToken(token);
+            if (isValid) {
+                UserResponse user = userService.getUserByResetToken(token);
+                return ResponseEntity.ok(java.util.Map.of(
+                    "valid", true,
+                    "email", user.getEmail(),
+                    "name", user.getName()
+                ));
+            } else {
+                return ResponseEntity.ok(java.util.Map.of("valid", false));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.ok(java.util.Map.of("valid", false, "message", e.getMessage()));
+        }
     }
 
     /**

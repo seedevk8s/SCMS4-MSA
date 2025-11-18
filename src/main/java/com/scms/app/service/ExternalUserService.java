@@ -3,7 +3,9 @@ package com.scms.app.service;
 import com.scms.app.dto.ExternalSignupRequest;
 import com.scms.app.model.AccountStatus;
 import com.scms.app.model.ExternalUser;
+import com.scms.app.model.PasswordResetToken;
 import com.scms.app.repository.ExternalUserRepository;
+import com.scms.app.repository.PasswordResetTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -25,6 +28,7 @@ public class ExternalUserService {
     private final ExternalUserRepository externalUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     /**
      * 외부회원 가입
@@ -193,5 +197,70 @@ public class ExternalUserService {
         emailService.sendVerificationEmail(user.getEmail(), user.getName(), newToken);
 
         log.info("인증 메일 재발송 완료: {}", user.getEmail());
+    }
+
+    /**
+     * 비밀번호 재설정 요청 (이메일로 토큰 발송)
+     *
+     * @param email 이메일 주소
+     */
+    @Transactional
+    public void requestPasswordResetByEmail(String email) {
+        // 이메일로 외부 회원 조회
+        ExternalUser user = externalUserRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new IllegalArgumentException("등록된 이메일이 없습니다"));
+
+        // 기존 미사용 토큰 무효화
+        passwordResetTokenRepository.invalidateAllExternalUserTokens(user, LocalDateTime.now());
+
+        // 새 토큰 생성
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .tokenType(PasswordResetToken.TokenType.EXTERNAL)
+                .externalUser(user)
+                .email(email)
+                .expiresAt(LocalDateTime.now().plusHours(1))
+                .build();
+
+        passwordResetTokenRepository.save(resetToken);
+
+        // 이메일 발송
+        emailService.sendPasswordResetEmail(email, user.getName(), token);
+
+        log.info("비밀번호 재설정 이메일 발송: {} ({})", user.getName(), email);
+    }
+
+    /**
+     * 토큰을 이용한 비밀번호 재설정
+     *
+     * @param token 재설정 토큰
+     * @param newPassword 새 비밀번호
+     */
+    @Transactional
+    public void resetPasswordWithToken(String token, String newPassword) {
+        // 토큰 조회 및 검증
+        PasswordResetToken resetToken = passwordResetTokenRepository.findValidToken(token, LocalDateTime.now())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 토큰입니다"));
+
+        if (resetToken.getTokenType() != PasswordResetToken.TokenType.EXTERNAL) {
+            throw new IllegalArgumentException("외부 회원용 토큰이 아닙니다");
+        }
+
+        ExternalUser user = resetToken.getExternalUser();
+        if (user == null) {
+            throw new IllegalArgumentException("사용자를 찾을 수 없습니다");
+        }
+
+        // 비밀번호 변경
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.unlock(); // 계정 잠금 해제
+        externalUserRepository.save(user);
+
+        // 토큰 사용 처리
+        resetToken.markAsUsed();
+        passwordResetTokenRepository.save(resetToken);
+
+        log.info("토큰을 이용한 비밀번호 재설정 완료: {} (ID: {})", user.getName(), user.getUserId());
     }
 }
