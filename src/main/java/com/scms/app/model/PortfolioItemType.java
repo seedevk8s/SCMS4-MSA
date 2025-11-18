@@ -8,7 +8,9 @@ public enum PortfolioItemType {
     ACHIEVEMENT("성과/수상"),
     CERTIFICATION("자격증"),
     ACTIVITY("활동"),
-    COURSE("교육/강좌");
+    COURSE("교육/강좌"),
+    INTERNSHIP("인턴십"),
+    EMPLOYMENT("취업/경력");
 
     private final String description;
 
