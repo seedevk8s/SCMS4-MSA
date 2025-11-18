@@ -8,6 +8,8 @@ import com.scms.app.repository.ProgramRepository;
 import com.scms.app.repository.ProgramReviewRepository;
 import com.scms.app.repository.UserRepository;
 import com.scms.app.service.NotificationService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -51,6 +53,9 @@ public class DataLoader implements CommandLineRunner {
     private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
     private final PasswordEncoder passwordEncoder;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public void run(String... args) throws Exception {
@@ -178,17 +183,20 @@ public class DataLoader implements CommandLineRunner {
                 log.warn("상담사 User는 있지만 Counselor 프로필이 없습니다: {} (ID: {})",
                         counselorUser.getName(), counselorUser.getUserId());
 
+                // User를 managed 상태로 가져오기 (detached 에러 방지)
+                User managedUser = entityManager.find(User.class, counselorUser.getUserId());
+
                 // Counselor 프로필 생성
                 // @MapsId 사용 시 counselorId를 직접 설정하지 않음 (user에서 자동으로 가져옴)
                 Counselor counselorProfile = Counselor.builder()
-                        .user(counselorUser)
+                        .user(managedUser)
                         .specialty("일반상담")
                         .introduction("학생 상담을 담당하고 있습니다.")
                         .build();
 
                 counselorRepository.save(counselorProfile);
                 log.info("✅ Counselor 프로필 생성 완료: {} (ID: {})",
-                        counselorUser.getName(), counselorUser.getUserId());
+                        managedUser.getName(), managedUser.getUserId());
             }
         }
 
