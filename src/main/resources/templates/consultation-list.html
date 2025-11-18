@@ -491,11 +491,11 @@
                 </div>
 
                 <!-- 상담사 정보 -->
-                <div class="counselor-info" th:if="${consultation.counselor != null}">
+                <div class="counselor-info" th:if="${consultation.counselorName != null}">
                     <i class="fas fa-user-tie"></i>
-                    <span>담당 상담사: <span th:text="${consultation.counselor.name}">김상담</span></span>
+                    <span>담당 상담사: <span th:text="${consultation.counselorName}">김상담</span></span>
                 </div>
-                <div class="counselor-info" th:if="${consultation.counselor == null and consultation.status.name() == 'PENDING'}">
+                <div class="counselor-info" th:if="${consultation.counselorName == null and consultation.status.name() == 'PENDING'}">
                     <i class="fas fa-hourglass-half"></i>
                     <span>상담사 배정 대기 중</span>
                 </div>
