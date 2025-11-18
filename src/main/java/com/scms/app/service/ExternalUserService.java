@@ -24,6 +24,7 @@ public class ExternalUserService {
 
     private final ExternalUserRepository externalUserRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     /**
      * 외부회원 가입
@@ -66,8 +67,14 @@ public class ExternalUserService {
 
         ExternalUser savedUser = externalUserRepository.save(externalUser);
 
-        // 5. 이메일 인증 메일 발송 (선택사항 - 추후 구현)
-        // sendVerificationEmail(savedUser.getEmail(), verifyToken);
+        // 5. 이메일 인증 메일 발송
+        try {
+            emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getName(), verifyToken);
+            log.info("이메일 인증 메일 발송 완료: {}", savedUser.getEmail());
+        } catch (Exception e) {
+            log.error("이메일 인증 메일 발송 실패: {}", savedUser.getEmail(), e);
+            // 이메일 발송 실패해도 회원가입은 성공 처리
+        }
 
         log.info("외부회원 가입 완료: {} ({})", savedUser.getName(), savedUser.getEmail());
 
@@ -109,6 +116,12 @@ public class ExternalUserService {
     public ExternalUser login(String email, String password) {
         ExternalUser user = externalUserRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new BadCredentialsException("이메일 또는 비밀번호가 일치하지 않습니다"));
+
+        // 이메일 인증 확인
+        if (!user.getEmailVerified()) {
+            throw new AuthenticationException("이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요.") {
+            };
+        }
 
         // 계정 잠금 확인
         if (user.getLocked()) {
@@ -153,5 +166,30 @@ public class ExternalUserService {
     public ExternalUser findByEmail(String email) {
         return externalUserRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+    }
+
+    /**
+     * 인증 메일 재발송
+     *
+     * @param email 이메일
+     */
+    @Transactional
+    public void resendVerificationEmail(String email) {
+        ExternalUser user = externalUserRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+        // 이미 인증된 경우
+        if (user.getEmailVerified()) {
+            throw new IllegalArgumentException("이미 인증된 이메일입니다");
+        }
+
+        // 새로운 토큰 생성
+        String newToken = UUID.randomUUID().toString();
+        user.updateEmailVerifyToken(newToken);
+
+        // 이메일 발송
+        emailService.sendVerificationEmail(user.getEmail(), user.getName(), newToken);
+
+        log.info("인증 메일 재발송 완료: {}", user.getEmail());
     }
 }

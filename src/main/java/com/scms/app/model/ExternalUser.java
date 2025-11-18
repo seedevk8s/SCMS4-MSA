@@ -149,6 +149,13 @@ public class ExternalUser {
     }
 
     /**
+     * 이메일 인증 토큰 업데이트
+     */
+    public void updateEmailVerifyToken(String token) {
+        this.emailVerifyToken = token;
+    }
+
+    /**
      * 마지막 로그인 시간 업데이트
      */
     public void updateLastLogin() {

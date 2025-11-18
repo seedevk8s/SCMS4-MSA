@@ -149,4 +149,34 @@ public class ExternalUserController {
         ExternalUser user = externalUserService.findById(userId);
         return ResponseEntity.ok(ExternalUserResponse.from(user));
     }
+
+    /**
+     * 인증 메일 재발송 API
+     *
+     * @param email 이메일
+     * @return 성공 메시지
+     */
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Map<String, Object>> resendVerificationEmail(@RequestParam String email) {
+        try {
+            externalUserService.resendVerificationEmail(email);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "인증 메일이 재발송되었습니다. 이메일을 확인해주세요.");
+
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        } catch (Exception e) {
+            log.error("인증 메일 재발송 실패: {}", email, e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "인증 메일 재발송 중 오류가 발생했습니다");
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
+    }
 }
