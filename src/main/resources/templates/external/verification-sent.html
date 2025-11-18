@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이메일 인증 안내 - SCMS</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script src="/webjars/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        .verification-container {
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 50px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .verification-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            color: #2C5F5D;
+        }
+
+        .verification-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .verification-message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        .verification-email {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #2C5F5D;
+            margin-bottom: 32px;
+        }
+
+        .verification-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #2C5F5D;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1f4442;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #2C5F5D;
+            padding: 20px;
+            margin-top: 32px;
+            text-align: left;
+            border-radius: 4px;
+        }
+
+        .info-box h4 {
+            margin: 0 0 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .info-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <div class="verification-icon">📧</div>
+
+        <h1 class="verification-title">이메일 인증 메일을 발송했습니다</h1>
+
+        <p class="verification-message">
+            회원가입이 완료되었습니다!<br>
+            아래 이메일 주소로 인증 메일을 발송했습니다.
+        </p>
+
+        <div class="verification-email" th:text="${email}">user@example.com</div>
+
+        <p class="verification-message">
+            이메일을 확인하시고 인증 링크를 클릭해주세요.<br>
+            인증이 완료되면 로그인하실 수 있습니다.
+        </p>
+
+        <!-- 알림 메시지 -->
+        <div id="alertMessage" style="display: none;"></div>
+
+        <div class="verification-actions">
+            <button class="btn btn-secondary" id="resendBtn">인증 메일 재발송</button>
+            <a href="/login" class="btn btn-primary">로그인 페이지로</a>
+        </div>
+
+        <div class="info-box">
+            <h4>📌 안내사항</h4>
+            <ul>
+                <li>이메일이 도착하지 않았다면 스팸 메일함을 확인해주세요.</li>
+                <li>인증 메일은 발송 후 24시간 동안 유효합니다.</li>
+                <li>인증 메일이 오지 않았다면 '인증 메일 재발송' 버튼을 클릭해주세요.</li>
+                <li>문의사항이 있으시면 scms@pooreum.ac.kr로 연락주세요.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // 인증 메일 재발송
+            $('#resendBtn').click(function() {
+                const email = '[[${email}]]';
+                const button = $(this);
+
+                button.prop('disabled', true).text('발송 중...');
+
+                $.ajax({
+                    url: '/api/external/resend-verification',
+                    method: 'POST',
+                    data: { email: email },
+                    success: function(response) {
+                        showAlert('success', response.message || '인증 메일이 재발송되었습니다.');
+                        button.prop('disabled', false).text('인증 메일 재발송');
+                    },
+                    error: function(xhr) {
+                        const errorMessage = xhr.responseJSON && xhr.responseJSON.message
+                            ? xhr.responseJSON.message
+                            : '인증 메일 재발송에 실패했습니다.';
+                        showAlert('error', errorMessage);
+                        button.prop('disabled', false).text('인증 메일 재발송');
+                    }
+                });
+            });
+
+            function showAlert(type, message) {
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+                $('#alertMessage')
+                    .removeClass('alert-success alert-error')
+                    .addClass('alert ' + alertClass)
+                    .text(message)
+                    .fadeIn();
+
+                setTimeout(function() {
+                    $('#alertMessage').fadeOut();
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

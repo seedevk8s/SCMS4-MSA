@@ -436,8 +436,8 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    alert(data.message);
-                    location.href = '/login';
+                    // 이메일 인증 안내 페이지로 리다이렉트
+                    location.href = `/external/verification-sent?email=${encodeURIComponent(formData.email)}`;
                 } else {
                     alert(data.message || '회원가입 중 오류가 발생했습니다');
                 }
