@@ -7,6 +7,7 @@
 2. [로컬 MySQL 설정](#2-로컬-mysql-설정)
 3. [데이터베이스 스키마 설명](#3-데이터베이스-스키마-설명)
 4. [초기 데이터](#4-초기-데이터)
+5. [유틸리티 SQL 스크립트](#5-유틸리티-sql-스크립트)
 
 ---
 
@@ -365,6 +366,40 @@ docker exec scms2-mysql mysqldump -uroot -ppassword scms2 > backup_$(date +%Y%m%
 # 데이터베이스 복원
 docker exec -i scms2-mysql mysql -uroot -ppassword scms2 < backup_20250101.sql
 ```
+
+---
+
+## 5. 유틸리티 SQL 스크립트
+
+개발 및 운영 중 필요한 SQL 스크립트 파일들이 `database/scripts/` 디렉토리에 저장되어 있습니다.
+
+### 5.1 스크립트 목록
+
+| 파일명 | 설명 | 사용 시기 |
+|--------|------|----------|
+| `add-counselor-8000002.sql` | 상담사 계정 추가 | 새 상담사 등록 시 |
+| `add_program_dates.sql` | 프로그램 날짜 컬럼 추가 | 스키마 마이그레이션 |
+| `create_notifications_table.sql` | 알림 테이블 생성 | 알림 기능 추가 시 |
+| `fix_flyway.sql` | Flyway 마이그레이션 수정 | Flyway 오류 해결 |
+| `fix_notifications_table.sql` | 알림 테이블 수정 | 알림 테이블 구조 변경 |
+| `add-counselor.sql` | 상담사 데이터 추가 | 초기 상담사 데이터 생성 |
+
+### 5.2 스크립트 실행 방법
+
+```bash
+# MySQL 콘솔에서 실행
+mysql -u root -p scms2 < database/scripts/add-counselor-8000002.sql
+
+# 또는 MySQL 콘솔 내에서
+mysql> USE scms2;
+mysql> SOURCE database/scripts/add-counselor-8000002.sql;
+```
+
+### 5.3 주의사항
+
+- 프로덕션 환경에서는 스크립트 실행 전 반드시 백업을 수행하세요
+- 스키마 변경 스크립트는 테스트 환경에서 먼저 검증하세요
+- 스크립트 실행 후 애플리케이션을 재시작하여 변경사항을 반영하세요
 
 ---
 
