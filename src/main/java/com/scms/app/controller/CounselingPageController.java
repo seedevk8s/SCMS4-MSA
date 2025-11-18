@@ -148,7 +148,11 @@ public class CounselingPageController {
      * 상담사 관리 페이지 (상담사용)
      */
     @GetMapping("/manage")
-    public String counselorManage(HttpSession session, Model model) {
+    public String counselorManage(
+            @RequestParam(required = false) String status,
+            HttpSession session,
+            Model model) {
+
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
@@ -166,7 +170,51 @@ public class CounselingPageController {
             session.setAttribute("isAdmin", role == UserRole.ADMIN);
         }
 
+        // 상담사의 상담 내역 조회
+        Integer counselorId = userId; // Counselor 엔티티는 @MapsId를 사용하므로 counselorId == userId
+        List<ConsultationResponse> consultations;
+        if (status != null && !status.isEmpty()) {
+            try {
+                ConsultationStatus consultationStatus = ConsultationStatus.valueOf(status);
+                consultations = consultationService.getCounselorConsultationsByStatus(counselorId, consultationStatus);
+                model.addAttribute("currentFilter", status);
+            } catch (IllegalArgumentException e) {
+                consultations = consultationService.getCounselorConsultations(counselorId);
+                model.addAttribute("currentFilter", "ALL");
+            }
+        } else {
+            consultations = consultationService.getCounselorConsultations(counselorId);
+            model.addAttribute("currentFilter", "ALL");
+        }
+
+        // 상태별 카운트 계산
+        List<ConsultationResponse> allConsultations = consultationService.getCounselorConsultations(counselorId);
+        long totalCount = allConsultations.size();
+        long pendingCount = allConsultations.stream()
+                .filter(c -> c.getStatus() == ConsultationStatus.PENDING)
+                .count();
+        long approvedCount = allConsultations.stream()
+                .filter(c -> c.getStatus() == ConsultationStatus.APPROVED)
+                .count();
+        long completedCount = allConsultations.stream()
+                .filter(c -> c.getStatus() == ConsultationStatus.COMPLETED)
+                .count();
+        long rejectedCount = allConsultations.stream()
+                .filter(c -> c.getStatus() == ConsultationStatus.REJECTED)
+                .count();
+        long cancelledCount = allConsultations.stream()
+                .filter(c -> c.getStatus() == ConsultationStatus.CANCELLED)
+                .count();
+
+        model.addAttribute("consultations", consultations);
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("pendingCount", pendingCount);
+        model.addAttribute("approvedCount", approvedCount);
+        model.addAttribute("completedCount", completedCount);
+        model.addAttribute("rejectedCount", rejectedCount);
+        model.addAttribute("cancelledCount", cancelledCount);
         model.addAttribute("pageTitle", "상담 관리");
+
         return "counselor/consultation-manage";
     }
 
