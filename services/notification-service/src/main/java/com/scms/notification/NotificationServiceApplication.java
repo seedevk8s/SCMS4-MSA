@@ -24,7 +24,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
                 "com.scms.common.exception"  // 공통 예외 핸들러 스캔
         },
         exclude = {
-                org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class  // DB 없이 실행 가능
+                org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,  // DB 없이 실행 가능
+                org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration.class  // RabbitMQ 없이 실행 가능
         }
 )
 public class NotificationServiceApplication {
