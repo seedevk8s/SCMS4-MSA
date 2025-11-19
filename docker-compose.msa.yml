@@ -1,0 +1,264 @@
+version: '3.8'
+
+#===========================================
+# SCMS4-MSA Docker Compose Configuration
+# 마이크로서비스 아키텍처 전체 스택
+#===========================================
+
+services:
+  #=========================================
+  # MySQL Databases (서비스별 독립 DB)
+  #=========================================
+
+  mysql-user:
+    image: mysql:8.0
+    container_name: scms-mysql-user
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: scms_user
+      MYSQL_USER: scms
+      MYSQL_PASSWORD: scms123
+      TZ: Asia/Seoul
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-user-data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - scms-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mysql-notification:
+    image: mysql:8.0
+    container_name: scms-mysql-notification
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: scms_notification
+      MYSQL_USER: scms
+      MYSQL_PASSWORD: scms123
+      TZ: Asia/Seoul
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-notification-data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - scms-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  #=========================================
+  # RabbitMQ (Message Broker)
+  #=========================================
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: scms-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    ports:
+      - "5672:5672"    # AMQP 포트
+      - "15672:15672"  # 관리 콘솔 (http://localhost:15672)
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - scms-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  #=========================================
+  # Infrastructure Services
+  #=========================================
+
+  # Eureka Server (Service Discovery)
+  # 모든 마이크로서비스가 등록되는 서비스 레지스트리
+  # 대시보드: http://localhost:8761
+  eureka-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.eureka
+    container_name: scms-eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - scms-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Config Server (Configuration Management)
+  # 중앙 집중식 설정 관리
+  config-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.config
+    container_name: scms-config-server
+    ports:
+      - "8888:8888"
+    networks:
+      - scms-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8888/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # API Gateway
+  # 모든 클라이언트 요청의 진입점
+  # 라우팅, 인증, Circuit Breaker, Rate Limiting
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: scms-api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - scms-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+
+  #=========================================
+  # Microservices
+  #=========================================
+
+  # User Service (사용자 관리)
+  # - 사용자 CRUD
+  # - 로그인/로그아웃
+  # - JWT 토큰 발급
+  # - OAuth2 소셜 로그인
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.user-service
+    container_name: scms-user-service
+    ports:
+      - "8081:8081"
+    networks:
+      - scms-network
+    depends_on:
+      mysql-user:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-user:3306/scms_user?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: scms
+      SPRING_DATASOURCE_PASSWORD: scms123
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+
+  # Notification Service (알림 관리)
+  # - 시스템 알림
+  # - 이메일 발송
+  # - RabbitMQ 이벤트 구독
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.notification-service
+    container_name: scms-notification-service
+    ports:
+      - "8082:8082"
+    networks:
+      - scms-network
+    depends_on:
+      mysql-notification:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-notification:3306/scms_notification?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: scms
+      SPRING_DATASOURCE_PASSWORD: scms123
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: admin123
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+
+  #=========================================
+  # 추가 마이크로서비스 (필요 시 주석 해제)
+  #=========================================
+
+  # program-service:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.program-service
+  #   container_name: scms-program-service
+  #   ports:
+  #     - "8083:8083"
+  #   networks:
+  #     - scms-network
+  #   depends_on:
+  #     - mysql-program
+  #     - eureka-server
+  #     - config-server
+
+#=========================================
+# Volumes
+#=========================================
+
+volumes:
+  mysql-user-data:
+    driver: local
+  mysql-notification-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+
+#=========================================
+# Networks
+#=========================================
+
+networks:
+  scms-network:
+    driver: bridge
+
+#=========================================
+# 실행 방법:
+#   1. 전체 스택 시작: docker-compose -f docker-compose.msa.yml up -d
+#   2. 로그 확인: docker-compose -f docker-compose.msa.yml logs -f [service-name]
+#   3. 중지: docker-compose -f docker-compose.msa.yml down
+#   4. 전체 삭제 (볼륨 포함): docker-compose -f docker-compose.msa.yml down -v
+#
+# 서비스 URL:
+#   - Eureka Dashboard: http://localhost:8761
+#   - API Gateway: http://localhost:8080
+#   - Config Server: http://localhost:8888
+#   - RabbitMQ Management: http://localhost:15672 (admin/admin123)
+#   - User Service: http://localhost:8081
+#   - Notification Service: http://localhost:8082
+#=========================================

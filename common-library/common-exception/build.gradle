@@ -1,0 +1,7 @@
+dependencies {
+    // Spring Web for exception handling
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Common DTO for error response
+    implementation project(':common-library:common-dto')
+}

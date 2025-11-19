@@ -1,0 +1,16 @@
+dependencies {
+    // Spring Cloud Gateway
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+
+    // Service Discovery (Eureka Client)
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    // Circuit Breaker (Resilience4j)
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j'
+
+    // Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Redis for Rate Limiting (optional)
+    // implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+}

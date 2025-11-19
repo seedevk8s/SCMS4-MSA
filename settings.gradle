@@ -5,4 +5,26 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'scms2'
+rootProject.name = 'scms4-msa'
+
+// Common Library Modules
+include 'common-library:common-dto'
+include 'common-library:common-exception'
+include 'common-library:common-util'
+
+// Infrastructure Modules
+include 'infrastructure:eureka-server'
+include 'infrastructure:api-gateway'
+include 'infrastructure:config-server'
+
+// Service Modules (will be added incrementally)
+include 'services:user-service'
+include 'services:notification-service'
+// include 'services:program-service'
+// include 'services:program-application-service'
+// include 'services:portfolio-service'
+// include 'services:consultation-service'
+// include 'services:competency-service'
+// include 'services:mileage-service'
+// include 'services:survey-service'
+// include 'services:external-employment-service'
