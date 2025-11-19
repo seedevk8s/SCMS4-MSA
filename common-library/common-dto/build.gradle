@@ -2,6 +2,9 @@ dependencies {
     // Spring Web for REST related classes
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    // Spring Data for Page support
+    implementation 'org.springframework.data:spring-data-commons'
+
     // Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
