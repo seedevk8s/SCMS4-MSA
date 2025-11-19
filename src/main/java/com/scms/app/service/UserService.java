@@ -701,7 +701,7 @@ public class UserService {
             }
         }
 
-        return usersPage.map(UserResponse::fromEntity);
+        return usersPage.map(UserResponse::from);
     }
 
     /**
