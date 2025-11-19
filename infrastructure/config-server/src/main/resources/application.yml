@@ -7,7 +7,7 @@ spring:
       server:
         # 로컬 파일 시스템에서 설정 로드
         native:
-          search-locations: classpath:/config-repo, file:./config-repo
+          search-locations: classpath:/config-repo
         # Git 저장소에서 설정 로드 (선택 사항)
         # git:
         #   uri: https://github.com/your-org/config-repo
