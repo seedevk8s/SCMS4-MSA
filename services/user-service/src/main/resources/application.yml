@@ -22,6 +22,23 @@ spring:
     password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  # Email 설정
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
 server:
   port: 8081
 
@@ -46,9 +63,21 @@ management:
     health:
       show-details: always
 
+# JWT 설정
+jwt:
+  secret: scms-secret-key-for-jwt-token-generation-minimum-256-bits-required-for-hs256-algorithm
+  access-token-validity: 86400000  # 1일 (밀리초)
+  refresh-token-validity: 604800000  # 7일 (밀리초)
+
+# Application 설정
+app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:3000}
+
 # 로깅 설정
 logging:
   level:
     com.scms.user: INFO
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
+    org.springframework.security: DEBUG
