@@ -84,17 +84,6 @@ public class UserController {
     }
 
     /**
-     * 모든 사용자 조회 API
-     *
-     * @return 사용자 목록
-     */
-    @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        List<UserResponse> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
-    }
-
-    /**
      * 역할별 사용자 조회 API
      *
      * @param role 사용자 역할 (STUDENT, COUNSELOR, ADMIN)
