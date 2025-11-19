@@ -5,6 +5,8 @@
 <head>
     <title>학생 관리 - SCMS</title>
     <th:block layout:fragment="css">
+        <!-- TOAST UI Pagination CSS (Grid의 내부 의존성) -->
+        <link rel="stylesheet" href="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.css" />
         <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
         <style>
             .stats-container {
@@ -354,6 +356,8 @@
 </div>
 
 <th:block layout:fragment="script">
+    <!-- TOAST UI Pagination은 Grid의 내부 의존성이므로 먼저 로드해야 함 -->
+    <script src="https://uicdn.toast.com/tui.pagination/latest/tui-pagination.js"></script>
     <script src="https://uicdn.toast.com/grid/latest/tui-grid.js"></script>
     <script>
         let grid;
