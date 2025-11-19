@@ -1,145 +1,218 @@
-# Pull Request: 소셜 로그인 (Google, Kakao, Naver) 기능 구현
+# Pull Request: 모노리틱에서 마이크로서비스 아키텍처(MSA)로 전환
 
-## 📋 개요
-외부회원 가입에 Google, Kakao, Naver 소셜 로그인 기능을 추가했습니다.
+## 📋 작업 개요
 
-## 🎯 주요 기능
+SCMS4 학생 역량 관리 시스템을 모노리틱 아키텍처에서 마이크로서비스 아키텍처(MSA)로 전환하는 작업입니다.
 
-### 소셜 로그인 제공자
-- ✅ **Google** OAuth2 로그인
-- ✅ **Kakao** OAuth2 로그인
-- ✅ **Naver** OAuth2 로그인
+---
 
-### 주요 기능
-- 소셜 계정으로 간편 로그인/회원가입
-- 최초 로그인 시 자동 회원가입 (이메일 인증 완료 상태)
-- 기존 회원은 프로필 정보 자동 업데이트
-- 소셜 로그인 사용자와 일반 사용자 통합 관리
-- 세션 기반 인증 유지
+## ✅ 완료된 작업
 
-## 🔧 구현 내용
+### Phase 1: 인프라 구축 (100% 완료)
 
-### 1. 데이터베이스
-- **V10 마이그레이션**: external_users 테이블에 소셜 로그인 필드 추가
-  - `provider`: 로그인 제공자 (LOCAL, GOOGLE, KAKAO, NAVER)
-  - `provider_id`: 제공자별 사용자 고유 ID
-  - `profile_image_url`: 프로필 이미지 URL
-  - `password` 필드 NULL 허용 (소셜 로그인 사용자는 비밀번호 없음)
+#### 1. 공통 라이브러리 모듈
+- ✅ **common-dto**: ApiResponse, ErrorResponse, PageResponse
+- ✅ **common-exception**: BaseException, GlobalExceptionHandler, 예외 클래스 6개
+- ✅ **common-util**: DateTimeUtils, StringUtils
 
-### 2. 백엔드 구현
+#### 2. 인프라 서비스
+- ✅ **Eureka Server** (8761): 서비스 디스커버리 및 레지스트리
+- ✅ **API Gateway** (8080): 라우팅, Circuit Breaker, CORS 설정
+- ✅ **Config Server** (8888): 중앙 집중식 설정 관리
 
-**의존성**
-- Spring Security OAuth2 Client 추가
+#### 3. 비즈니스 서비스 (구조 완성)
+- ✅ **User Service** (8081): 프로젝트 구조 생성
+- ✅ **Notification Service** (8082): 프로젝트 구조 생성
 
-**OAuth2 클래스**
-- `OAuth2UserInfo` 인터페이스 및 구현체 (Google, Kakao, Naver)
-- `CustomOAuth2UserService`: OAuth2 사용자 정보 처리 및 DB 저장
-- `CustomOAuth2User`: OAuth2 Principal 객체
-- `OAuth2AuthenticationSuccessHandler`: 로그인 성공 처리
-- `OAuth2AuthenticationFailureHandler`: 로그인 실패 처리
+#### 4. 배포 및 문서
+- ✅ Docker Compose 파일 (MSA 전체 스택)
+- ✅ README-MSA.md (프로젝트 전체 가이드)
+- ✅ MSA 마이그레이션 로그 4개
 
-**엔티티 및 설정**
-- `ExternalUser`: provider, providerId, profileImageUrl 필드 추가
-- `ExternalUserRepository`: 소셜 로그인 사용자 조회 메서드 추가
-- `SecurityConfig`: OAuth2 로그인 설정 통합
-- `application.yml`: Google, Kakao, Naver OAuth2 클라이언트 설정
+---
 
-### 3. 프론트엔드 구현
+## 🏗 아키텍처
 
-**로그인 페이지** (`login.html`)
-- 외부회원 탭에 소셜 로그인 버튼 추가
-- Google, Kakao, Naver 브랜드 컬러 적용
+```
+API Gateway (8080)
+    ↓
+Eureka Server (8761) ← 모든 서비스 등록
+    ↓
+┌─────────────┬──────────────┬────────────┐
+│ User (8081) │ Program      │ Portfolio  │
+│             │ (8083)       │ (8085)     │
+└─────────────┴──────────────┴────────────┘
+         ↓
+RabbitMQ (메시지 브로커)
+         ↓
+┌─────────────┬──────────────┬────────────┐
+│Notification │ Mileage      │ Survey     │
+│ (8082)      │ (8088)       │ (8089)     │
+└─────────────┴──────────────┴────────────┘
+```
 
-**회원가입 페이지** (`signup.html`)
-- 상단에 소셜 로그인 버튼 추가
-- "또는 이메일로 가입" 구분선 추가
+### 주요 패턴
+- **Service Discovery**: Eureka를 통한 동적 서비스 디스커버리
+- **API Gateway**: 단일 진입점, Circuit Breaker, Rate Limiting
+- **Database Per Service**: 각 서비스가 독립적인 DB 소유
+- **Event-Driven**: RabbitMQ를 통한 비동기 메시징
+
+---
+
+## 📊 변경 통계
+
+- **총 생성 파일**: 336개
+- **추가된 코드 라인**: 48,604 라인
+- **마이크로서비스 설계**: 10개 서비스
+
+---
+
+## 📁 주요 디렉토리 구조
+
+```
+SCMS4-MSA/
+├── common-library/          # 공통 라이브러리 (3개 모듈)
+│   ├── common-dto/
+│   ├── common-exception/
+│   └── common-util/
+├── infrastructure/          # 인프라 서비스 (3개)
+│   ├── eureka-server/
+│   ├── api-gateway/
+│   └── config-server/
+├── services/                # 비즈니스 서비스
+│   ├── user-service/
+│   └── notification-service/
+├── config-repo/             # 설정 파일 저장소
+├── doc/msa-migration/       # 마이그레이션 로그
+├── legacy-monolith/         # 기존 모노리틱 코드 백업
+├── docker-compose.msa.yml   # MSA 전체 스택
+└── README-MSA.md            # MSA 프로젝트 가이드
+```
+
+---
+
+## 🛠 기술 스택
+
+### 기존 유지
+- Java 17
+- Spring Boot 3.3.0
+- MySQL 8.0
+- JPA/Hibernate
+
+### 신규 추가
+- **Spring Cloud 2023.0.2**
+  - Netflix Eureka (Service Discovery)
+  - Spring Cloud Gateway (API Gateway)
+  - Spring Cloud Config (Configuration Management)
+- **RabbitMQ 3.12** (Message Broker)
+- **Resilience4j** (Circuit Breaker)
+- **Docker Compose** (컨테이너 오케스트레이션)
+
+---
+
+## 🚀 실행 방법
+
+### 1. 전체 빌드
+```bash
+./gradlew clean build -x test
+```
+
+### 2. 개별 서비스 실행
+```bash
+# 인프라 서비스 (순서대로 실행)
+./gradlew :infrastructure:eureka-server:bootRun      # 8761
+./gradlew :infrastructure:config-server:bootRun      # 8888
+./gradlew :infrastructure:api-gateway:bootRun        # 8080
+
+# 비즈니스 서비스
+./gradlew :services:user-service:bootRun             # 8081
+./gradlew :services:notification-service:bootRun     # 8082
+```
+
+### 3. Docker Compose 사용
+```bash
+docker-compose -f docker-compose.msa.yml up -d
+```
+
+### 서비스 URL
+- **Eureka Dashboard**: http://localhost:8761
+- **API Gateway**: http://localhost:8080
+- **Config Server**: http://localhost:8888
+- **RabbitMQ Management**: http://localhost:15672 (admin/admin123)
+
+---
 
 ## 📚 문서
 
-### 설정 가이드
-- **빠른 시작**: `doc/가이드/99_빠른_시작.md`
-- **상세 가이드**: `doc/가이드/98_소셜_로그인_설정.md`
+### 생성된 문서
+1. [MSA 마이그레이션 계획](doc/msa-migration/00-migration-plan.md) - 전체 변환 계획
+2. [공통 라이브러리 구현 로그](doc/msa-migration/01-phase1-common-library.md)
+3. [인프라 구축 로그](doc/msa-migration/02-phase1-infrastructure.md)
+4. [마이그레이션 요약](doc/msa-migration/99-summary.md)
+5. [README-MSA.md](README-MSA.md) - 프로젝트 전체 가이드
 
-### Kakao KOE101 오류 해결
-- Kakao OAuth 설정 간소화 (client-secret 제거)
-- 필수 설정 체크리스트 제공
-- 단계별 설정 가이드 작성
+---
 
-## 🧪 테스트 방법
+## 🎯 주요 성과
 
-### 1. OAuth 클라이언트 설정
-각 플랫폼에서 OAuth 클라이언트를 발급받아 `application-local.yml`에 설정:
+✅ **확장 가능한 MSA 아키텍처 구축**
+✅ **서비스별 독립 배포 가능**
+✅ **Circuit Breaker를 통한 장애 격리**
+✅ **중앙 집중식 설정 관리**
+✅ **Docker Compose로 간편한 로컬 실행**
+✅ **상세한 마이그레이션 문서화**
 
-```yaml
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: YOUR_GOOGLE_CLIENT_ID
-            client-secret: YOUR_GOOGLE_CLIENT_SECRET
-          kakao:
-            client-id: YOUR_KAKAO_REST_API_KEY
-          naver:
-            client-id: YOUR_NAVER_CLIENT_ID
-            client-secret: YOUR_NAVER_CLIENT_SECRET
-```
+---
 
-### 2. 애플리케이션 실행
-```bash
-./gradlew bootRun --args='--spring.profiles.active=local'
-```
+## 📝 다음 단계
 
-### 3. 테스트 시나리오
-1. http://localhost:8080/login 접속
-2. 외부회원 탭 선택
-3. 소셜 로그인 버튼(Google, Kakao, Naver) 클릭
-4. 각 플랫폼 로그인 페이지로 이동 확인
-5. 로그인 후 메인 페이지로 리디렉션 확인
-6. 세션 정보 확인
+### Phase 2: 서비스 구현 완성
+- [ ] User Service 완전 구현 (Entity, Repository, Service, Controller)
+- [ ] Notification Service 완전 구현
+- [ ] JWT 인증 통합
+- [ ] OAuth2 소셜 로그인 구현
 
-## 📁 변경된 파일
+### Phase 3: 추가 서비스 분리
+- [ ] Program Service (8083)
+- [ ] Program Application Service (8084)
+- [ ] Portfolio Service (8085)
+- [ ] Consultation Service (8086)
+- [ ] Competency Service (8087)
+- [ ] Mileage Service (8088)
+- [ ] Survey Service (8089)
+- [ ] External Employment Service (8090)
 
-### 신규 생성 (13개)
-- `V10__add_social_login_to_external_users.sql`
-- `CustomOAuth2UserService.java`
-- `CustomOAuth2User.java`
-- `OAuth2AuthenticationSuccessHandler.java`
-- `OAuth2AuthenticationFailureHandler.java`
-- `OAuth2UserInfo.java`
-- `GoogleUserInfo.java`
-- `KakaoUserInfo.java`
-- `NaverUserInfo.java`
-- `OAuth2UserInfoFactory.java`
-- `application-local.yml` (템플릿)
-- `doc/가이드/98_소셜_로그인_설정.md`
-- `doc/가이드/99_빠른_시작.md`
+### Phase 4: 운영 강화
+- [ ] 통합 테스트 작성
+- [ ] 모니터링 구축 (Zipkin, Prometheus, Grafana)
+- [ ] 중앙 로깅 (ELK Stack)
+- [ ] Kubernetes 배포 준비
 
-### 수정 (7개)
-- `build.gradle`
-- `application.yml`
-- `SecurityConfig.java`
-- `ExternalUser.java`
-- `ExternalUserRepository.java`
-- `login.html`
-- `signup.html`
+---
 
-## ⚠️ 주의사항
+## ⚠️ 알려진 제약사항
 
-### 환경 설정 필수
-이 기능을 사용하려면 각 플랫폼에서 OAuth 클라이언트를 발급받아 설정해야 합니다:
-- Google Cloud Console
-- Kakao Developers
-- Naver Developers
+- User Service와 Notification Service는 **구조만 완성** (실제 API 미구현)
+- JWT 인증이 API Gateway에 미적용
+- 모니터링 및 로깅 시스템 미구축
+- 나머지 8개 서비스는 계획 단계
 
-자세한 내용은 `doc/가이드/98_소셜_로그인_설정.md` 참조
+---
 
-### 보안
-- `application-local.yml`은 `.gitignore`에 포함되어 커밋되지 않음
-- 운영 환경에서는 환경 변수로 설정 권장
+## 🔍 테스트 체크리스트
 
-## 🔗 관련 링크
-- [Google OAuth 2.0 문서](https://developers.google.com/identity/protocols/oauth2)
-- [Kakao 로그인 REST API](https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api)
-- [Naver 로그인 API](https://developers.naver.com/docs/login/api/api.md)
+- [x] 전체 프로젝트 빌드 성공
+- [x] Eureka Server 실행 및 대시보드 확인
+- [x] API Gateway 실행 및 라우팅 확인
+- [x] Config Server 실행 및 설정 조회
+- [x] User Service 실행 확인
+- [x] Notification Service 실행 확인
+- [ ] API 엔드포인트 테스트 (미구현)
+- [ ] Circuit Breaker 동작 테스트
+- [ ] RabbitMQ 이벤트 통신 테스트
+
+---
+
+**작업 기간**: 약 4시간
+**커밋 수**: 2개
+**작업자**: Claude
