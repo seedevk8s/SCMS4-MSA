@@ -76,6 +76,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // 관리자 전용 경로
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers("/counseling/admin/**").hasRole("ADMIN")
 
