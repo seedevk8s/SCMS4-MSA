@@ -365,10 +365,24 @@
 
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', function() {
-            initGrid();
-            loadStatistics();
-            loadStudents();
-            loadDepartments();
+            console.log('DOM loaded, initializing...');
+
+            // TOAST UI Grid 라이브러리 로드 확인
+            if (typeof tui === 'undefined' || typeof tui.Grid === 'undefined') {
+                console.error('TOAST UI Grid 라이브러리가 로드되지 않았습니다');
+                alert('페이지 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+                return;
+            }
+
+            try {
+                initGrid();
+                loadStatistics();
+                loadStudents();
+                loadDepartments();
+            } catch (error) {
+                console.error('초기화 오류:', error);
+                alert('페이지 초기화 중 오류가 발생했습니다: ' + error.message);
+            }
 
             // Enter 키로 검색
             document.getElementById('searchInput').addEventListener('keypress', function(e) {
@@ -380,6 +394,12 @@
 
         // 그리드 초기화
         function initGrid() {
+            console.log('Initializing grid...');
+            const gridEl = document.getElementById('grid');
+            if (!gridEl) {
+                throw new Error('Grid 엘리먼트를 찾을 수 없습니다');
+            }
+
             grid = new tui.Grid({
                 el: document.getElementById('grid'),
                 data: [],
@@ -439,6 +459,7 @@
                 rowHeaders: ['rowNum'],
                 bodyHeight: 500
             });
+            console.log('Grid initialized successfully:', grid);
         }
 
         // 통계 로드
@@ -483,6 +504,12 @@
         // 학생 목록 로드
         async function loadStudents() {
             try {
+                if (!grid) {
+                    console.error('Grid가 초기화되지 않았습니다');
+                    alert('Grid가 초기화되지 않았습니다. 페이지를 새로고침해주세요.');
+                    return;
+                }
+
                 const params = new URLSearchParams({
                     page: currentPage,
                     size: currentSize
@@ -492,13 +519,20 @@
                 if (currentDepartment) params.append('department', currentDepartment);
                 if (currentGrade) params.append('grade', currentGrade);
 
+                console.log('Fetching students:', `/admin/students/api?${params}`);
                 const response = await fetch(`/admin/students/api?${params}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
                 const data = await response.json();
+                console.log('Received student data:', data);
 
                 grid.resetData(data.content || []);
             } catch (error) {
                 console.error('학생 목록 로드 실패:', error);
-                alert('학생 목록을 불러오는데 실패했습니다');
+                alert('학생 목록을 불러오는데 실패했습니다\n' + error.message);
             }
         }
 
