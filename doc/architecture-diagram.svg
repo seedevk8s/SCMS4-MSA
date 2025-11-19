@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900">
+  <defs>
+    <style>
+      .title { font: bold 28px sans-serif; fill: #1a1a1a; }
+      .subtitle { font: bold 18px sans-serif; fill: #4a4a4a; }
+      .service-title { font: bold 16px sans-serif; fill: white; }
+      .service-desc { font: 12px sans-serif; fill: white; }
+      .port { font: bold 14px sans-serif; fill: #666; }
+      .label { font: 12px sans-serif; fill: #666; }
+      .status { font: bold 12px sans-serif; fill: #22c55e; }
+
+      /* 서비스 박스 스타일 */
+      .eureka { fill: #3b82f6; stroke: #2563eb; stroke-width: 2; }
+      .gateway { fill: #8b5cf6; stroke: #7c3aed; stroke-width: 2; }
+      .config { fill: #f59e0b; stroke: #d97706; stroke-width: 2; }
+      .business { fill: #10b981; stroke: #059669; stroke-width: 2; }
+      .planned { fill: #94a3b8; stroke: #64748b; stroke-width: 2; }
+
+      /* 연결선 스타일 */
+      .connection { stroke: #64748b; stroke-width: 2; fill: none; stroke-dasharray: 5,5; }
+      .primary-connection { stroke: #3b82f6; stroke-width: 3; fill: none; }
+      .registration { stroke: #10b981; stroke-width: 2; fill: none; marker-end: url(#arrowgreen); }
+
+      /* 애로우 마커 */
+      marker { overflow: visible; }
+    </style>
+
+    <marker id="arrowblue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6" />
+    </marker>
+
+    <marker id="arrowgreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+    </marker>
+  </defs>
+
+  <!-- 배경 -->
+  <rect width="1400" height="900" fill="#f8fafc"/>
+
+  <!-- 제목 -->
+  <text x="700" y="40" text-anchor="middle" class="title">SCMS4 마이크로서비스 아키텍처</text>
+  <text x="700" y="70" text-anchor="middle" class="subtitle">Microservices Architecture - Phase 1 Completed</text>
+
+  <!-- 범례 -->
+  <g transform="translate(50, 100)">
+    <rect class="eureka" x="0" y="0" width="30" height="20" rx="3"/>
+    <text x="40" y="15" class="label">인프라 - 핵심</text>
+
+    <rect class="gateway" x="150" y="0" width="30" height="20" rx="3"/>
+    <text x="190" y="15" class="label">인프라 - Gateway</text>
+
+    <rect class="config" x="320" y="0" width="30" height="20" rx="3"/>
+    <text x="360" y="15" class="label">인프라 - Config</text>
+
+    <rect class="business" x="490" y="0" width="30" height="20" rx="3"/>
+    <text x="530" y="15" class="label">비즈니스 (구현)</text>
+
+    <rect class="planned" x="660" y="0" width="30" height="20" rx="3"/>
+    <text x="700" y="15" class="label">비즈니스 (계획)</text>
+
+    <text x="850" y="15" class="status">✓ 실행 성공</text>
+  </g>
+
+  <!-- Layer 1: Eureka Server (중앙 상단) -->
+  <g transform="translate(550, 150)">
+    <rect class="eureka" x="0" y="0" width="300" height="100" rx="8"/>
+    <text x="150" y="30" text-anchor="middle" class="service-title">Eureka Server</text>
+    <text x="150" y="50" text-anchor="middle" class="service-desc">Service Discovery &amp; Registry</text>
+    <text x="150" y="70" text-anchor="middle" class="port">포트: 8761</text>
+    <text x="150" y="90" text-anchor="middle" class="status">✓ UP</text>
+  </g>
+
+  <!-- Layer 2: API Gateway (중앙) -->
+  <g transform="translate(550, 300)">
+    <rect class="gateway" x="0" y="0" width="300" height="100" rx="8"/>
+    <text x="150" y="30" text-anchor="middle" class="service-title">API Gateway</text>
+    <text x="150" y="50" text-anchor="middle" class="service-desc">Routing, Circuit Breaker, CORS</text>
+    <text x="150" y="70" text-anchor="middle" class="port">포트: 8080</text>
+    <text x="150" y="90" text-anchor="middle" class="status">✓ UP</text>
+  </g>
+
+  <!-- Config Server (우측 상단) -->
+  <g transform="translate(1050, 300)">
+    <rect class="config" x="0" y="0" width="250" height="100" rx="8"/>
+    <text x="125" y="30" text-anchor="middle" class="service-title">Config Server</text>
+    <text x="125" y="50" text-anchor="middle" class="service-desc">Central Configuration</text>
+    <text x="125" y="70" text-anchor="middle" class="port">포트: 8888</text>
+    <text x="125" y="90" text-anchor="middle" class="service-desc">(선택사항)</text>
+  </g>
+
+  <!-- Layer 3: Business Services -->
+
+  <!-- User Service -->
+  <g transform="translate(100, 500)">
+    <rect class="business" x="0" y="0" width="250" height="120" rx="8"/>
+    <text x="125" y="25" text-anchor="middle" class="service-title">User Service</text>
+    <text x="125" y="45" text-anchor="middle" class="service-desc">사용자 관리, 인증/인가</text>
+    <text x="125" y="65" text-anchor="middle" class="service-desc">JWT, OAuth2</text>
+    <text x="125" y="85" text-anchor="middle" class="port">포트: 8081</text>
+    <text x="125" y="105" text-anchor="middle" class="status">✓ UP</text>
+  </g>
+
+  <!-- Notification Service -->
+  <g transform="translate(400, 500)">
+    <rect class="business" x="0" y="0" width="250" height="120" rx="8"/>
+    <text x="125" y="25" text-anchor="middle" class="service-title">Notification Service</text>
+    <text x="125" y="45" text-anchor="middle" class="service-desc">알림 관리, 이메일</text>
+    <text x="125" y="65" text-anchor="middle" class="service-desc">RabbitMQ 이벤트</text>
+    <text x="125" y="85" text-anchor="middle" class="port">포트: 8082</text>
+    <text x="125" y="105" text-anchor="middle" class="status">✓ UP</text>
+  </g>
+
+  <!-- Program Service (계획) -->
+  <g transform="translate(700, 500)">
+    <rect class="planned" x="0" y="0" width="200" height="120" rx="8"/>
+    <text x="100" y="25" text-anchor="middle" class="service-title">Program Service</text>
+    <text x="100" y="50" text-anchor="middle" class="service-desc">프로그램 관리</text>
+    <text x="100" y="75" text-anchor="middle" class="port">포트: 8083</text>
+    <text x="100" y="100" text-anchor="middle" class="service-desc">(계획)</text>
+  </g>
+
+  <!-- Portfolio Service (계획) -->
+  <g transform="translate(950, 500)">
+    <rect class="planned" x="0" y="0" width="200" height="120" rx="8"/>
+    <text x="100" y="25" text-anchor="middle" class="service-title">Portfolio Service</text>
+    <text x="100" y="50" text-anchor="middle" class="service-desc">포트폴리오 관리</text>
+    <text x="100" y="75" text-anchor="middle" class="port">포트: 8085</text>
+    <text x="100" y="100" text-anchor="middle" class="service-desc">(계획)</text>
+  </g>
+
+  <!-- 더 많은 서비스들 (계획) -->
+  <g transform="translate(100, 680)">
+    <rect class="planned" x="0" y="0" width="150" height="80" rx="8"/>
+    <text x="75" y="25" text-anchor="middle" class="service-title" style="font-size: 14px;">Consultation</text>
+    <text x="75" y="45" text-anchor="middle" class="port" style="font-size: 12px;">8086</text>
+    <text x="75" y="65" text-anchor="middle" class="service-desc">(계획)</text>
+  </g>
+
+  <g transform="translate(280, 680)">
+    <rect class="planned" x="0" y="0" width="150" height="80" rx="8"/>
+    <text x="75" y="25" text-anchor="middle" class="service-title" style="font-size: 14px;">Competency</text>
+    <text x="75" y="45" text-anchor="middle" class="port" style="font-size: 12px;">8087</text>
+    <text x="75" y="65" text-anchor="middle" class="service-desc">(계획)</text>
+  </g>
+
+  <g transform="translate(460, 680)">
+    <rect class="planned" x="0" y="0" width="150" height="80" rx="8"/>
+    <text x="75" y="25" text-anchor="middle" class="service-title" style="font-size: 14px;">Mileage</text>
+    <text x="75" y="45" text-anchor="middle" class="port" style="font-size: 12px;">8088</text>
+    <text x="75" y="65" text-anchor="middle" class="service-desc">(계획)</text>
+  </g>
+
+  <g transform="translate(640, 680)">
+    <rect class="planned" x="0" y="0" width="150" height="80" rx="8"/>
+    <text x="75" y="25" text-anchor="middle" class="service-title" style="font-size: 14px;">Survey</text>
+    <text x="75" y="45" text-anchor="middle" class="port" style="font-size: 12px;">8089</text>
+    <text x="75" y="65" text-anchor="middle" class="service-desc">(계획)</text>
+  </g>
+
+  <g transform="translate(820, 680)">
+    <rect class="planned" x="0" y="0" width="180" height="80" rx="8"/>
+    <text x="90" y="25" text-anchor="middle" class="service-title" style="font-size: 14px;">Employment</text>
+    <text x="90" y="45" text-anchor="middle" class="port" style="font-size: 12px;">8090</text>
+    <text x="90" y="65" text-anchor="middle" class="service-desc">(계획)</text>
+  </g>
+
+  <!-- 연결선들 -->
+
+  <!-- Eureka에 등록 (녹색 화살표) -->
+  <path class="registration" d="M 225 620 L 225 680 L 650 680 L 650 250" />
+  <path class="registration" d="M 525 620 L 525 680 L 650 680 L 650 250" />
+  <path class="registration" d="M 700 400 L 700 250" />
+  <path class="registration" d="M 1175 400 L 1175 350 L 800 350 L 800 250" />
+
+  <!-- API Gateway에서 서비스로 라우팅 (파란색) -->
+  <path class="primary-connection" d="M 600 400 L 250 500" />
+  <path class="primary-connection" d="M 650 400 L 525 500" />
+  <path class="primary-connection" d="M 750 400 L 800 500" />
+  <path class="primary-connection" d="M 800 400 L 1050 500" />
+
+  <!-- Config Server에서 서비스로 설정 제공 (점선) -->
+  <path class="connection" d="M 1050 350 L 350 500" />
+  <path class="connection" d="M 1100 400 L 625 500" />
+
+  <!-- 하단 정보 박스 -->
+  <g transform="translate(50, 800)">
+    <rect x="0" y="0" width="1300" height="80" fill="white" stroke="#e2e8f0" stroke-width="2" rx="8"/>
+
+    <text x="20" y="25" class="subtitle">주요 특징</text>
+
+    <text x="20" y="50" class="label">
+      • 독립 실행: DB/RabbitMQ/Config Server 없이 실행 가능
+    </text>
+    <text x="20" y="68" class="label">
+      • Circuit Breaker: 장애 격리 및 Fallback 처리
+    </text>
+
+    <text x="520" y="50" class="label">
+      • Service Discovery: Eureka 기반 자동 검색
+    </text>
+    <text x="520" y="68" class="label">
+      • 중앙 설정 관리: Config Server (선택사항)
+    </text>
+
+    <text x="1000" y="50" class="label">
+      • API Gateway: 단일 진입점
+    </text>
+    <text x="1000" y="68" class="label">
+      • 확장 가능: 서비스별 독립 스케일링
+    </text>
+  </g>
+
+  <!-- 상태 표시 -->
+  <g transform="translate(1250, 150)">
+    <circle cx="10" cy="10" r="8" fill="#22c55e"/>
+    <text x="25" y="15" class="label">운영 중 (4)</text>
+
+    <circle cx="10" cy="35" r="8" fill="#94a3b8"/>
+    <text x="25" y="40" class="label">계획 (6)</text>
+  </g>
+</svg>
