@@ -646,6 +646,8 @@ public class UserService {
                         .department(request.getDepartment())
                         .grade(request.getGrade())
                         .role(UserRole.STUDENT)
+                        .locked(false)
+                        .failCnt(0)
                         .build();
 
                 userRepository.save(user);
