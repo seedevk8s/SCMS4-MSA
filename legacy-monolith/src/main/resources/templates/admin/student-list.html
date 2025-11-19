@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}">
+<head>
+    <title>학생 관리 - SCMS</title>
+    <th:block layout:fragment="css">
+        <!-- TOAST UI Pagination CSS (Grid의 내부 의존성) -->
+        <link rel="stylesheet" href="https://uicdn.toast.com/tui.pagination/v3.4.1/tui-pagination.css" />
+        <link rel="stylesheet" href="https://uicdn.toast.com/grid/v4.21.19/tui-grid.css" />
+        <style>
+            .stats-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .stat-card {
+                background: white;
+                border-radius: 8px;
+                padding: 1.5rem;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .stat-card h3 {
+                font-size: 0.9rem;
+                color: #666;
+                margin: 0 0 0.5rem 0;
+            }
+
+            .stat-card .value {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #333;
+            }
+
+            .stat-card.primary .value { color: #0066cc; }
+            .stat-card.success .value { color: #28a745; }
+            .stat-card.warning .value { color: #ffc107; }
+            .stat-card.danger .value { color: #dc3545; }
+
+            .search-section {
+                background: white;
+                padding: 1.5rem;
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .search-controls {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .search-controls input,
+            .search-controls select {
+                padding: 0.5rem;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+
+            .search-controls button {
+                padding: 0.5rem 1.5rem;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 600;
+            }
+
+            .btn-search {
+                background-color: #0066cc;
+                color: white;
+            }
+
+            .btn-reset {
+                background-color: #6c757d;
+                color: white;
+            }
+
+            .btn-add {
+                background-color: #28a745;
+                color: white;
+                margin-left: auto;
+            }
+
+            .grid-container {
+                background: white;
+                padding: 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            /* 모달 스타일 */
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+            }
+
+            .modal.active {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal-content {
+                background: white;
+                padding: 2rem;
+                border-radius: 8px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+                border-bottom: 2px solid #0066cc;
+            }
+
+            .modal-header h2 {
+                margin: 0;
+                color: #0066cc;
+            }
+
+            .close-btn {
+                font-size: 1.5rem;
+                cursor: pointer;
+                background: none;
+                border: none;
+                color: #666;
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+                color: #333;
+            }
+
+            .form-group input,
+            .form-group select {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+
+            .form-actions {
+                display: flex;
+                gap: 1rem;
+                justify-content: flex-end;
+                margin-top: 1.5rem;
+                padding-top: 1rem;
+                border-top: 1px solid #eee;
+            }
+
+            .btn-primary {
+                background-color: #0066cc;
+                color: white;
+                padding: 0.75rem 1.5rem;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 600;
+            }
+
+            .btn-secondary {
+                background-color: #6c757d;
+                color: white;
+                padding: 0.75rem 1.5rem;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 600;
+            }
+
+            .bulk-section {
+                background: #f8f9fa;
+                padding: 1rem;
+                border-radius: 4px;
+                margin-top: 1rem;
+            }
+
+            .bulk-section h4 {
+                margin: 0 0 0.5rem 0;
+                color: #333;
+            }
+
+            .bulk-section p {
+                margin: 0 0 1rem 0;
+                font-size: 0.9rem;
+                color: #666;
+            }
+
+            /* 페이지네이션 스타일 */
+            .pagination-container {
+                display: flex;
+                justify-content: center;
+                margin-top: 1.5rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid #eee;
+            }
+
+            /* TOAST UI Pagination 커스텀 스타일 */
+            .tui-pagination * {
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+
+            .tui-pagination {
+                height: 28px;
+                margin: 14px 0 12px;
+                line-height: normal;
+                text-align: center;
+                font-size: 0;
+            }
+
+            .tui-pagination .tui-page-btn {
+                display: inline-block;
+                position: relative;
+                width: 28px;
+                padding: 8px 0 6px;
+                margin-left: 0;
+                color: #333;
+                font-size: 12px;
+                font-weight: normal;
+                line-height: 1;
+                text-decoration: none;
+                vertical-align: middle;
+                border: 1px solid #ddd;
+                border-width: 1px 0;
+            }
+
+            .tui-pagination .tui-page-btn:hover {
+                background-color: #f4f4f4;
+            }
+
+            .tui-pagination .tui-is-selected,
+            .tui-pagination strong {
+                color: #fff;
+                background: #0066cc;
+                border-color: #0066cc;
+                cursor: default;
+            }
+
+            .tui-pagination .tui-is-selected:hover {
+                background-color: #0066cc;
+            }
+
+            .tui-pagination .tui-first-child.tui-is-selected,
+            .tui-pagination strong.tui-first-child {
+                margin-left: 0;
+            }
+
+            .tui-pagination .tui-first-child,
+            .tui-pagination .tui-prev-is-ellip {
+                border-left: 1px solid #ddd;
+            }
+
+            .tui-pagination .tui-last-child,
+            .tui-pagination .tui-next-is-ellip {
+                border-right: 1px solid #ddd;
+            }
+
+            .tui-pagination .tui-first-child.tui-is-selected {
+                border-left: 1px solid #0066cc;
+            }
+
+            .tui-pagination .tui-last-child.tui-is-selected {
+                border-right: 1px solid #0066cc;
+            }
+
+            .tui-pagination .tui-first,
+            .tui-pagination .tui-prev,
+            .tui-pagination .tui-next,
+            .tui-pagination .tui-last,
+            .tui-pagination .tui-prev-is-ellip,
+            .tui-pagination .tui-next-is-ellip {
+                overflow: hidden;
+                height: 26px;
+                padding: 0;
+                font-size: 0 !important;
+                line-height: 26px;
+                white-space: nowrap;
+                font-weight: normal;
+                border: 1px solid #ddd;
+                text-indent: -9999px;
+                color: transparent !important;
+            }
+
+            .tui-pagination .tui-prev-is-ellip {
+                border-right: 0;
+            }
+
+            .tui-pagination .tui-next-is-ellip {
+                border-left: 0;
+            }
+
+            .tui-pagination .tui-first + .tui-prev,
+            .tui-pagination .tui-prev + .tui-first {
+                border-left: 0;
+            }
+
+            .tui-pagination .tui-last + .tui-next,
+            .tui-pagination .tui-next + .tui-last {
+                border-right: 0;
+            }
+
+            .tui-pagination .tui-first:hover,
+            .tui-pagination .tui-prev:hover,
+            .tui-pagination .tui-next:hover,
+            .tui-pagination .tui-last:hover {
+                background-color: #f4f4f4;
+                border-color: #ddd;
+            }
+
+            .tui-pagination .tui-first-child.tui-prev-is-ellip,
+            .tui-pagination .tui-first-child.tui-next-is-ellip {
+                border-left: 1px solid #ddd;
+            }
+
+            .tui-pagination .tui-last-child.tui-prev-is-ellip,
+            .tui-pagination .tui-last-child.tui-next-is-ellip {
+                border-right: 1px solid #ddd;
+            }
+
+            .tui-pagination .tui-first {
+                width: 28px;
+                margin-right: 0;
+            }
+
+            .tui-pagination .tui-prev {
+                margin-right: 0;
+                width: 28px;
+            }
+
+            .tui-pagination .tui-next {
+                width: 28px;
+                margin-left: 0;
+            }
+
+            .tui-pagination .tui-last {
+                width: 28px;
+                margin-left: 0;
+            }
+
+            /* 아이콘 스타일 */
+            .tui-pagination .tui-ico-first,
+            .tui-pagination .tui-ico-prev,
+            .tui-pagination .tui-ico-next,
+            .tui-pagination .tui-ico-last {
+                display: block;
+                position: relative;
+                width: 100%;
+                height: 100%;
+                font-size: 0;
+                color: transparent;
+                text-indent: -9999px;
+                overflow: hidden;
+            }
+
+            .tui-pagination .tui-ico-first:before {
+                content: '';
+                position: absolute;
+                top: 9px;
+                left: 7px;
+                width: 2px;
+                height: 8px;
+                background: #333;
+            }
+
+            .tui-pagination .tui-ico-first:after {
+                content: '';
+                position: absolute;
+                top: 9px;
+                left: 10px;
+                width: 6px;
+                height: 6px;
+                border: 1px solid #333;
+                border-width: 0 0 2px 2px;
+                -webkit-transform: rotate(45deg);
+                -ms-transform: rotate(45deg);
+                transform: rotate(45deg);
+            }
+
+            .tui-pagination .tui-ico-prev:after {
+                content: '';
+                position: absolute;
+                top: 9px;
+                left: 11px;
+                width: 6px;
+                height: 6px;
+                border: 1px solid #333;
+                border-width: 0 0 2px 2px;
+                -webkit-transform: rotate(45deg);
+                -ms-transform: rotate(45deg);
+                transform: rotate(45deg);
+            }
+
+            .tui-pagination .tui-ico-next:after {
+                content: '';
+                position: absolute;
+                top: 9px;
+                right: 11px;
+                width: 6px;
+                height: 6px;
+                border: 1px solid #333;
+                border-width: 2px 2px 0 0;
+                -webkit-transform: rotate(45deg);
+                -ms-transform: rotate(45deg);
+                transform: rotate(45deg);
+            }
+
+            .tui-pagination .tui-ico-last:before {
+                content: '';
+                position: absolute;
+                top: 9px;
+                right: 7px;
+                width: 2px;
+                height: 8px;
+                background: #333;
+            }
+
+            .tui-pagination .tui-ico-last:after {
+                content: '';
+                position: absolute;
+                top: 9px;
+                right: 10px;
+                width: 6px;
+                height: 6px;
+                border: 1px solid #333;
+                border-width: 2px 2px 0 0;
+                -webkit-transform: rotate(45deg);
+                -ms-transform: rotate(45deg);
+                transform: rotate(45deg);
+            }
+
+            /* 비활성화된 아이콘 */
+            .tui-pagination .tui-is-disabled .tui-ico-first:before,
+            .tui-pagination .tui-is-disabled .tui-ico-first:after,
+            .tui-pagination .tui-is-disabled .tui-ico-prev:after,
+            .tui-pagination .tui-is-disabled .tui-ico-next:after,
+            .tui-pagination .tui-is-disabled .tui-ico-last:before,
+            .tui-pagination .tui-is-disabled .tui-ico-last:after {
+                background-color: #ddd !important;
+                border-color: #ddd !important;
+            }
+
+            .tui-pagination .tui-is-disabled:hover {
+                background: #fff;
+                cursor: default;
+            }
+
+            .tui-pagination .tui-prev-is-ellip,
+            .tui-pagination .tui-next-is-ellip {
+                padding: 0;
+                line-height: 1;
+            }
+
+            .tui-pagination .tui-prev-is-ellip {
+                border-right: 0;
+            }
+
+            .tui-pagination .tui-next-is-ellip {
+                border-left: 0;
+            }
+
+            .tui-pagination .tui-ico-ellip {
+                display: inline-block;
+                height: 26px;
+                padding: 0 16px 0 4px;
+                vertical-align: top;
+                font-size: 12px;
+                line-height: 26px;
+            }
+
+            /* 비활성화된 버튼 스타일 */
+            .tui-pagination .tui-is-disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+            }
+
+            .tui-pagination .tui-is-disabled:before,
+            .tui-pagination .tui-is-disabled:after {
+                background-color: #999 !important;
+                border-color: #999 !important;
+            }
+        </style>
+    </th:block>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="admin-content">
+        <div class="admin-header">
+            <h1>학생 관리</h1>
+            <p>내부 학생 회원을 관리합니다</p>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="stats-container">
+            <div class="stat-card primary">
+                <h3>전체 학생</h3>
+                <div class="value" id="totalStudents">0</div>
+            </div>
+            <div class="stat-card success">
+                <h3>활성 계정</h3>
+                <div class="value" id="activeStudents">0</div>
+            </div>
+            <div class="stat-card danger">
+                <h3>잠긴 계정</h3>
+                <div class="value" id="lockedStudents">0</div>
+            </div>
+            <div class="stat-card warning">
+                <h3>1학년</h3>
+                <div class="value" id="grade1">0</div>
+            </div>
+            <div class="stat-card warning">
+                <h3>2학년</h3>
+                <div class="value" id="grade2">0</div>
+            </div>
+            <div class="stat-card warning">
+                <h3>3학년</h3>
+                <div class="value" id="grade3">0</div>
+            </div>
+            <div class="stat-card warning">
+                <h3>4학년</h3>
+                <div class="value" id="grade4">0</div>
+            </div>
+        </div>
+
+        <!-- 검색 섹션 -->
+        <div class="search-section">
+            <div class="search-controls">
+                <input type="text" id="searchInput" placeholder="학번, 이름, 이메일, 학과 검색..." style="flex: 1; min-width: 200px;">
+                <select id="departmentFilter">
+                    <option value="">전체 학과</option>
+                </select>
+                <select id="gradeFilter">
+                    <option value="">전체 학년</option>
+                    <option value="1">1학년</option>
+                    <option value="2">2학년</option>
+                    <option value="3">3학년</option>
+                    <option value="4">4학년</option>
+                </select>
+                <button class="btn-search" onclick="searchStudents()">검색</button>
+                <button class="btn-reset" onclick="resetSearch()">초기화</button>
+                <button class="btn-add" onclick="showAddModal()">학생 등록</button>
+                <button class="btn-add" onclick="showBulkAddModal()">일괄 등록</button>
+            </div>
+        </div>
+
+        <!-- 그리드 -->
+        <div class="grid-container">
+            <div id="grid"></div>
+            <!-- 페이지네이션 -->
+            <div id="pagination" class="pagination-container"></div>
+        </div>
+    </div>
+
+    <!-- 학생 등록 모달 -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>학생 등록</h2>
+                <button class="close-btn" onclick="closeAddModal()">&times;</button>
+            </div>
+            <form id="addStudentForm">
+                <div class="form-group">
+                    <label for="studentNum">학번 *</label>
+                    <input type="number" id="studentNum" required>
+                </div>
+                <div class="form-group">
+                    <label for="name">이름 *</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">이메일 *</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">전화번호</label>
+                    <input type="tel" id="phone">
+                </div>
+                <div class="form-group">
+                    <label for="birthDate">생년월일 *</label>
+                    <input type="date" id="birthDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="department">학과 *</label>
+                    <input type="text" id="department" required>
+                </div>
+                <div class="form-group">
+                    <label for="grade">학년 *</label>
+                    <select id="grade" required>
+                        <option value="">선택하세요</option>
+                        <option value="1">1학년</option>
+                        <option value="2">2학년</option>
+                        <option value="3">3학년</option>
+                        <option value="4">4학년</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeAddModal()">취소</button>
+                    <button type="submit" class="btn-primary">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 일괄 등록 모달 -->
+    <div id="bulkAddModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>학생 일괄 등록</h2>
+                <button class="close-btn" onclick="closeBulkAddModal()">&times;</button>
+            </div>
+            <div class="bulk-section">
+                <h4>CSV 형식 안내</h4>
+                <p>학번, 이름, 이메일, 전화번호, 생년월일(YYYY-MM-DD), 학과, 학년 순서로 입력하세요</p>
+                <p><strong>예시:</strong> 20240001,홍길동,hong@example.com,010-1234-5678,2006-01-15,컴퓨터공학과,1</p>
+            </div>
+            <form id="bulkAddForm">
+                <div class="form-group">
+                    <label for="bulkData">학생 데이터 (한 줄에 한 명씩)</label>
+                    <textarea id="bulkData" rows="10" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeBulkAddModal()">취소</button>
+                    <button type="submit" class="btn-primary">일괄 등록</button>
+                </div>
+            </form>
+            <div id="bulkResult" style="margin-top: 1rem; display: none;"></div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+    <!-- TOAST UI Pagination은 Grid의 내부 의존성이므로 먼저 로드해야 함 -->
+    <script src="https://uicdn.toast.com/tui.pagination/v3.4.1/tui-pagination.js"></script>
+    <script src="https://uicdn.toast.com/grid/v4.21.19/tui-grid.js"></script>
+    <script>
+        let grid;
+        let pagination;
+        let currentPage = 0;
+        let currentSize = 20;
+        let totalPages = 0;
+        let totalElements = 0;
+        let currentSearch = '';
+        let currentDepartment = '';
+        let currentGrade = '';
+        let isLoadingData = false; // 무한 루프 방지
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('DOM loaded, initializing...');
+
+            // TOAST UI Grid 라이브러리 로드 확인
+            if (typeof tui === 'undefined' || typeof tui.Grid === 'undefined') {
+                console.error('TOAST UI Grid 라이브러리가 로드되지 않았습니다');
+                alert('페이지 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+                return;
+            }
+
+            try {
+                // 1. Grid 및 Pagination 초기화 (동기)
+                initGrid();
+                initPagination();
+                console.log('Grid and Pagination initialized, starting data load...');
+
+                // 2. 초기화 완료 후 데이터 로드 (비동기)
+                await Promise.all([
+                    loadStatistics(),
+                    loadStudents(),
+                    loadDepartments()
+                ]);
+
+                console.log('All data loaded successfully');
+            } catch (error) {
+                console.error('초기화 오류:', error);
+                alert('페이지 초기화 중 오류가 발생했습니다: ' + error.message);
+            }
+
+            // Enter 키로 검색
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchStudents();
+                }
+            });
+        });
+
+        // 그리드 초기화
+        function initGrid() {
+            console.log('Initializing grid...');
+            const gridEl = document.getElementById('grid');
+            if (!gridEl) {
+                throw new Error('Grid 엘리먼트를 찾을 수 없습니다');
+            }
+
+            grid = new tui.Grid({
+                el: document.getElementById('grid'),
+                data: [],
+                columns: [
+                    { header: 'ID', name: 'userId', width: 60, align: 'center' },
+                    { header: '학번', name: 'studentNum', width: 100, align: 'center' },
+                    { header: '이름', name: 'name', width: 100 },
+                    { header: '이메일', name: 'email', width: 200 },
+                    { header: '전화번호', name: 'phone', width: 130 },
+                    { header: '학과', name: 'department', width: 120 },
+                    { header: '학년', name: 'grade', width: 60, align: 'center' },
+                    {
+                        header: '계정 상태',
+                        name: 'locked',
+                        width: 100,
+                        align: 'center',
+                        formatter: function(e) {
+                            return e.value ? '<span style="color: red;">잠김</span>' : '<span style="color: green;">활성</span>';
+                        }
+                    },
+                    {
+                        header: '실패 횟수',
+                        name: 'failCnt',
+                        width: 90,
+                        align: 'center'
+                    },
+                    {
+                        header: '등록일',
+                        name: 'createdAt',
+                        width: 110,
+                        align: 'center',
+                        formatter: function(e) {
+                            if (!e.value) return '-';
+                            return new Date(e.value).toLocaleDateString('ko-KR');
+                        }
+                    },
+                    {
+                        header: '액션',
+                        name: 'actions',
+                        width: 250,
+                        align: 'center',
+                        formatter: function(e) {
+                            const row = e.row;
+                            const lockText = row.locked ? '해제' : '잠금';
+                            const lockColor = row.locked ? 'green' : 'orange';
+                            return `
+                                <button onclick="toggleLock(${row.userId})" style="padding: 4px 8px; margin: 2px; background: ${lockColor}; color: white; border: none; border-radius: 3px; cursor: pointer;">${lockText}</button>
+                                <button onclick="resetPassword(${row.userId})" style="padding: 4px 8px; margin: 2px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">PW초기화</button>
+                                <button onclick="deleteStudent(${row.userId})" style="padding: 4px 8px; margin: 2px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">삭제</button>
+                            `;
+                        }
+                    }
+                ],
+                rowHeaders: ['rowNum'],
+                bodyHeight: 500
+            });
+            console.log('Grid initialized successfully:', grid);
+        }
+
+        // 페이지네이션 초기화
+        function initPagination() {
+            console.log('Initializing pagination...');
+            const paginationEl = document.getElementById('pagination');
+            if (!paginationEl) {
+                throw new Error('Pagination 엘리먼트를 찾을 수 없습니다');
+            }
+
+            pagination = new tui.Pagination(paginationEl, {
+                totalItems: 0,
+                itemsPerPage: currentSize,
+                visiblePages: 5,
+                page: 1,
+                centerAlign: true,
+                firstItemClassName: 'tui-first-child',
+                lastItemClassName: 'tui-last-child',
+                usageStatistics: false,
+                template: {
+                    page: '<a href="#" class="tui-page-btn">{{page}}</a>',
+                    currentPage: '<strong class="tui-page-btn tui-is-selected">{{page}}</strong>',
+                    moveButton: '<a href="#" class="tui-page-btn tui-{{type}}">' +
+                            '<span class="tui-ico-{{type}}"></span>' +
+                        '</a>',
+                    disabledMoveButton: '<span class="tui-page-btn tui-is-disabled tui-{{type}}">' +
+                            '<span class="tui-ico-{{type}}"></span>' +
+                        '</span>',
+                    moreButton: '<a href="#" class="tui-page-btn tui-{{type}}-is-ellip">' +
+                            '<span class="tui-ico-ellip">...</span>' +
+                        '</a>'
+                }
+            });
+
+            // 페이지 변경 이벤트
+            pagination.on('afterMove', function(event) {
+                // 데이터 로딩 중이면 무시 (무한 루프 방지)
+                if (isLoadingData) {
+                    console.log('Skipping afterMove during data load');
+                    return;
+                }
+                currentPage = event.page - 1; // TOAST UI는 1-based, Spring은 0-based
+                console.log('Page changed to:', currentPage + 1);
+                loadStudents();
+            });
+
+            console.log('Pagination initialized successfully:', pagination);
+        }
+
+        // 통계 로드
+        async function loadStatistics() {
+            try {
+                const response = await fetch('/admin/students/statistics');
+                const stats = await response.json();
+
+                document.getElementById('totalStudents').textContent = stats.totalStudents || 0;
+                document.getElementById('activeStudents').textContent = stats.activeStudents || 0;
+                document.getElementById('lockedStudents').textContent = stats.lockedStudents || 0;
+
+                const gradeStats = stats.gradeStats || {};
+                document.getElementById('grade1').textContent = gradeStats[1] || 0;
+                document.getElementById('grade2').textContent = gradeStats[2] || 0;
+                document.getElementById('grade3').textContent = gradeStats[3] || 0;
+                document.getElementById('grade4').textContent = gradeStats[4] || 0;
+            } catch (error) {
+                console.error('통계 로드 실패:', error);
+            }
+        }
+
+        // 학과 목록 로드
+        async function loadDepartments() {
+            try {
+                const response = await fetch('/admin/students/statistics');
+                const stats = await response.json();
+                const departments = stats.departments || [];
+
+                const select = document.getElementById('departmentFilter');
+                departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = dept;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('학과 목록 로드 실패:', error);
+            }
+        }
+
+        // 학생 목록 로드
+        async function loadStudents() {
+            try {
+                if (!grid) {
+                    console.error('Grid가 초기화되지 않았습니다');
+                    alert('Grid가 초기화되지 않았습니다. 페이지를 새로고침해주세요.');
+                    return;
+                }
+
+                isLoadingData = true; // 로딩 시작
+
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    size: currentSize
+                });
+
+                if (currentSearch) params.append('search', currentSearch);
+                if (currentDepartment) params.append('department', currentDepartment);
+                if (currentGrade) params.append('grade', currentGrade);
+
+                console.log('Fetching students:', `/admin/students/api?${params}`);
+                const response = await fetch(`/admin/students/api?${params}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Received student data:', data);
+
+                // Grid 데이터 업데이트
+                grid.resetData(data.content || []);
+
+                // Pagination 업데이트
+                totalElements = data.totalElements || 0;
+                totalPages = data.totalPages || 0;
+
+                if (pagination) {
+                    pagination.reset(totalElements);
+                    // 현재 페이지가 전체 페이지를 초과하면 마지막 페이지로 이동
+                    if (currentPage + 1 > totalPages && totalPages > 0) {
+                        currentPage = totalPages - 1;
+                        pagination.movePageTo(totalPages);
+                    } else if (totalElements > 0) {
+                        pagination.movePageTo(currentPage + 1);
+                    }
+                    console.log(`Pagination updated: ${totalElements} items, ${totalPages} pages, current page: ${currentPage + 1}`);
+                }
+            } catch (error) {
+                console.error('학생 목록 로드 실패:', error);
+                alert('학생 목록을 불러오는데 실패했습니다\n' + error.message);
+            } finally {
+                isLoadingData = false; // 로딩 완료
+            }
+        }
+
+        // 검색
+        function searchStudents() {
+            currentSearch = document.getElementById('searchInput').value;
+            currentDepartment = document.getElementById('departmentFilter').value;
+            currentGrade = document.getElementById('gradeFilter').value;
+            currentPage = 0;
+            loadStudents();
+        }
+
+        // 검색 초기화
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('departmentFilter').value = '';
+            document.getElementById('gradeFilter').value = '';
+            currentSearch = '';
+            currentDepartment = '';
+            currentGrade = '';
+            currentPage = 0;
+            loadStudents();
+        }
+
+        // 계정 잠금/해제
+        async function toggleLock(userId) {
+            if (!confirm('계정 상태를 변경하시겠습니까?')) return;
+
+            try {
+                const response = await fetch(`/admin/students/${userId}/toggle-lock`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    loadStudents();
+                    loadStatistics();
+                } else {
+                    alert(result.message || '작업 실패');
+                }
+            } catch (error) {
+                console.error('계정 잠금/해제 실패:', error);
+                alert('작업 중 오류가 발생했습니다');
+            }
+        }
+
+        // 비밀번호 초기화
+        async function resetPassword(userId) {
+            if (!confirm('비밀번호를 생년월일(YYMMDD)로 초기화하시겠습니까?')) return;
+
+            try {
+                const response = await fetch(`/admin/students/${userId}/reset-password`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                } else {
+                    alert(result.message || '작업 실패');
+                }
+            } catch (error) {
+                console.error('비밀번호 초기화 실패:', error);
+                alert('작업 중 오류가 발생했습니다');
+            }
+        }
+
+        // 학생 삭제
+        async function deleteStudent(userId) {
+            if (!confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+
+            try {
+                const response = await fetch(`/admin/students/${userId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    loadStudents();
+                    loadStatistics();
+                } else {
+                    alert(result.message || '삭제 실패');
+                }
+            } catch (error) {
+                console.error('학생 삭제 실패:', error);
+                alert('삭제 중 오류가 발생했습니다');
+            }
+        }
+
+        // 학생 등록 모달
+        function showAddModal() {
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+            document.getElementById('addStudentForm').reset();
+        }
+
+        // 학생 등록 처리
+        document.getElementById('addStudentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const data = {
+                studentNum: parseInt(document.getElementById('studentNum').value),
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                birthDate: document.getElementById('birthDate').value,
+                department: document.getElementById('department').value,
+                grade: parseInt(document.getElementById('grade').value),
+                role: 'STUDENT'
+            };
+
+            try {
+                const response = await fetch('/admin/students', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('학생이 등록되었습니다');
+                    closeAddModal();
+                    loadStudents();
+                    loadStatistics();
+                } else {
+                    alert(result.message || '등록 실패');
+                }
+            } catch (error) {
+                console.error('학생 등록 실패:', error);
+                alert('등록 중 오류가 발생했습니다');
+            }
+        });
+
+        // 일괄 등록 모달
+        function showBulkAddModal() {
+            document.getElementById('bulkAddModal').classList.add('active');
+            document.getElementById('bulkResult').style.display = 'none';
+        }
+
+        function closeBulkAddModal() {
+            document.getElementById('bulkAddModal').classList.remove('active');
+            document.getElementById('bulkAddForm').reset();
+            document.getElementById('bulkResult').style.display = 'none';
+        }
+
+        // 일괄 등록 처리
+        document.getElementById('bulkAddForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const bulkData = document.getElementById('bulkData').value;
+            const lines = bulkData.split('\n').filter(line => line.trim());
+
+            if (lines.length === 0) {
+                alert('데이터를 입력하세요');
+                return;
+            }
+
+            const students = [];
+            for (const line of lines) {
+                const parts = line.split(',').map(p => p.trim());
+                if (parts.length !== 7) continue;
+
+                students.push({
+                    studentNum: parseInt(parts[0]),
+                    name: parts[1],
+                    email: parts[2],
+                    phone: parts[3],
+                    birthDate: parts[4],
+                    department: parts[5],
+                    grade: parseInt(parts[6]),
+                    role: 'STUDENT'
+                });
+            }
+
+            try {
+                const response = await fetch('/admin/students/bulk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(students)
+                });
+                const result = await response.json();
+
+                const resultDiv = document.getElementById('bulkResult');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <h4>일괄 등록 결과</h4>
+                    <p>총 ${result.total}명 중 ${result.success}명 성공, ${result.fail}명 실패</p>
+                    ${result.errors && result.errors.length > 0 ? `
+                        <div style="max-height: 200px; overflow-y: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <h5>오류 목록:</h5>
+                            <ul style="margin: 0; padding-left: 1.5rem;">
+                                ${result.errors.map(err => `<li>${err}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                `;
+
+                if (result.success > 0) {
+                    loadStudents();
+                    loadStatistics();
+                }
+            } catch (error) {
+                console.error('일괄 등록 실패:', error);
+                alert('일괄 등록 중 오류가 발생했습니다');
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html>

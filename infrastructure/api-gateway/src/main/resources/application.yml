@@ -1,0 +1,107 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # Global CORS 설정 (CorsConfig에서 정의)
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      # Discovery Locator 활성화 (Eureka 기반 동적 라우팅)
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+server:
+  port: 8080  # API Gateway 포트
+
+# Eureka Client 설정
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+# Resilience4j Circuit Breaker 설정
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        # Circuit Breaker 상태 전환 임계값
+        failure-rate-threshold: 50
+        # 느린 호출 비율 임계값
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 2s
+        # Circuit Breaker가 OPEN 상태를 유지하는 시간
+        wait-duration-in-open-state: 10s
+        # HALF_OPEN 상태에서 허용되는 호출 수
+        permitted-number-of-calls-in-half-open-state: 5
+        # Circuit Breaker가 닫힌 상태에서 기록할 호출 수
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+        # 최소 호출 수 (이 이상 호출되어야 Circuit Breaker 동작)
+        minimum-number-of-calls: 5
+        # Circuit Breaker 상태 자동 전환
+        automatic-transition-from-open-to-half-open-enabled: true
+    instances:
+      userServiceCircuitBreaker:
+        base-config: default
+      notificationServiceCircuitBreaker:
+        base-config: default
+      programServiceCircuitBreaker:
+        base-config: default
+
+  # Retry 설정
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+
+  # Time Limiter 설정
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 3s
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+
+# 로깅 설정
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    com.scms.gateway: DEBUG
+    reactor.netty: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

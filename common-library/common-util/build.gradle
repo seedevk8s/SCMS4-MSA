@@ -1,0 +1,10 @@
+dependencies {
+    // Spring Context for utilities
+    implementation 'org.springframework:spring-context'
+
+    // Apache Commons
+    implementation 'org.apache.commons:commons-lang3:3.13.0'
+
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+}

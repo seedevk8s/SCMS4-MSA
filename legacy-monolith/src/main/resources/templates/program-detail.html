@@ -1,0 +1,2276 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="${pageTitle}">프로그램 상세</title>
+    <style>
+        .program-detail-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f8f9fa;
+        }
+
+        /* 상단 프로그램 정보 */
+        .program-header-section {
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .program-header-content {
+            display: grid;
+            grid-template-columns: 560px 1fr;
+            gap: 40px;
+        }
+
+        .program-thumbnail {
+            width: 100%;
+            height: 360px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .program-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .program-info-right {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .program-badges {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+
+        .badge-status {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .badge-hits {
+            color: #666;
+            font-size: 14px;
+            margin-left: auto;
+        }
+
+        .program-title-main {
+            font-size: 28px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .program-hashtags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .hashtag {
+            background: #f1f3f5;
+            color: #495057;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .program-meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .program-meta-table tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .program-meta-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+
+        .program-meta-table td:first-child {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            width: 140px;
+        }
+
+        .program-meta-table td:last-child {
+            color: #212529;
+        }
+
+        /* 일정 목록 */
+        .schedule-list {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 16px;
+        }
+
+        .schedule-item {
+            background: white;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            border-left: 4px solid #1976d2;
+        }
+
+        .schedule-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .schedule-badge {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .schedule-title {
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 8px;
+        }
+
+        .schedule-time {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .schedule-participants {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .schedule-location {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        /* 탭 메뉴 */
+        .program-tabs {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-menu {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: #1976d2;
+            border-bottom: 3px solid #1976d2;
+            margin-bottom: -2px;
+        }
+
+        .tab-content {
+            padding: 32px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* 세부내용 */
+        .detail-section {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .detail-section h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .detail-content {
+            line-height: 1.8;
+            color: #495057;
+            white-space: pre-wrap;
+        }
+
+        .detail-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .detail-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f5;
+            line-height: 1.6;
+        }
+
+        .detail-list li:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #212529;
+            margin-right: 8px;
+        }
+
+        /* 첨부파일 */
+        .attachment-section {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .attachment-item i {
+            color: #1976d2;
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .attachment-name {
+            flex: 1;
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .attachment-size {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        /* 후기 섹션 */
+        .review-section {
+            padding: 0;
+        }
+
+        .review-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            color: white;
+        }
+
+        .average-rating-container {
+            text-align: center;
+        }
+
+        .average-rating-number {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .average-rating-stars {
+            font-size: 24px;
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+
+        .review-count {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .btn-write-review {
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-write-review:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-write-review i {
+            margin-right: 8px;
+        }
+
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .review-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .review-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .review-author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .review-author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .review-author-name {
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .review-date {
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        .review-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-stars {
+            color: #ffd700;
+            font-size: 18px;
+        }
+
+        .review-content {
+            color: #495057;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-review-edit,
+        .btn-review-delete {
+            padding: 6px 12px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-review-edit:hover {
+            background: #f8f9fa;
+            border-color: #1976d2;
+            color: #1976d2;
+        }
+
+        .btn-review-delete:hover {
+            background: #f8f9fa;
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        /* 후기 모달 */
+        .review-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .review-modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .review-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .review-modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #212529;
+        }
+
+        .btn-close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #6c757d;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+        }
+
+        .btn-close-modal:hover {
+            color: #212529;
+        }
+
+        .review-modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .rating-input {
+            display: flex;
+            gap: 8px;
+            font-size: 32px;
+        }
+
+        .rating-input .star {
+            cursor: pointer;
+            color: #dee2e6;
+            transition: all 0.2s;
+        }
+
+        .rating-input .star:hover,
+        .rating-input .star.active {
+            color: #ffd700;
+            transform: scale(1.2);
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        .review-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 24px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .btn-secondary,
+        .btn-primary,
+        .btn-danger {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .review-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .review-empty i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* 관리자 통계 카드 */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid #6c757d;
+        }
+
+        .stat-card.stat-pending {
+            border-left-color: #ffc107;
+        }
+
+        .stat-card.stat-approved {
+            border-left-color: #28a745;
+        }
+
+        .stat-card.stat-completed {
+            border-left-color: #17a2b8;
+        }
+
+        .stat-card.stat-rejected {
+            border-left-color: #dc3545;
+        }
+
+        .stat-card.stat-cancelled {
+            border-left-color: #6c757d;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .admin-applications-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* 관리 버튼 */
+        .admin-btn-group {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .admin-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .admin-btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .admin-btn-approve:hover {
+            background: #218838;
+        }
+
+        .admin-btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+
+        .admin-btn-reject:hover {
+            background: #c82333;
+        }
+
+        .admin-btn-complete {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .admin-btn-complete:hover {
+            background: #138496;
+        }
+
+        .admin-btn:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* Excel 다운로드 버튼 */
+        .btn-download-excel:hover {
+            background: #218838 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        /* 신청 버튼 */
+        .apply-section {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .apply-button-large {
+            width: 100%;
+            padding: 20px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .apply-button-large:hover:not(:disabled) {
+            background: #1565c0;
+        }
+
+        .apply-button-large:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        .application-info-table {
+            width: 100%;
+            margin-bottom: 24px;
+            border-collapse: collapse;
+        }
+
+        .application-info-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            font-weight: 600;
+            color: #495057;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .application-info-table td {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            color: #212529;
+        }
+
+        /* 뒤로가기 버튼 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            color: #495057;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+        }
+
+        /* 반응형 */
+        @media (max-width: 968px) {
+            .program-header-content {
+                grid-template-columns: 1fr;
+            }
+
+            .program-thumbnail {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .program-detail-container {
+                padding: 20px 10px;
+            }
+
+            .program-header-section,
+            .detail-section,
+            .attachment-section,
+            .apply-section {
+                padding: 20px;
+            }
+
+            .program-title-main {
+                font-size: 22px;
+            }
+
+            .tab-button {
+                font-size: 14px;
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <!-- 디버그: 세션 정보 출력 (개발용, 배포 시 제거) -->
+    <div style="background: #fff3cd; padding: 10px; margin: 10px; border: 1px solid #ffc107; border-radius: 4px;" th:if="${session.userId != null}">
+        <strong>🔍 디버그 정보:</strong><br/>
+        userId: <span th:text="${session.userId}">N/A</span><br/>
+        name: <span th:text="${session.name}">N/A</span><br/>
+        role: <span th:text="${session.role}">N/A</span><br/>
+        isAdmin: <span th:text="${session.isAdmin}">N/A</span><br/>
+        isAdmin==true: <span th:text="${session.isAdmin == true}">N/A</span>
+    </div>
+
+    <div class="program-detail-container">
+        <!-- 뒤로가기 버튼 -->
+        <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            목록으로
+        </a>
+
+        <!-- 프로그램 헤더 -->
+        <div class="program-header-section" th:if="${program != null}">
+            <div class="program-header-content">
+                <!-- 썸네일 이미지 -->
+                <div class="program-thumbnail">
+                    <img th:src="'https://picsum.photos/seed/' + ${program.programId} + '/560/360'"
+                         th:alt="${program.title}"
+                         loading="lazy">
+                </div>
+
+                <!-- 우측 정보 -->
+                <div class="program-info-right">
+                    <div class="program-badges">
+                        <span class="badge-status" th:text="${program.category}">주제별 상이</span>
+                        <span class="badge-hits" th:text="${program.hits} + ' HITS'">238 HITS</span>
+                    </div>
+
+                    <h1 class="program-title-main" th:text="${program.title}">
+                        2025년 2학기 면접스피치&이미지메이킹 과정
+                    </h1>
+
+                    <div class="program-hashtags">
+                        <span class="hashtag" th:text="'#' + ${program.department}">대학일자리본부</span>
+                        <span class="hashtag" th:if="${program.category}" th:text="'#' + ${program.category}">면접스킬</span>
+                        <span class="hashtag" th:if="${program.subCategory}" th:text="'#' + ${program.subCategory}">진로취업</span>
+                        <span class="hashtag" th:if="${program.college}" th:text="'#' + ${program.college}">이미지메이킹</span>
+                    </div>
+
+                    <table class="program-meta-table">
+                        <tr>
+                            <td><i class="fas fa-crosshairs"></i> 모집대상</td>
+                            <td>전체 학생/교수/대학일자리본부/일본어/교직원</td>
+                        </tr>
+                        <tr th:if="${program.maxParticipants != null}">
+                            <td><i class="fas fa-users"></i> 학년/성별</td>
+                            <td>전체 학년/전체 성별</td>
+                        </tr>
+                        <tr th:if="${program.college}">
+                            <td><i class="fas fa-building"></i> 캠퍼스</td>
+                            <td th:text="${program.college}">전체 캠퍼스</td>
+                        </tr>
+                        <tr th:if="${program.department}">
+                            <td><i class="fas fa-graduation-cap"></i> 학과</td>
+                            <td th:text="${program.department}">전체 학과</td>
+                        </tr>
+                    </table>
+
+                    <!-- 일정 목록 -->
+                    <div class="schedule-list" th:if="${program.applicationStartDate != null}">
+                        <div class="schedule-item">
+                            <div class="schedule-title">
+                                <span class="schedule-badge">5차</span>
+                                <span th:text="${program.title}">면접스피치&이미지메이킹 1회차</span>
+                            </div>
+                            <div class="schedule-time">
+                                <i class="far fa-calendar-alt"></i>
+                                <span th:text="${#temporals.format(program.applicationStartDate, 'yyyy.MM.dd(E) HH:mm')} + ' ~ ' + ${#temporals.format(program.applicationEndDate, 'yyyy.MM.dd(E) HH:mm')}">
+                                    2025.11.05(수) 13:00 ~ 2025.11.05(수) 15:00
+                                </span>
+                            </div>
+                            <div class="schedule-participants" th:if="${program.maxParticipants != null}">
+                                <i class="fas fa-users"></i>
+                                <span th:text="${program.currentParticipants} + ' 명 / ' + ${program.maxParticipants} + ' 명'">
+                                    19 명 / 55 명 (최대 55 명)
+                                </span>
+                            </div>
+                            <div class="schedule-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                중도
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 탭 메뉴 -->
+        <div class="program-tabs">
+            <div class="tab-menu">
+                <button class="tab-button" onclick="showTab(event, 'application-status')">나의 신청내역</button>
+                <button class="tab-button active" onclick="showTab(event, 'detail')">세부내용</button>
+                <button class="tab-button" onclick="showTab(event, 'attachments')">첨부파일</button>
+                <button class="tab-button" onclick="showTab(event, 'reviews')">후기</button>
+                <button class="tab-button" th:if="${session.isAdmin == true}" onclick="showTab(event, 'admin-applications')">
+                    <i class="fas fa-user-shield"></i> 신청 관리 (관리자)
+                </button>
+            </div>
+        </div>
+
+        <!-- 나의 신청내역 탭 -->
+        <div id="application-status" class="detail-section tab-pane">
+            <h3>나의 신청내역</h3>
+            <table class="application-info-table">
+                <thead>
+                    <tr>
+                        <th>프로그램 일정</th>
+                        <th>상태</th>
+                        <th>신청일</th>
+                        <th>비고</th>
+                    </tr>
+                </thead>
+                <tbody id="application-status-tbody">
+                    <tr>
+                        <td colspan="4" style="padding: 40px; color: #6c757d;">
+                            <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 세부내용 탭 -->
+        <div id="detail" class="detail-section tab-pane active">
+            <h3>세부내용</h3>
+            <ul class="detail-list">
+                <li>
+                    <span class="detail-label">가. 프로그램:</span>
+                    <span th:text="${program.title}">2025년 2학기 면접스피치&이미지메이킹 과정</span>
+                </li>
+                <li>
+                    <span class="detail-label">나. 일정:</span>
+                    <span th:text="${#temporals.format(program.applicationStartDate, 'M/d, M/d, M/d, M/d')}">11/5, 11/12, 11/19, 11/26</span>
+                    13시~15시
+                </li>
+                <li>
+                    <span class="detail-label">다. 장소:</span>
+                    정공관 511호
+                </li>
+                <li>
+                    <span class="detail-label">라. 대상:</span>
+                    재학생, 졸업생, 지역청년
+                </li>
+                <li>
+                    <span class="detail-label">마. 주관:</span>
+                    <span th:text="${program.department}">대학일자리본부</span>,
+                    <span th:text="${program.college}">진로취업지원센터</span>
+                </li>
+                <li>
+                    <span class="detail-label">바. 특강내용</span>
+                </li>
+            </ul>
+
+            <!-- 상세 내용 -->
+            <div class="detail-content" th:if="${program.content != null}" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 4px;">
+                <div th:text="${program.description}">
+                    프로그램 설명이 여기에 표시됩니다.
+                </div>
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #dee2e6;">
+                <div th:text="${program.content}" style="white-space: pre-wrap;">
+                    프로그램 상세 내용이 여기에 표시됩니다.
+                </div>
+            </div>
+        </div>
+
+        <!-- 첨부파일 탭 -->
+        <div id="attachments" class="detail-section tab-pane">
+            <div class="attachments-section">
+                <!-- 파일 업로드 폼 (관리자만 표시) -->
+                <div class="file-upload-container" th:if="${session.isAdmin}" style="margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                    <h3 style="margin-bottom: 15px; font-size: 16px; font-weight: 600;">파일 업로드</h3>
+                    <form id="fileUploadForm" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center;">
+                        <input type="file" id="fileInput" name="file" accept=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.zip,.hwp,.txt,.jpg,.jpeg,.png" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <button type="submit" class="btn-primary" style="padding: 10px 20px; white-space: nowrap;">
+                            <i class="fas fa-upload"></i> 업로드
+                        </button>
+                    </form>
+                    <div style="margin-top: 10px; font-size: 12px; color: #6c757d;">
+                        허용 형식: PDF, DOC/DOCX, PPT/PPTX, XLS/XLSX, ZIP, HWP, TXT, JPG, PNG (최대 10MB)
+                    </div>
+                </div>
+
+                <!-- 파일 목록 -->
+                <div class="file-list-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="font-size: 16px; font-weight: 600; margin: 0;">첨부파일</h3>
+                        <div id="fileStats" style="font-size: 14px; color: #6c757d;">
+                            총 <span id="fileCount">0</span>개 파일 (<span id="totalSize">0 MB</span>)
+                        </div>
+                    </div>
+
+                    <!-- 파일 목록 테이블 -->
+                    <div id="fileListContent">
+                        <div class="file-loading" style="text-align: center; padding: 40px; color: #6c757d;">
+                            <i class="fas fa-spinner fa-spin"></i> 파일 목록을 불러오는 중...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 후기 탭 -->
+        <div id="reviews" class="detail-section tab-pane">
+            <div class="review-section">
+                <!-- 후기 요약 -->
+                <div class="review-summary">
+                    <div class="review-summary-left">
+                        <div class="average-rating-container">
+                            <div class="average-rating-number" id="avgRatingNumber">0.0</div>
+                            <div class="average-rating-stars" id="avgRatingStars">
+                                ☆☆☆☆☆
+                            </div>
+                            <div class="review-count" id="reviewCountText">0개의 후기</div>
+                        </div>
+                    </div>
+                    <div class="review-summary-right">
+                        <button class="btn-write-review" id="btnWriteReview" onclick="openReviewModal()" style="display: none;">
+                            <i class="fas fa-pen"></i> 후기 작성하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 후기 목록 -->
+                <div class="review-list" id="reviewList">
+                    <div class="review-loading" style="text-align: center; padding: 40px; color: #6c757d;">
+                        <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 관리자 신청 관리 탭 -->
+        <div id="admin-applications" class="detail-section tab-pane" th:if="${session.isAdmin == true}">
+            <h3><i class="fas fa-user-shield"></i> 신청 관리 (관리자)</h3>
+
+            <!-- 신청 통계 -->
+            <div class="admin-stats" id="adminStats">
+                <div class="stat-card">
+                    <div class="stat-label">전체 신청</div>
+                    <div class="stat-value" id="statTotal">0</div>
+                </div>
+                <div class="stat-card stat-pending">
+                    <div class="stat-label">대기 중</div>
+                    <div class="stat-value" id="statPending">0</div>
+                </div>
+                <div class="stat-card stat-approved">
+                    <div class="stat-label">승인됨</div>
+                    <div class="stat-value" id="statApproved">0</div>
+                </div>
+                <div class="stat-card stat-completed">
+                    <div class="stat-label">참여 완료</div>
+                    <div class="stat-value" id="statCompleted">0</div>
+                </div>
+                <div class="stat-card stat-rejected">
+                    <div class="stat-label">거부됨</div>
+                    <div class="stat-value" id="statRejected">0</div>
+                </div>
+                <div class="stat-card stat-cancelled">
+                    <div class="stat-label">취소됨</div>
+                    <div class="stat-value" id="statCancelled">0</div>
+                </div>
+            </div>
+
+            <!-- 신청자 목록 테이블 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0 15px 0;">
+                <h4 style="margin: 0; font-size: 18px; color: #2C5F5D;">
+                    <i class="fas fa-list"></i> 신청자 목록
+                </h4>
+                <button onclick="downloadExcel()" class="btn-download-excel" style="
+                    padding: 10px 20px;
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: background 0.2s ease;
+                ">
+                    <i class="fas fa-file-excel"></i>
+                    엑셀 다운로드
+                </button>
+            </div>
+            <div class="admin-applications-table">
+                <table class="application-info-table">
+                    <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>이름</th>
+                            <th>학번</th>
+                            <th>상태</th>
+                            <th>신청일</th>
+                            <th>관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminApplicationsTableBody">
+                        <tr>
+                            <td colspan="6" style="padding: 40px; color: #6c757d;">
+                                <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 후기 작성/수정 모달 -->
+        <div id="reviewModal" class="review-modal" style="display: none;">
+            <div class="review-modal-content">
+                <div class="review-modal-header">
+                    <h3 id="reviewModalTitle">후기 작성</h3>
+                    <button class="btn-close-modal" onclick="closeReviewModal()">&times;</button>
+                </div>
+                <div class="review-modal-body">
+                    <div class="form-group">
+                        <label>평점 <span style="color: #dc3545;">*</span></label>
+                        <div class="rating-input">
+                            <span class="star" data-rating="1" onclick="selectRating(1)">☆</span>
+                            <span class="star" data-rating="2" onclick="selectRating(2)">☆</span>
+                            <span class="star" data-rating="3" onclick="selectRating(3)">☆</span>
+                            <span class="star" data-rating="4" onclick="selectRating(4)">☆</span>
+                            <span class="star" data-rating="5" onclick="selectRating(5)">☆</span>
+                        </div>
+                        <input type="hidden" id="reviewRating" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>후기 내용 <span style="color: #dc3545;">*</span></label>
+                        <textarea id="reviewContent" rows="6" maxlength="1000"
+                                  placeholder="프로그램에 대한 솔직한 후기를 남겨주세요. (최대 1000자)"></textarea>
+                        <div class="char-count">
+                            <span id="charCount">0</span> / 1000
+                        </div>
+                    </div>
+                </div>
+                <div class="review-modal-footer">
+                    <button class="btn-secondary" onclick="closeReviewModal()">취소</button>
+                    <button class="btn-primary" id="btnSubmitReview" onclick="submitReview()">등록</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 거부 사유 입력 모달 -->
+        <div id="rejectModal" class="review-modal" style="display: none;">
+            <div class="review-modal-content">
+                <div class="review-modal-header">
+                    <h3>신청 거부 사유 입력</h3>
+                    <button class="btn-close-modal" onclick="closeRejectModal()">&times;</button>
+                </div>
+                <div class="review-modal-body">
+                    <div class="form-group">
+                        <label>거부 사유 <span style="color: #dc3545;">*</span></label>
+                        <textarea id="rejectReason" rows="5" maxlength="500"
+                                  placeholder="신청을 거부하는 사유를 입력해주세요. (최대 500자)"></textarea>
+                        <div class="char-count">
+                            <span id="rejectCharCount">0</span> / 500
+                        </div>
+                    </div>
+                    <input type="hidden" id="rejectApplicationId" value="">
+                </div>
+                <div class="review-modal-footer">
+                    <button class="btn-secondary" onclick="closeRejectModal()">취소</button>
+                    <button class="btn-danger" id="btnConfirmReject" onclick="confirmRejectApplication()">거부</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상세일정 및 신청하기 -->
+        <div class="apply-section">
+            <h3>상세일정 및 신청하기</h3>
+            <table class="application-info-table">
+                <thead>
+                    <tr>
+                        <th>프로그램 일정</th>
+                        <th>마일리지</th>
+                        <th>신청기간</th>
+                        <th>신청현황</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td th:text="${#temporals.format(program.applicationStartDate, 'yyyy.MM.dd HH:mm')} + ' ~ ' + ${#temporals.format(program.applicationEndDate, 'HH:mm')}">
+                            2025.11.05 13:00 ~ 15:00
+                        </td>
+                        <td>-</td>
+                        <td th:text="${#temporals.format(program.applicationStartDate, 'yyyy.MM.dd')} + ' ~ ' + ${#temporals.format(program.applicationEndDate, 'yyyy.MM.dd')}">
+                            2025.11.01 ~ 2025.11.30
+                        </td>
+                        <td th:if="${program.maxParticipants != null}">
+                            <span th:text="${program.currentParticipants} + '/' + ${program.maxParticipants}">19/55</span>
+                        </td>
+                        <td th:if="${program.maxParticipants == null}">-</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button id="apply-button" class="apply-button-large"
+                    th:disabled="${!program.applicationAvailable}"
+                    onclick="applyProgram()">
+                <i class="fas fa-check-circle"></i>
+                <span id="apply-button-text" th:text="${program.applicationAvailable ? '로그인이 필요합니다' : '신청 마감'}">
+                    로그인이 필요합니다
+                </span>
+            </button>
+        </div>
+
+        <!-- 프로그램이 없는 경우 -->
+        <div th:if="${program == null}" style="text-align: center; padding: 100px 20px; background: white; border-radius: 8px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 64px; color: #dee2e6; margin-bottom: 20px;"></i>
+            <h2 style="color: #495057; margin-bottom: 12px;">프로그램을 찾을 수 없습니다</h2>
+            <p style="color: #6c757d;">삭제되었거나 존재하지 않는 프로그램입니다.</p>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const programId = /*[[${program?.programId}]]*/ null;
+        const userId = /*[[${session.userId}]]*/ null;
+        let currentApplication = null;
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            if (programId && userId) {
+                loadApplicationStatus();
+            } else {
+                updateApplyButton();
+            }
+        });
+
+        function showTab(event, tabId) {
+            // 모든 탭 버튼 비활성화
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 모든 탭 패널 숨기기
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+
+            // 클릭한 탭 버튼 활성화
+            event.currentTarget.classList.add('active');
+
+            // 해당 탭 패널 표시
+            document.getElementById(tabId).classList.add('active');
+
+            // 나의 신청내역 탭 클릭 시 데이터 로드
+            if (tabId === 'application-status' && userId) {
+                loadApplicationStatus();
+            }
+
+            // 후기 탭 클릭 시 데이터 로드
+            if (tabId === 'reviews') {
+                loadReviews();
+            }
+
+            // 첨부파일 탭 클릭 시 데이터 로드
+            if (tabId === 'attachments') {
+                loadAttachments();
+            }
+
+            // 관리자 탭 클릭 시 데이터 로드
+            if (tabId === 'admin-applications') {
+                loadAdminApplications();
+            }
+        }
+
+        // 신청 상태 로드
+        async function loadApplicationStatus() {
+            try {
+                const response = await fetch(`/api/programs/${programId}/my-application`);
+                const data = await response.json();
+
+                if (data.applied) {
+                    currentApplication = data.application;
+                    displayApplicationStatus(data.application);
+                } else {
+                    currentApplication = null;
+                    displayNoApplication();
+                }
+
+                updateApplyButton();
+
+            } catch (error) {
+                console.error('신청 상태 로드 실패:', error);
+                displayLoadError();
+            }
+        }
+
+        // 신청 내역 표시
+        function displayApplicationStatus(application) {
+            const tbody = document.getElementById('application-status-tbody');
+            const appliedDate = new Date(application.appliedAt).toLocaleString('ko-KR');
+            const startDate = new Date(application.programStartDate).toLocaleDateString('ko-KR');
+            const endDate = new Date(application.programEndDate).toLocaleDateString('ko-KR');
+
+            let statusBadge = '';
+            let statusColor = '';
+
+            switch(application.status) {
+                case 'PENDING':
+                    statusBadge = '대기';
+                    statusColor = '#ffc107';
+                    break;
+                case 'APPROVED':
+                    statusBadge = '승인';
+                    statusColor = '#28a745';
+                    break;
+                case 'REJECTED':
+                    statusBadge = '거부';
+                    statusColor = '#dc3545';
+                    break;
+                case 'CANCELLED':
+                    statusBadge = '취소';
+                    statusColor = '#6c757d';
+                    break;
+                case 'COMPLETED':
+                    statusBadge = '참여완료';
+                    statusColor = '#17a2b8';
+                    break;
+            }
+
+            let actionButton = '';
+            if (application.cancellable) {
+                actionButton = `<button onclick="cancelApplication(${application.applicationId})"
+                                        style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    취소하기
+                                </button>`;
+            }
+
+            tbody.innerHTML = `
+                <tr>
+                    <td>${startDate} ~ ${endDate}</td>
+                    <td><span style="display: inline-block; padding: 4px 12px; background: ${statusColor}; color: white; border-radius: 4px; font-weight: 600;">${statusBadge}</span></td>
+                    <td>${appliedDate}</td>
+                    <td>${actionButton || '-'}</td>
+                </tr>
+            `;
+        }
+
+        // 신청 내역 없음 표시
+        function displayNoApplication() {
+            const tbody = document.getElementById('application-status-tbody');
+            if (!userId) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="padding: 40px; color: #6c757d;">
+                            로그인 후 신청 내역을 확인할 수 있습니다.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="padding: 40px; color: #6c757d;">
+                            신청 내역이 없습니다.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // 로드 에러 표시
+        function displayLoadError() {
+            const tbody = document.getElementById('application-status-tbody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="padding: 40px; color: #dc3545;">
+                        <i class="fas fa-exclamation-triangle"></i> 데이터를 불러오는 중 오류가 발생했습니다.
+                    </td>
+                </tr>
+            `;
+        }
+
+        // 신청 버튼 상태 업데이트
+        function updateApplyButton() {
+            const button = document.getElementById('apply-button');
+            const buttonText = document.getElementById('apply-button-text');
+
+            if (!userId) {
+                button.disabled = false;
+                buttonText.textContent = '로그인이 필요합니다';
+                button.onclick = function() {
+                    if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+                        window.location.href = '/login';
+                    }
+                };
+            } else if (currentApplication) {
+                button.disabled = true;
+                buttonText.textContent = '신청 완료';
+            } else {
+                button.disabled = false;
+                buttonText.textContent = '신청하기';
+                button.onclick = applyProgram;
+            }
+        }
+
+        // 프로그램 신청
+        async function applyProgram() {
+            if (!userId) {
+                if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+                    window.location.href = '/login';
+                }
+                return;
+            }
+
+            if (!confirm('이 프로그램을 신청하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/programs/${programId}/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert('프로그램 신청이 완료되었습니다!');
+                    currentApplication = data.application;
+                    updateApplyButton();
+                    loadApplicationStatus();
+                    // 페이지 새로고침으로 참가자 수 업데이트
+                    location.reload();
+                } else {
+                    alert(data.error || '신청에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('신청 실패:', error);
+                alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            }
+        }
+
+        // 프로그램 신청 취소
+        async function cancelApplication(applicationId) {
+            if (!confirm('신청을 취소하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/programs/applications/${applicationId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert('신청이 취소되었습니다.');
+                    currentApplication = null;
+                    updateApplyButton();
+                    loadApplicationStatus();
+                    // 페이지 새로고침으로 참가자 수 업데이트
+                    location.reload();
+                } else {
+                    alert(data.error || '취소에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('취소 실패:', error);
+                alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            }
+        }
+
+        // ==================== 후기 기능 ====================
+
+        let currentReviewId = null; // 수정 중인 후기 ID
+        let reviews = []; // 후기 목록
+
+        // 후기 목록 로드
+        async function loadReviews() {
+            try {
+                const response = await fetch(`/api/programs/${programId}/reviews`);
+                const data = await response.json();
+
+                // 평균 평점 표시
+                document.getElementById('avgRatingNumber').textContent = data.averageRating.toFixed(1);
+                document.getElementById('avgRatingStars').innerHTML = getStarsHTML(data.averageRating);
+                document.getElementById('reviewCountText').textContent = `${data.reviewCount}개의 후기`;
+
+                // 후기 작성 버튼 표시 여부
+                if (data.canWriteReview) {
+                    document.getElementById('btnWriteReview').style.display = 'block';
+                }
+
+                // 후기 목록 표시
+                reviews = data.reviews;
+                displayReviews(reviews);
+
+            } catch (error) {
+                console.error('후기 목록 조회 실패:', error);
+                document.getElementById('reviewList').innerHTML = `
+                    <div class="review-empty">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>후기를 불러오는데 실패했습니다.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 후기 목록 표시
+        function displayReviews(reviewList) {
+            const container = document.getElementById('reviewList');
+
+            if (reviewList.length === 0) {
+                container.innerHTML = `
+                    <div class="review-empty">
+                        <i class="fas fa-comment-slash"></i>
+                        <p>아직 작성된 후기가 없습니다.</p>
+                        <p style="font-size: 14px; margin-top: 8px;">첫 번째 후기를 작성해보세요!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = reviewList.map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-author">
+                            <div class="review-author-avatar">
+                                ${review.userName.substring(0, 1)}
+                            </div>
+                            <div class="review-author-info">
+                                <div class="review-author-name">${review.userName}</div>
+                                <div class="review-date">${formatDate(review.createdAt)}</div>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            <div class="review-stars">${getStarsHTML(review.rating)}</div>
+                        </div>
+                    </div>
+                    <div class="review-content">${escapeHtml(review.content)}</div>
+                    ${review.isEditable ? `
+                        <div class="review-actions">
+                            <button class="btn-review-edit" onclick="editReview(${review.reviewId})">
+                                <i class="fas fa-edit"></i> 수정
+                            </button>
+                            <button class="btn-review-delete" onclick="deleteReview(${review.reviewId})">
+                                <i class="fas fa-trash"></i> 삭제
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // 별점 HTML 생성
+        function getStarsHTML(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            let html = '';
+
+            for (let i = 0; i < fullStars; i++) {
+                html += '★';
+            }
+            if (hasHalfStar) {
+                html += '★';
+            }
+            for (let i = Math.ceil(rating); i < 5; i++) {
+                html += '☆';
+            }
+
+            return html;
+        }
+
+        // 날짜 포맷팅
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) {
+                const diffHours = Math.floor(diff / (1000 * 60 * 60));
+                if (diffHours === 0) {
+                    const diffMinutes = Math.floor(diff / (1000 * 60));
+                    return `${diffMinutes}분 전`;
+                }
+                return `${diffHours}시간 전`;
+            } else if (diffDays < 7) {
+                return `${diffDays}일 전`;
+            } else {
+                return date.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        }
+
+        // HTML 이스케이프
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 후기 작성 모달 열기
+        function openReviewModal() {
+            currentReviewId = null;
+            document.getElementById('reviewModalTitle').textContent = '후기 작성';
+            document.getElementById('reviewRating').value = '0';
+            document.getElementById('reviewContent').value = '';
+            document.getElementById('charCount').textContent = '0';
+            document.getElementById('btnSubmitReview').textContent = '등록';
+
+            // 별점 초기화
+            document.querySelectorAll('.rating-input .star').forEach(star => {
+                star.classList.remove('active');
+            });
+
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+
+        // 후기 수정 모달 열기
+        function editReview(reviewId) {
+            const review = reviews.find(r => r.reviewId === reviewId);
+            if (!review) return;
+
+            currentReviewId = reviewId;
+            document.getElementById('reviewModalTitle').textContent = '후기 수정';
+            document.getElementById('reviewRating').value = review.rating;
+            document.getElementById('reviewContent').value = review.content;
+            document.getElementById('charCount').textContent = review.content.length;
+            document.getElementById('btnSubmitReview').textContent = '수정';
+
+            // 별점 표시
+            selectRating(review.rating);
+
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+
+        // 후기 작성 모달 닫기
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            currentReviewId = null;
+        }
+
+        // 별점 선택
+        function selectRating(rating) {
+            document.getElementById('reviewRating').value = rating;
+            const stars = document.querySelectorAll('.rating-input .star');
+
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // 글자 수 카운트
+        document.getElementById('reviewContent')?.addEventListener('input', function() {
+            document.getElementById('charCount').textContent = this.value.length;
+        });
+
+        // 후기 제출
+        async function submitReview() {
+            const rating = parseInt(document.getElementById('reviewRating').value);
+            const content = document.getElementById('reviewContent').value.trim();
+
+            // 유효성 검증
+            if (rating === 0) {
+                alert('평점을 선택해주세요.');
+                return;
+            }
+
+            if (content === '') {
+                alert('후기 내용을 입력해주세요.');
+                return;
+            }
+
+            if (content.length > 1000) {
+                alert('후기는 1000자 이내로 작성해주세요.');
+                return;
+            }
+
+            const requestBody = {
+                rating: rating,
+                content: content
+            };
+
+            try {
+                let response;
+                if (currentReviewId) {
+                    // 수정
+                    response = await fetch(`/api/programs/${programId}/reviews/${currentReviewId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                } else {
+                    // 작성
+                    response = await fetch(`/api/programs/${programId}/reviews`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                }
+
+                if (response.ok) {
+                    alert(currentReviewId ? '후기가 수정되었습니다.' : '후기가 등록되었습니다.');
+                    closeReviewModal();
+                    loadReviews(); // 후기 목록 새로고침
+                } else {
+                    const data = await response.json();
+                    alert(data.error || '후기 처리에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('후기 처리 실패:', error);
+                alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            }
+        }
+
+        // 후기 삭제
+        async function deleteReview(reviewId) {
+            if (!confirm('후기를 삭제하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/programs/${programId}/reviews/${reviewId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('후기가 삭제되었습니다.');
+                    loadReviews(); // 후기 목록 새로고침
+                } else {
+                    const data = await response.json();
+                    alert(data.error || '후기 삭제에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('후기 삭제 실패:', error);
+                alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            }
+        }
+
+        // ==================== 관리자 기능 ====================
+
+        let adminApplications = [];
+
+        // 관리자 신청 목록 로드
+        async function loadAdminApplications() {
+            try {
+                const response = await fetch(`/api/programs/${programId}/applications`);
+
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        document.getElementById('adminApplicationsTableBody').innerHTML = `
+                            <tr>
+                                <td colspan="6" style="padding: 40px; color: #dc3545;">
+                                    <i class="fas fa-exclamation-triangle"></i> 관리자 권한이 필요합니다.
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    throw new Error('신청 목록 조회 실패');
+                }
+
+                adminApplications = await response.json();
+                displayAdminApplications(adminApplications);
+                updateAdminStats(adminApplications);
+
+            } catch (error) {
+                console.error('관리자 신청 목록 조회 실패:', error);
+                document.getElementById('adminApplicationsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" style="padding: 40px; color: #dc3545;">
+                            <i class="fas fa-exclamation-circle"></i> 신청 목록을 불러올 수 없습니다.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // 관리자 신청 목록 표시
+        function displayAdminApplications(applications) {
+            const tbody = document.getElementById('adminApplicationsTableBody');
+
+            if (applications.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="padding: 40px; color: #6c757d;">
+                            <i class="fas fa-inbox"></i> 신청 내역이 없습니다.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = applications.map((app, index) => {
+                const statusBadge = getStatusBadge(app.status);
+                const actionButtons = getAdminActionButtons(app);
+
+                return `
+                    <tr>
+                        <td>${applications.length - index}</td>
+                        <td>${escapeHtml(app.userName)}</td>
+                        <td>${escapeHtml(app.studentNum || '-')}</td>
+                        <td>${statusBadge}</td>
+                        <td>${formatDate(app.appliedAt)}</td>
+                        <td>
+                            <div class="admin-btn-group">
+                                ${actionButtons}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 관리자 통계 업데이트
+        function updateAdminStats(applications) {
+            const stats = {
+                total: applications.length,
+                pending: applications.filter(a => a.status === 'PENDING').length,
+                approved: applications.filter(a => a.status === 'APPROVED').length,
+                completed: applications.filter(a => a.status === 'COMPLETED').length,
+                rejected: applications.filter(a => a.status === 'REJECTED').length,
+                cancelled: applications.filter(a => a.status === 'CANCELLED').length
+            };
+
+            document.getElementById('statTotal').textContent = stats.total;
+            document.getElementById('statPending').textContent = stats.pending;
+            document.getElementById('statApproved').textContent = stats.approved;
+            document.getElementById('statCompleted').textContent = stats.completed;
+            document.getElementById('statRejected').textContent = stats.rejected;
+            document.getElementById('statCancelled').textContent = stats.cancelled;
+        }
+
+        // 관리 액션 버튼 생성
+        function getAdminActionButtons(app) {
+            const buttons = [];
+
+            if (app.status === 'PENDING') {
+                buttons.push(`
+                    <button class="admin-btn admin-btn-approve" onclick="approveApplication(${app.applicationId})">
+                        승인
+                    </button>
+                `);
+                buttons.push(`
+                    <button class="admin-btn admin-btn-reject" onclick="rejectApplication(${app.applicationId})">
+                        거부
+                    </button>
+                `);
+            } else if (app.status === 'APPROVED') {
+                buttons.push(`
+                    <button class="admin-btn admin-btn-complete" onclick="completeApplication(${app.applicationId})">
+                        완료
+                    </button>
+                `);
+            } else {
+                buttons.push(`
+                    <button class="admin-btn" disabled>
+                        액션 없음
+                    </button>
+                `);
+            }
+
+            return buttons.join('');
+        }
+
+        // 신청 승인
+        async function approveApplication(applicationId) {
+            if (!confirm('이 신청을 승인하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/programs/applications/${applicationId}/approve`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message || '신청이 승인되었습니다.');
+                    loadAdminApplications();
+                } else {
+                    alert(data.error || '승인에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('신청 승인 실패:', error);
+                alert('서버 오류가 발생했습니다.');
+            }
+        }
+
+        // 신청 거부 (모달 열기)
+        function rejectApplication(applicationId) {
+            document.getElementById('rejectApplicationId').value = applicationId;
+            document.getElementById('rejectReason').value = '';
+            document.getElementById('rejectCharCount').textContent = '0';
+            document.getElementById('rejectModal').style.display = 'flex';
+        }
+
+        // 거부 모달 닫기
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+            document.getElementById('rejectApplicationId').value = '';
+            document.getElementById('rejectReason').value = '';
+        }
+
+        // 거부 확인
+        async function confirmRejectApplication() {
+            const applicationId = document.getElementById('rejectApplicationId').value;
+            const reason = document.getElementById('rejectReason').value.trim();
+
+            if (!reason) {
+                alert('거부 사유를 입력해주세요.');
+                return;
+            }
+
+            if (!confirm('이 신청을 거부하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/programs/applications/${applicationId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        reason: reason
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message || '신청이 거부되었습니다.');
+                    closeRejectModal();
+                    loadAdminApplications();
+                } else {
+                    alert(data.error || '거부에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('신청 거부 실패:', error);
+                alert('서버 오류가 발생했습니다.');
+            }
+        }
+
+        // 거부 사유 글자 수 카운터
+        document.addEventListener('DOMContentLoaded', function() {
+            const rejectReasonTextarea = document.getElementById('rejectReason');
+            if (rejectReasonTextarea) {
+                rejectReasonTextarea.addEventListener('input', function() {
+                    document.getElementById('rejectCharCount').textContent = this.value.length;
+                });
+            }
+        });
+
+        // 참여 완료 처리
+        async function completeApplication(applicationId) {
+            if (!confirm('이 신청을 참여 완료 처리하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/programs/applications/${applicationId}/complete`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message || '참여 완료 처리되었습니다.');
+                    loadAdminApplications();
+                } else {
+                    alert(data.error || '완료 처리에 실패했습니다.');
+                }
+
+            } catch (error) {
+                console.error('참여 완료 처리 실패:', error);
+                alert('서버 오류가 발생했습니다.');
+            }
+        }
+
+        // Excel 다운로드
+        function downloadExcel() {
+            const programId = /*[[${program.programId}]]*/ 0;
+
+            if (!programId) {
+                alert('프로그램 ID를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 다운로드 링크 생성 및 클릭
+            const downloadUrl = `/api/programs/${programId}/applications/excel`;
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = '';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            console.log('Excel 다운로드 시작: 프로그램 ID', programId);
+        }
+
+        // ============================================
+        // 첨부파일 관리 함수
+        // ============================================
+
+        // 첨부파일 목록 로드
+        async function loadAttachments() {
+            const fileListContent = document.getElementById('fileListContent');
+
+            try {
+                const response = await fetch(`/api/programs/${programId}/files`);
+                const data = await response.json();
+
+                console.log('파일 목록 응답:', data);
+                console.log('files 배열:', data.files);
+                console.log('files 길이:', data.files ? data.files.length : 'undefined');
+
+                if (data.files && data.files.length > 0) {
+                    // 파일 통계 업데이트
+                    document.getElementById('fileCount').textContent = data.totalCount || 0;
+                    document.getElementById('totalSize').textContent = (data.totalSize / (1024 * 1024)).toFixed(2) + ' MB';
+
+                    // 파일 목록 테이블 생성
+                    let html = `
+                        <table class="file-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                                    <th style="padding: 12px; text-align: left; width: 45%;">파일명</th>
+                                    <th style="padding: 12px; text-align: center; width: 15%;">크기</th>
+                                    <th style="padding: 12px; text-align: center; width: 15%;">업로드일</th>
+                                    <th style="padding: 12px; text-align: center; width: 15%;">업로드자</th>
+                                    <th style="padding: 12px; text-align: center; width: 10%;">다운로드</th>
+                    `;
+
+                    // 관리자인 경우 삭제 컬럼 추가
+                    const isAdmin = /*[[${session.isAdmin}]]*/ false;
+                    if (isAdmin) {
+                        html += `<th style="padding: 12px; text-align: center; width: 10%;">삭제</th>`;
+                    }
+
+                    html += `
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    data.files.forEach(file => {
+                        const uploadDate = new Date(file.uploadedAt).toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                        });
+
+                        html += `
+                            <tr style="border-bottom: 1px solid #dee2e6;">
+                                <td style="padding: 12px;">
+                                    <i class="fas fa-file-${getFileIcon(file.fileExtension)}" style="margin-right: 8px; color: #6c757d;"></i>
+                                    ${file.originalFileName}
+                                </td>
+                                <td style="padding: 12px; text-align: center;">${file.fileSizeInKB}</td>
+                                <td style="padding: 12px; text-align: center;">${uploadDate}</td>
+                                <td style="padding: 12px; text-align: center;">${file.uploadedBy || '-'}</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <button onclick="downloadFile(${file.fileId})" class="btn-icon" title="다운로드" style="padding: 6px 12px; border: 1px solid #dee2e6; background: white; border-radius: 4px; cursor: pointer;">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </td>
+                        `;
+
+                        if (isAdmin) {
+                            html += `
+                                <td style="padding: 12px; text-align: center;">
+                                    <button onclick="deleteFile(${file.fileId}, '${file.originalFileName}')" class="btn-icon" title="삭제" style="padding: 6px 12px; border: 1px solid #dc3545; background: white; color: #dc3545; border-radius: 4px; cursor: pointer;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            `;
+                        }
+
+                        html += `</tr>`;
+                    });
+
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+
+                    fileListContent.innerHTML = html;
+                } else {
+                    // 파일이 없을 때
+                    document.getElementById('fileCount').textContent = '0';
+                    document.getElementById('totalSize').textContent = '0 MB';
+                    fileListContent.innerHTML = `
+                        <div style="text-align: center; padding: 60px; color: #6c757d; background: #f8f9fa; border-radius: 8px;">
+                            <i class="fas fa-folder-open" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                            <p style="margin: 0; font-size: 16px;">등록된 파일이 없습니다.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('파일 목록 로드 실패:', error);
+                fileListContent.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #dc3545;">
+                        <i class="fas fa-exclamation-circle"></i> 파일 목록을 불러오는데 실패했습니다.
+                    </div>
+                `;
+            }
+        }
+
+        // 파일 확장자에 따른 아이콘 반환
+        function getFileIcon(extension) {
+            const iconMap = {
+                'pdf': 'pdf',
+                'doc': 'word', 'docx': 'word',
+                'xls': 'excel', 'xlsx': 'excel',
+                'ppt': 'powerpoint', 'pptx': 'powerpoint',
+                'zip': 'archive',
+                'jpg': 'image', 'jpeg': 'image', 'png': 'image',
+                'txt': 'alt',
+                'hwp': 'alt'
+            };
+            return iconMap[extension.toLowerCase()] || 'file';
+        }
+
+        // 파일 업로드 처리
+        document.getElementById('fileUploadForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('파일을 선택해주세요.');
+                return;
+            }
+
+            // 파일 크기 확인 (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('파일 크기는 10MB를 초과할 수 없습니다.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(`/api/programs/${programId}/files`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert(data.message || '파일이 업로드되었습니다.');
+                    fileInput.value = ''; // 파일 입력 초기화
+                    loadAttachments(); // 목록 새로고침
+                } else {
+                    alert(data.error || '파일 업로드에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('파일 업로드 실패:', error);
+                alert('파일 업로드 중 오류가 발생했습니다.');
+            }
+        });
+
+        // 파일 다운로드
+        function downloadFile(fileId) {
+            const downloadUrl = `/api/programs/${programId}/files/${fileId}/download`;
+
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = '';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            console.log('파일 다운로드 시작:', fileId);
+        }
+
+        // 파일 삭제
+        async function deleteFile(fileId, fileName) {
+            if (!confirm(`'${fileName}' 파일을 삭제하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/programs/${programId}/files/${fileId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert(data.message || '파일이 삭제되었습니다.');
+                    loadAttachments(); // 목록 새로고침
+                } else {
+                    alert(data.error || '파일 삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('파일 삭제 실패:', error);
+                alert('파일 삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+    </script>
+</div>
+</body>
+</html>

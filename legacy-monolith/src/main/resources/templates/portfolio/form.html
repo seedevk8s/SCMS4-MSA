@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title th:text="${isEdit} ? '포트폴리오 수정' : '포트폴리오 생성'">포트폴리오</title>
+    <style>
+        .section-divider {
+            border-top: 2px solid #e9ecef;
+            margin: 2rem 0 1.5rem 0;
+            padding-top: 1.5rem;
+        }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+        .form-help {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 th:text="${isEdit} ? '포트폴리오 수정' : '새 포트폴리오 만들기'">포트폴리오</h3>
+                        <p class="mb-0 text-muted">나만의 포트폴리오를 작성하여 성과와 경험을 체계적으로 관리하세요</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="portfolioForm">
+
+                            <!-- 기본 정보 -->
+                            <div class="mb-4">
+                                <h5 class="section-title">📋 기본 정보</h5>
+
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">포트폴리오 제목 *</label>
+                                    <input type="text" class="form-control" id="title" name="title"
+                                           th:value="${portfolio?.title}" required maxlength="200"
+                                           placeholder="예: 2024 나의 성장 포트폴리오">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">포트폴리오 설명</label>
+                                    <textarea class="form-control" id="description" name="description"
+                                              rows="3" maxlength="2000" th:text="${portfolio?.description}"
+                                              placeholder="이 포트폴리오에 대한 간단한 설명을 작성해주세요"></textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="visibility" class="form-label">공개 범위</label>
+                                        <select class="form-select" id="visibility" name="visibility">
+                                            <option value="PRIVATE" th:selected="${portfolio == null or portfolio.visibility.name() == 'PRIVATE'}">비공개</option>
+                                            <option value="PUBLIC" th:selected="${portfolio?.visibility?.name() == 'PUBLIC'}">공개</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="templateType" class="form-label">템플릿 유형</label>
+                                        <select class="form-select" id="templateType" name="templateType">
+                                            <option value="">기본 템플릿</option>
+                                            <option value="PROFESSIONAL" th:selected="${portfolio?.templateType == 'PROFESSIONAL'}">프로페셔널</option>
+                                            <option value="CREATIVE" th:selected="${portfolio?.templateType == 'CREATIVE'}">크리에이티브</option>
+                                            <option value="ACADEMIC" th:selected="${portfolio?.templateType == 'ACADEMIC'}">학술형</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="profileImageUrl" class="form-label">프로필 이미지 URL</label>
+                                    <input type="url" class="form-control" id="profileImageUrl" name="profileImageUrl"
+                                           th:value="${portfolio?.profileImageUrl}" maxlength="500"
+                                           placeholder="https://example.com/profile.jpg">
+                                    <div class="form-text">프로필 사진의 URL을 입력하세요 (선택사항)</div>
+                                </div>
+                            </div>
+
+                            <!-- 자기소개 -->
+                            <div class="section-divider">
+                                <h5 class="section-title">👤 자기소개</h5>
+
+                                <div class="mb-3">
+                                    <label for="aboutMe" class="form-label">자기소개</label>
+                                    <textarea class="form-control" id="aboutMe" name="aboutMe"
+                                              rows="5" maxlength="5000" th:text="${portfolio?.aboutMe}"
+                                              placeholder="자신을 소개하는 글을 작성해주세요. 경험, 강점, 가치관 등을 포함할 수 있습니다."></textarea>
+                                    <div class="form-text">최대 5000자</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="careerGoal" class="form-label">경력 목표 / 희망 분야</label>
+                                    <input type="text" class="form-control" id="careerGoal" name="careerGoal"
+                                           th:value="${portfolio?.careerGoal}" maxlength="500"
+                                           placeholder="예: 데이터 분석가, AI 개발자">
+                                    <div class="form-text">향후 진로 목표나 관심 분야를 작성해주세요</div>
+                                </div>
+                            </div>
+
+                            <!-- 연락처 -->
+                            <div class="section-divider">
+                                <h5 class="section-title">📞 연락처</h5>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="contactEmail" class="form-label">이메일</label>
+                                        <input type="email" class="form-control" id="contactEmail" name="contactEmail"
+                                               th:value="${portfolio?.contactEmail}" maxlength="100"
+                                               placeholder="your.email@example.com">
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="contactPhone" class="form-label">전화번호</label>
+                                        <input type="tel" class="form-control" id="contactPhone" name="contactPhone"
+                                               th:value="${portfolio?.contactPhone}" maxlength="20"
+                                               placeholder="010-1234-5678">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SNS & 링크 -->
+                            <div class="section-divider">
+                                <h5 class="section-title">🔗 SNS & 링크</h5>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="githubUrl" class="form-label">
+                                            <i class="fab fa-github"></i> GitHub
+                                        </label>
+                                        <input type="url" class="form-control" id="githubUrl" name="githubUrl"
+                                               th:value="${portfolio?.githubUrl}" maxlength="200"
+                                               placeholder="https://github.com/username">
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="blogUrl" class="form-label">
+                                            <i class="fas fa-blog"></i> 블로그
+                                        </label>
+                                        <input type="url" class="form-control" id="blogUrl" name="blogUrl"
+                                               th:value="${portfolio?.blogUrl}" maxlength="200"
+                                               placeholder="https://blog.example.com">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="linkedinUrl" class="form-label">
+                                            <i class="fab fa-linkedin"></i> LinkedIn
+                                        </label>
+                                        <input type="url" class="form-control" id="linkedinUrl" name="linkedinUrl"
+                                               th:value="${portfolio?.linkedinUrl}" maxlength="200"
+                                               placeholder="https://linkedin.com/in/username">
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="websiteUrl" class="form-label">
+                                            <i class="fas fa-globe"></i> 개인 웹사이트
+                                        </label>
+                                        <input type="url" class="form-control" id="websiteUrl" name="websiteUrl"
+                                               th:value="${portfolio?.websiteUrl}" maxlength="200"
+                                               placeholder="https://mywebsite.com">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 역량 및 관심사 -->
+                            <div class="section-divider">
+                                <h5 class="section-title">💡 역량 및 관심사</h5>
+
+                                <div class="mb-3">
+                                    <label for="skills" class="form-label">기술 스택 / 역량</label>
+                                    <textarea class="form-control" id="skills" name="skills"
+                                              rows="3" th:text="${portfolio?.skills}"
+                                              placeholder="예: Java, Python, Spring Boot, React, MySQL (쉼표로 구분)"></textarea>
+                                    <div class="form-text">보유한 기술이나 역량을 쉼표로 구분하여 입력하세요</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="interests" class="form-label">관심 분야</label>
+                                    <textarea class="form-control" id="interests" name="interests"
+                                              rows="3" th:text="${portfolio?.interests}"
+                                              placeholder="예: 인공지능, 데이터 분석, 웹 개발, UX/UI 디자인 (쉼표로 구분)"></textarea>
+                                    <div class="form-text">관심있는 분야나 주제를 쉼표로 구분하여 입력하세요</div>
+                                </div>
+                            </div>
+
+                            <!-- 학력 정보 -->
+                            <div class="section-divider">
+                                <h5 class="section-title">🎓 학력 정보</h5>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="major" class="form-label">전공</label>
+                                        <input type="text" class="form-control" id="major" name="major"
+                                               th:value="${portfolio?.major}" maxlength="100"
+                                               placeholder="예: 컴퓨터공학과">
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="grade" class="form-label">학년</label>
+                                        <select class="form-select" id="grade" name="grade">
+                                            <option value="">선택</option>
+                                            <option value="1" th:selected="${portfolio?.grade == 1}">1학년</option>
+                                            <option value="2" th:selected="${portfolio?.grade == 2}">2학년</option>
+                                            <option value="3" th:selected="${portfolio?.grade == 3}">3학년</option>
+                                            <option value="4" th:selected="${portfolio?.grade == 4}">4학년</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 mb-3">
+                                        <label for="gpa" class="form-label">GPA</label>
+                                        <input type="number" class="form-control" id="gpa" name="gpa"
+                                               th:value="${portfolio?.gpa}" step="0.01" min="0" max="4.5"
+                                               placeholder="4.5">
+                                        <div class="form-text">0.00 ~ 4.50</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 버튼 -->
+                            <div class="d-flex justify-content-between mt-4 pt-3" style="border-top: 2px solid #dee2e6;">
+                                <a href="/portfolio" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> 취소
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    <span th:text="${isEdit} ? '수정 완료' : '포트폴리오 생성'">생성</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.getElementById('portfolioForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 모든 필드 수집
+            const formData = {
+                // 기본 정보
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value || null,
+                visibility: document.getElementById('visibility').value,
+                templateType: document.getElementById('templateType').value || null,
+                profileImageUrl: document.getElementById('profileImageUrl').value || null,
+
+                // 자기소개
+                aboutMe: document.getElementById('aboutMe').value || null,
+                careerGoal: document.getElementById('careerGoal').value || null,
+
+                // 연락처
+                contactEmail: document.getElementById('contactEmail').value || null,
+                contactPhone: document.getElementById('contactPhone').value || null,
+
+                // SNS & 링크
+                githubUrl: document.getElementById('githubUrl').value || null,
+                blogUrl: document.getElementById('blogUrl').value || null,
+                linkedinUrl: document.getElementById('linkedinUrl').value || null,
+                websiteUrl: document.getElementById('websiteUrl').value || null,
+
+                // 역량 및 관심사
+                skills: document.getElementById('skills').value || null,
+                interests: document.getElementById('interests').value || null,
+
+                // 학력 정보
+                major: document.getElementById('major').value || null,
+                grade: document.getElementById('grade').value ? parseInt(document.getElementById('grade').value) : null,
+                gpa: document.getElementById('gpa').value ? parseFloat(document.getElementById('gpa').value) : null
+            };
+
+            const isEdit = [[${isEdit}]] || false;
+            const portfolioId = [[${portfolio?.portfolioId}]];
+            const url = isEdit ? `/api/portfolios/${portfolioId}` : '/api/portfolios';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = '/portfolio';
+                } else {
+                    alert(data.error || '처리 실패');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('처리 중 오류가 발생했습니다');
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

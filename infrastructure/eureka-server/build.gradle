@@ -1,0 +1,7 @@
+dependencies {
+    // Spring Cloud Netflix Eureka Server
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+
+    // Spring Boot Actuator for health checks
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+}
