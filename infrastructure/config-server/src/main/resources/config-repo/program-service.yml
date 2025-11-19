@@ -1,0 +1,27 @@
+# Program Service 설정
+
+spring:
+  application:
+    name: program-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/scms_program?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: ${DB_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # File Upload 설정
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+server:
+  port: 8083
+
+# Program Service 특화 설정
+program-service:
+  file:
+    upload-dir: ${FILE_UPLOAD_DIR:./uploads/programs}
+    max-size-mb: 10
