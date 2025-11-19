@@ -123,6 +123,26 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * API 예외 처리 (ErrorCode 사용)
+     */
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ErrorResponse> handleApiException(
+            ApiException ex,
+            HttpServletRequest request) {
+
+        log.error("ApiException: {} - {}", ex.getErrorCode().getCode(), ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode(ex.getErrorCode().getCode())
+                .message(ex.getDisplayMessage())
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(errorResponse);
+    }
+
+    /**
      * 기본 예외 처리
      */
     @ExceptionHandler(BaseException.class)
