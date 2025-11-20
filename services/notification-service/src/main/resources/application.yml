@@ -5,11 +5,22 @@ spring:
   application:
     name: notification-service
 
+  # Database
+  datasource:
+    url: jdbc:mysql://localhost:3306/scms_notification?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   # JPA 설정
   jpa:
     hibernate:
-      ddl-auto: none  # DB 없을 때 오류 방지
-    show-sql: false
+      ddl-auto: update  # 개발: update, 운영: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
 
 server:
   port: 8082
