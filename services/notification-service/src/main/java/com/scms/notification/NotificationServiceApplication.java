@@ -17,15 +17,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
  * - 읽음/읽지않음 상태 관리
  */
 @EnableDiscoveryClient
-// @EnableJpaAuditing  // TODO: Entity 추가 후 활성화
+@EnableJpaAuditing  // JPA Auditing 활성화 (createdAt, updatedAt 자동 관리)
 @SpringBootApplication(
         scanBasePackages = {
                 "com.scms.notification",
                 "com.scms.common.exception"  // 공통 예외 핸들러 스캔
         },
         exclude = {
-                org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,  // DB 없이 실행 가능
-                org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration.class  // RabbitMQ 없이 실행 가능
+                org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration.class  // RabbitMQ 없이도 실행 가능
         }
 )
 public class NotificationServiceApplication {
